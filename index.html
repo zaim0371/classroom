@@ -64,13 +64,22 @@ main{flex:1;min-height:0;position:relative}
 .tabbar button.on{color:var(--tx)}
 .pill{position:absolute;z-index:0;top:6px;bottom:6px;left:6px;width:calc(50% - 6px);border-radius:99px;background:var(--gl2);border:1px solid var(--bd);box-shadow:0 4px 12px var(--sh),inset 0 1.5px 0 rgba(255,255,255,.8);transition:transform .55s cubic-bezier(.3,1.35,.5,1)}
 .note{font-size:12.5px;color:var(--tx2);text-align:center;padding:6px}
+.modal{position:fixed;inset:0;z-index:10;display:grid;place-items:center;padding:20px;background:rgba(30,40,60,.25);-webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px);opacity:0;pointer-events:none;transition:opacity .4s}
+.modal.show{opacity:1;pointer-events:auto}
+.card{width:min(400px,100%);padding:22px;transform:scale(.94) translateY(12px);transition:transform .55s cubic-bezier(.2,1.3,.4,1)}
+.modal.show .card{transform:none}
+.card h2{margin:0 0 6px;font-size:19px}
+.card p{margin:0 0 14px;font-size:13.5px;color:var(--tx2);line-height:1.5}
+.card input{width:100%;margin-bottom:10px;padding:13px 15px;border-radius:16px;border:1px solid var(--bd);background:var(--gl);color:var(--tx);font:15px inherit;font-family:inherit;outline:0}
+.row{display:flex;gap:8px;justify-content:flex-end;flex-wrap:wrap;margin-top:6px}
+.gear{margin-left:auto}
 @media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
 </style>
 </head>
 <body>
 <div class="orbs"><i class="orb o1"></i><i class="orb o2"></i><i class="orb o3"></i></div>
 <div class="app">
-  <header class="glass"><div class="logo">Z</div><div><h1>Zaim’s Classroom</h1><p>Belajar bareng AI, kapan saja</p></div></header>
+  <header class="glass"><div class="logo">Z</div><div><h1>Zaim’s Classroom</h1><p>Belajar bareng AI, kapan saja</p></div><button class="chip gear" id="gear" type="button">API Key</button></header>
   <div class="chips" id="chips"></div>
   <main>
     <section class="view show" id="v0">
@@ -84,6 +93,7 @@ main{flex:1;min-height:0;position:relative}
   </main>
   <nav class="tabbar glass"><i class="pill" id="pill"></i><button class="on" data-t="0">Belajar</button><button data-t="1">Kuis</button></nav>
 </div>
+<div class="modal" id="modal"><div class="glass card"><h2>Hubungkan Google AI</h2><p>Masukkan API key Gemini milikmu dari aistudio.google.com/apikey. Key hanya disimpan di browser ini dan dikirim langsung ke Google.</p><input id="kin" type="password" placeholder="AIza…" autocomplete="off"><input id="min" placeholder="Model (default: gemini-2.5-flash)" autocomplete="off"><div class="note" id="kerr"></div><div class="row"><button class="chip" id="kclear" type="button">Hapus key</button><button class="chip" id="kclose" type="button">Tutup</button><button class="chip on" id="ksave" type="button">Simpan &amp; mulai</button></div></div></div>
 <script>
 let CATS=[];try{CATS=JSON.parse(localStorage.getItem("zc-cats")||"[]")}catch(e){}
 const $=s=>document.getElementById(s);
@@ -107,33 +117,55 @@ function md(s){return esc(s).replace(/```[a-z]*\n?([\s\S]*?)```/g,"<code style='
 function showHero(){const l=$("log");l.innerHTML="";const h=document.createElement("div");h.className="hero glass";h.innerHTML="<b>Halo, Zaim</b><span>"+(subj==="Umum"?"Mau belajar apa hari ini? Buat kategori sendiri lewat tombol “+ Kategori”.":"Kategori: "+esc(subj)+". Mau belajar apa hari ini?")+"</span><div class='sug'></div>";["Jelaskan dengan contoh sederhana","Beri aku latihan soal","Apa itu topik favoritmu?"].slice(0,2).forEach(t=>{const c=document.createElement("button");c.className="chip";c.textContent=t;c.onclick=()=>{$("in").value=t;send()};h.querySelector(".sug").appendChild(c)});l.appendChild(h)}
 showHero();
 function add(cls,html){const l=$("log");const h=l.querySelector(".hero");if(h)h.remove();const d=document.createElement("div");d.className="msg "+cls+(cls==="a"?" glass":"");d.innerHTML=html;l.appendChild(d);l.scrollTo({top:l.scrollHeight,behavior:"smooth"});return d}
-const SYS=()=>"Kamu adalah guru AI yang ramah di “Zaim’s Classroom”. Kategori belajar: "+subj+" (jika Umum, boleh topik apa saja). Jawab dalam Bahasa Indonesia, singkat, jelas, beri contoh, dan akhiri dengan satu pertanyaan pendek untuk menguji pemahaman. Pakai **tebal** seperlunya.\n\n";
+const SYS=()=>"Kamu adalah guru AI yang ramah di “Zaim’s Classroom”. Kategori belajar: "+subj+" (jika Umum, boleh topik apa saja). Jawab dalam Bahasa Indonesia, singkat, jelas, beri contoh, dan akhiri dengan satu pertanyaan pendek untuk menguji pemahaman. Pakai **tebal** seperlunya.";
+let KEY="",MODEL="gemini-2.5-flash";
+try{KEY=localStorage.getItem("zc-key")||"";MODEL=localStorage.getItem("zc-model")||MODEL}catch(e){}
+function openSet(){$("kin").value=KEY;$("min").value=MODEL;$("kerr").textContent="";$("kclose").style.display=KEY?"":"none";$("modal").classList.add("show");setTimeout(()=>$("kin").focus(),300)}
+$("gear").onclick=openSet;
+$("kclose").onclick=()=>$("modal").classList.remove("show");
+$("ksave").onclick=()=>{const k=$("kin").value.trim();if(!k){$("kerr").textContent="Masukkan API key dulu.";return}KEY=k;MODEL=$("min").value.trim()||"gemini-2.5-flash";try{localStorage.setItem("zc-key",KEY);localStorage.setItem("zc-model",MODEL)}catch(e){}$("modal").classList.remove("show")};
+$("kclear").onclick=()=>{KEY="";try{localStorage.removeItem("zc-key")}catch(e){}$("kin").value="";$("kclose").style.display="none"};
+if(!KEY)openSet();
+function errMsg(e){const s=e&&e.status;if(s===400||s===401||s===403)return"API key tidak valid atau belum aktif. Cek lewat tombol API Key.";if(s===404)return"Model tidak ditemukan. Ganti nama model di pengaturan.";if(s===429)return"Kuota atau kecepatan terlampaui. Coba lagi sebentar.";return"Tidak bisa terhubung ke Google AI. Cek koneksi internetmu."}
+async function gen(msgs,o={}){
+  const url="https://generativelanguage.googleapis.com/v1beta/models/"+encodeURIComponent(MODEL)+(o.stream?":streamGenerateContent?alt=sse":":generateContent");
+  const body={contents:msgs.map(m=>({role:m.role==="assistant"?"model":"user",parts:[{text:m.content}]}))};
+  if(o.sys)body.systemInstruction={parts:[{text:o.sys}]};
+  if(o.json)body.generationConfig={responseMimeType:"application/json"};
+  const r=await fetch(url,{method:"POST",headers:{"Content-Type":"application/json","x-goog-api-key":KEY},body:JSON.stringify(body)});
+  if(!r.ok){const e=new Error("http");e.status=r.status;throw e}
+  const pk=j=>((j.candidates&&j.candidates[0]&&j.candidates[0].content&&j.candidates[0].content.parts)||[]).map(p=>p.text||"").join("");
+  if(!o.stream)return pk(await r.json());
+  const rd=r.body.getReader(),dc=new TextDecoder();let buf="",all="";
+  for(;;){const x=await rd.read();if(x.done)break;buf+=dc.decode(x.value,{stream:true});const ls=buf.split("\n");buf=ls.pop();
+    for(const l of ls){if(l.startsWith("data:")){try{all+=pk(JSON.parse(l.slice(5)));o.onText&&o.onText(all)}catch(e){}}}}
+  return all;
+}
 async function send(){
   const v=$("in").value.trim();if(!v||busy)return;
-  if(!sample)sample=await (window.claude?claude.use("sample"):null);
-  if(!sample){add("a","Fitur AI hanya aktif saat halaman dibuka lewat claude.ai.");return}
+  if(!KEY){openSet();return}
   busy=true;$("sb").disabled=true;$("in").value="";add("u",esc(v));hist.push({role:"user",content:v});
   const m=add("a","<span class='dots'><span></span><span></span><span></span></span>");
-  const msgs=hist.map((h,i)=>i===0?{role:h.role,content:SYS()+h.content}:h);
-  try{const r=await sample(msgs,{cache:false,onText:({text})=>{m.innerHTML=md(text);$("log").scrollTop=$("log").scrollHeight}});m.innerHTML=md(r.text);hist.push({role:"assistant",content:r.text})}
-  catch(e){m.textContent=e&&e.code==="rate_limited"?"Terlalu cepat, coba lagi sebentar ya.":"Maaf, AI belum bisa menjawab. Coba lagi.";hist.pop()}
+  try{const t=await gen(hist,{stream:true,sys:SYS(),onText:t=>{m.innerHTML=md(t);$("log").scrollTop=$("log").scrollHeight}});
+    if(!t)throw new Error("empty");m.innerHTML=md(t);hist.push({role:"assistant",content:t})}
+  catch(e){m.textContent=e.status?errMsg(e):(e.message==="empty"?"AI tidak memberi jawaban. Coba ulangi pertanyaannya.":errMsg(e));hist.pop()}
   busy=false;$("sb").disabled=false;
 }
 $("sb").onclick=send;$("in").addEventListener("keydown",e=>{if(e.key==="Enter"){e.preventDefault();send()}});
 async function quiz(){
   const t=$("topic").value.trim();if(!t||busy)return;
-  if(!sample)sample=await (window.claude?claude.use("sample"):null);
-  const q=$("quiz");if(!sample){q.innerHTML="<div class='note'>Fitur AI hanya aktif lewat claude.ai.</div>";return}
-  busy=true;$("qb").disabled=true;q.innerHTML="<div class='hero glass'><span class='dots'><span></span><span></span><span></span></span><br><span>Menyusun soal…</span></div>";
+  if(!KEY){openSet();return}
+  const q=$("quiz");busy=true;$("qb").disabled=true;q.innerHTML="<div class='hero glass'><span class='dots'><span></span><span></span><span></span></span><br><span>Menyusun soal…</span></div>";
   try{
-    const d=await sample.json("Buat 5 soal pilihan ganda tingkat sekolah tentang: "+t+" (konteks: "+subj+"). Bahasa Indonesia. Balas HANYA JSON array: [{\"q\":\"...\",\"options\":[\"A\",\"B\",\"C\",\"D\"],\"answer\":0,\"explain\":\"...\"}] dengan answer = indeks 0-3 jawaban benar.",{cache:false});
+    const raw=await gen([{role:"user",content:"Buat 5 soal pilihan ganda tingkat sekolah tentang: "+t+" (kategori: "+subj+"). Bahasa Indonesia. Balas HANYA JSON array: [{\"q\":\"...\",\"options\":[\"A\",\"B\",\"C\",\"D\"],\"answer\":0,\"explain\":\"...\"}] dengan answer = indeks 0-3 jawaban benar."}],{json:true});
+    const d=JSON.parse(raw.replace(/```json|```/g,"").trim());
     let sc=0,n=0;q.innerHTML="";const tot=d.length;
     const sd=document.createElement("div");sd.className="score";sd.textContent="Skor: 0/"+tot;
     d.forEach((it,i)=>{const c=document.createElement("div");c.className="q glass";c.style.animationDelay=i*90+"ms";c.innerHTML="<h3>"+(i+1)+". "+esc(it.q)+"</h3>";
       it.options.forEach((o,j)=>{const b=document.createElement("button");b.className="opt";b.textContent=o;b.onclick=()=>{if(c.dataset.d)return;c.dataset.d=1;n++;const bs=c.querySelectorAll(".opt");bs[it.answer].classList.add("ok");if(j===it.answer)sc++;else b.classList.add("no");const e=document.createElement("div");e.className="ex";e.textContent=it.explain||"";c.appendChild(e);sd.textContent="Skor: "+sc+"/"+tot+(n===tot?(sc===tot?" — sempurna!":" — semangat terus!"):"")};c.appendChild(b)});
       q.appendChild(c)});
     q.appendChild(sd);
-  }catch(e){q.innerHTML="<div class='note'>Gagal membuat kuis. Coba topik lain.</div>"}
+  }catch(e){q.innerHTML="<div class='note'>"+(e.status?errMsg(e):"Gagal membuat kuis. Coba topik lain.")+"</div>"}
   busy=false;$("qb").disabled=false;
 }
 $("qb").onclick=quiz;$("topic").addEventListener("keydown",e=>{if(e.key==="Enter"){e.preventDefault();quiz()}});
