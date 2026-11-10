@@ -189,10 +189,10 @@ header>div:nth-child(2){min-width:0;flex:1}
 .fv img.z{max-width:none;max-height:none;width:220%;margin:0;cursor:zoom-out}
 .fv iframe{width:100%;height:100%;border:0;background:#fff}
 .fv pre{margin:0;width:100%;box-sizing:border-box;padding:14px 16px calc(env(safe-area-inset-bottom,0px) + 16px);color:#e8ecf5;font:13px/1.55 ui-monospace,Menlo,Consolas,monospace;white-space:pre-wrap;word-break:break-word}
-.fv img.ci{width:100%;max-width:640px;max-height:none;height:auto;margin:0 auto;cursor:default;align-self:flex-start;display:block}
-.fv .fbody.ci{padding-bottom:calc(env(safe-area-inset-bottom,0px) + 12px)}
-.acts{flex-wrap:wrap}
-.msg.u .acts .bm{color:rgba(255,255,255,.88)}
+.fv img.ci{display:block;max-width:none;max-height:none;margin:0;cursor:default;object-fit:fill}
+.fv .fbody.ci{align-items:center;justify-content:center;overflow:hidden}
+.acts.out{align-self:flex-start;margin:-4px 8px 0;max-width:92%;justify-content:flex-start;gap:16px;flex-wrap:wrap}
+.acts.out.u{align-self:flex-end;justify-content:flex-end}
 .tst{position:fixed;left:50%;bottom:calc(env(safe-area-inset-bottom,0px) + 90px);transform:translateX(-50%);z-index:30;max-width:88vw;padding:11px 16px;border-radius:16px;background:rgba(40,20,20,.92);color:#fff;font:600 13px/1.4 inherit;font-family:inherit;text-align:center;box-shadow:0 8px 30px rgba(0,0,0,.35);animation:rise2 .3s both}
 #dx{white-space:pre-line}
 .qo{padding:12px 2px 0}.qg{margin-bottom:10px}.qg .lb{margin:0 2px 8px}
@@ -746,7 +746,7 @@ async function delConv(c){if(busy&&c.id===CID)return;if(!(await confirmX("Hapus 
   try{await sbx("conversations?id=eq."+c.id,"DELETE",undefined,"return=minimal")}catch(e){alertX("Gagal menghapus.");return}
   CONVS=CONVS.filter(x=>x!==c);if(c.id===CID){ttsStop();newChat()}else paintDrawer()}
 function renderMsgs(rows){const l=$("log");l.innerHTML="";
-  rows.forEach(x=>{const d=document.createElement("div");d.className="msg "+(x.role==="user"?"u":"a glass");d.style.animation="none";d.innerHTML=x.role==="user"?esc(x.content):md(x.content);if(x.role!=="user")attachBm(d,x.content);else{if(x.attachments&&x.attachments.length)d.appendChild(attRow(x.attachments));attachCopy(d,x.content)}l.appendChild(d)});
+  rows.forEach(x=>{const d=document.createElement("div");d.className="msg "+(x.role==="user"?"u":"a glass");d.style.animation="none";d.innerHTML=x.role==="user"?esc(x.content):md(x.content);if(x.role==="user"&&x.attachments&&x.attachments.length)d.appendChild(attRow(x.attachments));l.appendChild(d);if(x.role!=="user")attachBm(d,x.content);else attachCopy(d,x.content)});
   l.scrollTop=l.scrollHeight}
 async function openConv(c){if(busy)return;closeDrawer();if(c.id===CID)return;ttsStop();document.querySelector(".tabbar button").click();
   CID=c.id;lsCid();hist=[];PSW=0;paintDrawer();
@@ -814,17 +814,40 @@ function ciRuns(node,st,out){
     const s2=Object.assign({},st);
     if(tg==="B"||tg==="STRONG")s2.b=1;else if(tg==="I"||tg==="EM")s2.i=1;else if(tg==="U")s2.u=1;else if(tg==="S"||tg==="DEL")s2.s=1;else if(tg==="CODE")s2.c=1;
     ciRuns(n,s2,out)})}
-function ciRender(content){return new Promise((ok,no)=>{try{
-  const root=document.createElement("div");root.innerHTML=md(content);
-  const cs=getComputedStyle(document.documentElement),V=n=>cs.getPropertyValue(n).trim();
-  const FF=getComputedStyle(document.body).fontFamily||"system-ui,sans-serif",MONO="ui-monospace,Menlo,Consolas,monospace",SERIF='"Times New Roman",Georgia,serif';
-  const TX=V("--tx")||"#10162b",TX2=V("--tx2")||"rgba(16,22,43,.6)",AC=V("--ac")||"#7c6cf6";
-  const dark=document.documentElement.dataset.theme==="dark"||(document.documentElement.dataset.theme!=="light"&&matchMedia("(prefers-color-scheme: dark)").matches);
-  const W=400,PAD=16,CP=18,IW=W-2*PAD-2*CP;
-  const mc=document.createElement("canvas").getContext("2d");
-  const fontOf=(p,sz)=>p.m?"italic 400 "+(sz+1)+"px "+SERIF:(p.i?"italic ":"")+(p.b?"700":"400")+" "+(p.c?sz-2:sz)+"px "+(p.c?MONO:FF);
-  const cmds=[];let y=0;
-  const flow=(runs,x0,w,size,lh,base)=>{
+const CI_FILL=(items,L,cols)=>{const out=[[]];let y=0;
+  for(let i=0;i<items.length;i++){const it=items[i];if(it.h>L)return null;
+    let need=it.h;if(it.kn&&items[i+1])need+=it.m+items[i+1].h;
+    if(y>0&&y+need>L){out.push([]);y=0;if(out.length>cols)return null}
+    out[out.length-1].push({it:it,y:y});y+=it.h+it.m}
+  return out};
+const CI_CL=(v,a,b,d)=>{v=parseFloat(v);return isFinite(v)?Math.min(b,Math.max(a,v)):d};
+function ciAuto(t){const n=t.length;
+  if(n<160)return{aspect:1.78,cols:1,font:38,lh:1.5,pad:56,gap:.6,family:"sans",align:"center",valign:"middle"};
+  if(n<420)return{aspect:1.78,cols:1,font:28,lh:1.55,pad:48,gap:.6,family:"sans",align:"left",valign:"middle"};
+  if(n<900)return{aspect:1.8,cols:2,font:22,lh:1.55,pad:44,gap:.55,family:"sans",align:"left",valign:"top"};
+  if(n<1800)return{aspect:1.9,cols:2,font:19,lh:1.5,pad:40,gap:.5,family:"sans",align:"left",valign:"top"};
+  return{aspect:2.1,cols:3,font:17,lh:1.45,pad:36,gap:.45,family:"sans",align:"left",valign:"top"}}
+function ciSpec(o,t){const d=ciAuto(t);o=(o&&typeof o==="object"&&!Array.isArray(o))?o:{};
+  return{aspect:CI_CL(o.aspect,1.3,2.3,d.aspect),cols:Math.round(CI_CL(o.cols,1,3,d.cols)),font:CI_CL(o.font,15,48,d.font),lh:CI_CL(o.lh,1.3,1.85,d.lh),pad:CI_CL(o.pad,24,80,d.pad),gap:CI_CL(o.gap,.25,1.1,d.gap),
+    family:["sans","serif","mono"].indexOf(o.family)>=0?o.family:d.family,align:o.align==="center"?"center":(o.align==="left"?"left":d.align),valign:o.valign==="middle"?"middle":(o.valign==="top"?"top":d.valign),
+    title:String(o.title||"").replace(/\s+/g," ").trim().slice(0,48)||"Jawaban AI",ai:!!o.__ai}}
+async function ciAskAI(t){
+  const paras=t.split(/\n\s*\n/).length,lists=(t.match(/^\s*([-*•]|\d+[.)])\s/gm)||[]).length;
+  const sys="Kamu adalah desainer tata letak. Tugasmu merancang gambar LANDSCAPE (lebar lebih besar dari tinggi) yang memuat SELURUH teks jawaban supaya jelas dan enak dibaca. Kanvas selalu selebar 1280 px, tingginya 1280/aspect. Balas HANYA satu objek JSON tanpa teks lain, dengan kunci: title (judul pendek maksimal 6 kata yang merangkum isi), aspect (1.4 sampai 2.2), cols (1 sampai 3 kolom), font (16 sampai 44, ukuran teks isi dalam px), lh (1.35 sampai 1.8), pad (28 sampai 72), gap (0.3 sampai 1.0, jarak antar paragraf dalam kelipatan ukuran font), family (\"sans\", \"serif\", atau \"mono\"), align (\"left\" atau \"center\"), valign (\"top\" atau \"middle\"). Panduan: teks pendek pakai font besar, 1 kolom, align center, valign middle; teks sedang pakai 1 sampai 2 kolom dengan font 22 sampai 28; teks panjang pakai 2 sampai 3 kolom, font 17 sampai 21, aspect sekitar 1.7 sampai 2.2. Usahakan satu baris berisi 40 sampai 75 karakter. Pakai mono hanya jika isi didominasi kode, serif untuk teks naratif atau puitis. Jangan mengubah isi teks.";
+  const usr="Statistik teks: "+t.length+" karakter, "+paras+" paragraf, "+lists+" butir daftar, "+(/```/.test(t)?"ada":"tanpa")+" blok kode, "+(/\$|\\\(|\\\[/.test(t)?"ada":"tanpa")+" rumus.\n\nTeks:\n"+t.slice(0,5000);
+  try{
+    const out=await Promise.race([gen([{role:"user",content:usr}],{sys:sys,json:true,onStatus:()=>{}}),new Promise((_,no)=>setTimeout(()=>no(new Error("timeout")),14000))]);
+    const j=JSON.parse(String(out).replace(/^\s*```(?:json)?/i,"").replace(/```\s*$/,"").trim());
+    if(j&&typeof j==="object")j.__ai=1;
+    return ciSpec(j,t)}
+  catch(e){return ciSpec(null,t)}}
+function ciItems(root,cw,F,sp,E){
+  const mc=E.mc,items=[];
+  const FAM=sp.family==="serif"?E.SERIF:sp.family==="mono"?E.MONO:E.FF;
+  const LH=F*sp.lh,GAP=F*sp.gap;
+  const fontOf=(p,sz)=>p.m?"italic 400 "+(sz*1.04).toFixed(1)+"px "+E.SERIF:(p.i?"italic ":"")+(p.b?"700":"400")+" "+(p.c?(sz*.88).toFixed(1):sz.toFixed(1))+"px "+(p.c?E.MONO:FAM);
+  const flow=(runs,x0,w,size,lh,base,o)=>{
+    o=o||{};
     const mw=p=>{mc.font=fontOf(p,size);return mc.measureText(p.t).width};
     const lines=[];let line=[],lx=0,word=[];
     const fin=()=>{const l=line[line.length-1];if(l&&/\s$/.test(l.t)){l.t=l.t.replace(/\s+$/,"");l.w=mw(l)}};
@@ -841,95 +864,133 @@ function ciRender(content){return new Promise((ok,no)=>{try{
       if(r.disp){place();if(line.length){fin();nl()}lines.push({d:r.math});continue}
       if(r.math!=null){const p={t:r.math,m:1};p.w=mw(p);word.push(p);continue}
       const toks=String(r.t||"").replace(/\s+/g," ").match(/\S+ ?| /g)||[];
-      for(const tk of toks){const p={t:tk,b:r.b||(base&&base.b)?1:0,i:r.i,u:r.u,s:r.s,c:r.c};p.w=mw(p);word.push(p);if(/\s$/.test(tk))place()}}
+      for(const tk of toks){const p={t:tk,b:(r.b||(base&&base.b))?1:0,i:r.i,u:r.u,s:r.s,c:r.c};p.w=mw(p);word.push(p);if(/\s$/.test(tk))place()}}
     place();fin();if(line.length)nl();
-    let yy=0;
+    const start=items.length;
     for(const l of lines){
       if(l.d!=null){
-        const f="italic 400 "+(size+2)+"px "+SERIF;mc.font=f;
+        const f="italic 400 "+(size*1.1).toFixed(1)+"px "+E.SERIF;mc.font=f;
         const rows=[];let r="";for(const wd of l.d.split(" ")){const t=r?r+" "+wd:wd;if(mc.measureText(t).width>w-28&&r){rows.push(r);r=wd}else r=t}if(r)rows.push(r);
-        const bh=rows.length*lh+14;
-        cmds.push({k:"r",x:x0,y:y+yy,w:w,h:bh,r:12,f:"rgba(120,120,160,.14)"});
-        rows.forEach((t,k)=>cmds.push({k:"t",x:x0+w/2,y:y+yy+7+k*lh+lh/2,s:t,f:f,c:TX,al:"center"}));
-        yy+=bh+6;continue}
-      const cy=y+yy+lh/2,rs=[],ts=[];let x=x0,cs0=null,ce=0;
-      const flush=()=>{if(cs0!=null){rs.push({k:"r",x:cs0-3,y:cy-size*.72,w:ce-cs0+6,h:size*1.44,r:6,f:"rgba(120,120,160,.25)"});cs0=null}};
+        const bh=rows.length*lh+14,cm=[{k:"r",x:x0,y:0,w:w,h:bh,r:12,f:"rgba(120,120,160,.16)"}];
+        rows.forEach((t,k)=>cm.push({k:"t",x:x0+w/2,y:7+k*lh+lh/2,s:t,f:f,c:E.TX,al:"center"}));
+        items.push({h:bh,m:size*.3,cmds:cm});continue}
+      const cy=lh/2,rs=[],ts=[];let lw=0;l.p.forEach(p=>{lw+=p.w});
+      let x=x0+(o.align==="center"?Math.max(0,(w-lw)/2):0),cs0=null,ce=0;
+      const flush=()=>{if(cs0!=null){rs.push({k:"r",x:cs0-3,y:cy-size*.72,w:ce-cs0+6,h:size*1.44,r:6,f:"rgba(120,120,160,.26)"});cs0=null}};
       for(const p of l.p){
         if(p.c){if(cs0==null)cs0=x;ce=x+p.w}else flush();
-        if(p.t)ts.push({k:"t",x:x,y:cy,s:p.t,f:fontOf(p,size),c:TX,u:p.u,st:p.s,w:p.w,z:size});
+        if(p.t)ts.push({k:"t",x:x,y:cy,s:p.t,f:fontOf(p,size),c:E.TX,u:p.u,st:p.s,w:p.w,z:size});
         x+=p.w}
-      flush();cmds.push(...rs,...ts);yy+=lh}
-    return yy};
-  // header
-  const g1=V("--g1")||"#6f8cff",g2=V("--g2")||"#9b6bff",g3=V("--g3")||"#ff7ac6";
-  cmds.push({k:"g",x:0,y:0,w:30,h:30,r:9,g:[g1,g2,g3]});
-  cmds.push({k:"t",x:15,y:15.5,s:"AI",f:"700 13px "+FF,c:"#fff",al:"center"});
-  cmds.push({k:"t",x:40,y:9,s:"Jawaban AI",f:"700 15px "+FF,c:TX});
-  cmds.push({k:"t",x:40,y:25,s:"Zaim’s Classroom · "+new Date().toLocaleString("id-ID",{day:"numeric",month:"short",year:"numeric",hour:"2-digit",minute:"2-digit"}),f:"400 11.5px "+FF,c:TX2});
-  cmds.push({k:"r",x:0,y:42,w:IW,h:1,r:0,f:"rgba(120,120,160,.28)"});
-  y=56;
+      flush();items.push({h:lh,m:0,cmds:rs.concat(ts)})}
+    if(items.length>start){if(o.pre)items[start].cmds.push(...o.pre);const last=items[items.length-1];last.m=o.mEnd==null?0:o.mEnd;if(o.kn)last.kn=1}};
   root.childNodes.forEach(el=>{
     if(el.nodeType!==1)return;const tg=el.tagName;
     if(tg==="PRE"){
-      const f="400 13.5px "+MONO;mc.font=f;const rows=[];
-      el.textContent.replace(/\n$/,"").split("\n").forEach(ln=>{let cur="";for(const ch of Array.from(ln)){if(mc.measureText(cur+ch).width>IW-24&&cur){rows.push(cur);cur=ch}else cur+=ch}rows.push(cur)});
-      const bh=rows.length*20+20;
-      cmds.push({k:"r",x:0,y:y,w:IW,h:bh,r:12,f:"rgba(120,120,160,.22)"});
-      rows.forEach((t,k)=>cmds.push({k:"t",x:12,y:y+10+k*20+10,s:t,f:f,c:TX}));
-      y+=bh+10;return}
+      const sz=F*.88,f="400 "+sz.toFixed(1)+"px "+E.MONO,lh=sz*1.45;mc.font=f;const rows=[];
+      el.textContent.replace(/\n$/,"").split("\n").forEach(ln=>{let cur="";for(const ch of Array.from(ln)){if(mc.measureText(cur+ch).width>cw-24&&cur){rows.push(cur);cur=ch}else cur+=ch}rows.push(cur)});
+      rows.forEach((t,k)=>{const top=k===0?9:0,bot=k===rows.length-1?9:0,h=top+lh+bot;
+        items.push({h:h,m:k===rows.length-1?GAP*.7:0,cmds:[{k:"r",x:0,y:0,w:cw,h:h,r:0,f:"rgba(120,120,160,.22)"},{k:"t",x:12,y:top+lh/2,s:t,f:f,c:E.TX}]})});
+      return}
     if(tg==="UL"||tg==="OL"){
+      const ind=F*1.7;
       [...el.children].forEach((li,k)=>{
         const runs=[];ciRuns(li,{},runs);
-        cmds.push({k:"t",x:tg==="UL"?5:0,y:y+13,s:tg==="UL"?"•":(k+1)+".",f:"700 16px "+FF,c:tg==="UL"?AC:TX2});
-        y+=flow(runs,24,IW-24,16,26)+4});
-      y+=6;return}
+        const pre=[{k:"t",x:tg==="UL"?F*.3:0,y:LH/2,s:tg==="UL"?"•":(k+1)+".",f:"700 "+F.toFixed(1)+"px "+FAM,c:tg==="UL"?E.AC:E.TX2}];
+        flow(runs,ind,cw-ind,F,LH,null,{pre:pre,mEnd:F*.28})});
+      if(items.length)items[items.length-1].m=GAP*.8;return}
     const runs=[];ciRuns(el,{},runs);
-    if(tg==="H4"){y+=flow(runs,0,IW,17.5,27,{b:1})+8}
-    else{y+=flow(runs,0,IW,16,26)+10}});
-  y+=2;
-  cmds.push({k:"t",x:IW/2,y:y+8,s:"Dibuat dari Zaim’s Classroom",f:"400 11px "+FF,c:TX2,al:"center"});
-  y+=22;
-  const CW=W,CH=PAD*2+CP*2+y,ox=PAD+CP,oy=PAD+CP;
-  let sc=Math.min(3,Math.max(2,window.devicePixelRatio||2));sc=Math.min(sc,Math.sqrt(14e6/(CW*CH)));
+    if(tg==="H4")flow(runs,0,cw,F*1.12,LH*1.08,{b:1},{mEnd:GAP*.6,kn:1,align:sp.align});
+    else flow(runs,0,cw,F,LH,null,{mEnd:GAP,align:sp.align})});
+  return items}
+function ciRender(content,sp){return new Promise((ok,no)=>{try{
+  const root=document.createElement("div");root.innerHTML=md(content);
+  const cs=getComputedStyle(document.documentElement),V=n=>cs.getPropertyValue(n).trim();
+  const mc=document.createElement("canvas").getContext("2d");
+  const E={mc:mc,FF:getComputedStyle(document.body).fontFamily||"system-ui,sans-serif",MONO:"ui-monospace,Menlo,Consolas,monospace",SERIF:'Georgia,"Times New Roman",serif',
+    TX:V("--tx")||"#10162b",TX2:V("--tx2")||"rgba(16,22,43,.6)",AC:V("--ac")||"#7c6cf6"};
+  const dark=document.documentElement.dataset.theme==="dark"||(document.documentElement.dataset.theme!=="light"&&matchMedia("(prefers-color-scheme: dark)").matches);
+  const W=1280,M=28,P=Math.round(sp.pad),BT=79,FH=30;
+  const tryFit=(H,F,cols)=>{
+    const aw=W-2*M-2*P,gut=Math.max(24,P*.7),cw=(aw-gut*(cols-1))/cols,ah=H-2*M-2*P-BT-FH;
+    if(ah<80||cw<120)return null;
+    const items=ciItems(root,cw,F,sp,E);
+    if(!CI_FILL(items,ah,cols))return null;
+    let lo=0;items.forEach(i=>{lo=Math.max(lo,i.h)});let hi=ah;
+    while(lo<hi){const mid=(lo+hi)>>1;if(CI_FILL(items,mid,cols))hi=mid;else lo=mid+1}
+    return{H:H,F:F,cols:cols,cs:CI_FILL(items,lo,cols),cw:cw,gut:gut,ah:ah}};
+  let r=null;
+  const asps=[...new Set([sp.aspect,Math.min(sp.aspect,1.5),1.35])].filter(a=>a>=1.3).sort((a,b)=>b-a);
+  for(let ai=0;ai<asps.length&&!r;ai++){const H=Math.round(W/asps[ai]),last=ai===asps.length-1;
+    for(let F=sp.font;F>=(last?8:sp.font*.85);F*=.95){r=tryFit(H,F,sp.cols);if(r)break}}
+  if(!r){const aw=W-2*M-2*P,items=ciItems(root,aw,12,sp,E);let tot=0;items.forEach(i=>{tot+=i.h+i.m});
+    r={H:Math.ceil(tot+2*M+2*P+BT+FH+10),F:12,cols:1,cs:CI_FILL(items,tot+10,1),cw:aw,gut:0,ah:tot+10}}
+  const H=r.H,CW=W,CH=H;
+  let sc=2;sc=Math.min(sc,Math.sqrt(14e6/(CW*CH)));
   const c=document.createElement("canvas");c.width=Math.round(CW*sc);c.height=Math.round(CH*sc);
   const g=c.getContext("2d");g.scale(sc,sc);
-  const rr=(x,y2,w,h,r)=>{r=Math.min(r,w/2,h/2);g.beginPath();g.moveTo(x+r,y2);g.arcTo(x+w,y2,x+w,y2+h,r);g.arcTo(x+w,y2+h,x,y2+h,r);g.arcTo(x,y2+h,x,y2,r);g.arcTo(x,y2,x+w,y2,r);g.closePath()};
+  const rr=(x,y2,w,h,rad)=>{rad=Math.min(rad,w/2,h/2);g.beginPath();g.moveTo(x+rad,y2);g.arcTo(x+w,y2,x+w,y2+h,rad);g.arcTo(x+w,y2+h,x,y2+h,rad);g.arcTo(x,y2+h,x,y2,rad);g.arcTo(x,y2,x+w,y2,rad);g.closePath()};
   const hx=(col,a)=>{const m=/^#([0-9a-f]{6})$/i.exec(col);if(!m)return null;const n=parseInt(m[1],16);return"rgba("+(n>>16)+","+((n>>8)&255)+","+(n&255)+","+a+")"};
-  const bg=g.createLinearGradient(0,0,CW*.6,CH);bg.addColorStop(0,V("--bg1")||"#e9e6fb");bg.addColorStop(1,V("--bg2")||"#fbeaf3");
+  const g1=V("--g1")||"#6f8cff",g2=V("--g2")||"#9b6bff",g3=V("--g3")||"#ff7ac6";
+  const bg=g.createLinearGradient(0,0,CW*.7,CH);bg.addColorStop(0,V("--bg1")||"#e9e6fb");bg.addColorStop(1,V("--bg2")||"#fbeaf3");
   g.fillStyle=bg;g.fillRect(0,0,CW,CH);
-  [[CW*.9,40,260,g2],[CW*.1,CH*.5,280,g1],[CW*.8,CH-20,300,g3]].forEach(o=>{const a=hx(o[3],dark?.38:.5),b=hx(o[3],0);if(!a)return;const rg=g.createRadialGradient(o[0],o[1],0,o[0],o[1],o[2]);rg.addColorStop(0,a);rg.addColorStop(1,b);g.fillStyle=rg;g.fillRect(0,0,CW,CH)});
-  g.save();g.shadowColor=V("--sh")||"rgba(0,0,0,.2)";g.shadowBlur=30;g.shadowOffsetY=10;rr(PAD,PAD,CW-2*PAD,CH-2*PAD,26);g.fillStyle=V("--gl2")||"rgba(255,255,255,.7)";g.fill();g.restore();
-  rr(PAD,PAD,CW-2*PAD,CH-2*PAD,26);g.lineWidth=1;g.strokeStyle=V("--bd")||"rgba(255,255,255,.7)";g.stroke();
-  for(const d of cmds){
-    if(d.k==="r"){rr(ox+d.x,oy+d.y,d.w,d.h,d.r);g.fillStyle=d.f;g.fill()}
-    else if(d.k==="g"){const gr=g.createLinearGradient(ox+d.x,oy+d.y,ox+d.x+d.w,oy+d.y+d.h);gr.addColorStop(0,d.g[0]);gr.addColorStop(.55,d.g[1]);gr.addColorStop(1,d.g[2]);rr(ox+d.x,oy+d.y,d.w,d.h,d.r);g.fillStyle=gr;g.fill()}
-    else{g.font=d.f;g.fillStyle=d.c;g.textAlign=d.al||"left";g.textBaseline="middle";g.fillText(d.s,ox+d.x,oy+d.y);
-      if(d.u||d.st){g.fillRect(ox+d.x,oy+d.y+(d.u?d.z*.62:1),d.w,1.2)}}}
-  c.toBlob(b=>b?ok(b):no(new Error("toBlob")),"image/png")
+  [[CW*.92,CH*.1,CH*.95,g2],[CW*.06,CH*.65,CH*.95,g1],[CW*.72,CH*1.02,CH*.95,g3]].forEach(o=>{const a=hx(o[3],dark?.38:.5),b2=hx(o[3],0);if(!a)return;const rg=g.createRadialGradient(o[0],o[1],0,o[0],o[1],o[2]);rg.addColorStop(0,a);rg.addColorStop(1,b2);g.fillStyle=rg;g.fillRect(0,0,CW,CH)});
+  g.save();g.shadowColor=V("--sh")||"rgba(0,0,0,.2)";g.shadowBlur=40;g.shadowOffsetY=12;rr(M,M,CW-2*M,CH-2*M,38);g.fillStyle=V("--gl2")||"rgba(255,255,255,.7)";g.fill();g.restore();
+  rr(M,M,CW-2*M,CH-2*M,38);g.lineWidth=1.2;g.strokeStyle=V("--bd")||"rgba(255,255,255,.7)";g.stroke();
+  const ox=M+P,oy=M+P,aw2=CW-2*M-2*P,chh=CH-2*M-2*P;
+  const drawCmd=(d,dx,dy)=>{
+    if(d.k==="r"){rr(dx+d.x,dy+d.y,d.w,d.h,d.r);g.fillStyle=d.f;g.fill()}
+    else{g.font=d.f;g.fillStyle=d.c;g.textAlign=d.al||"left";g.textBaseline="middle";g.fillText(d.s,dx+d.x,dy+d.y);
+      if(d.u||d.st)g.fillRect(dx+d.x,dy+d.y+(d.u?d.z*.62:1),d.w,Math.max(1.2,d.z/16))}};
+  // header
+  const gr=g.createLinearGradient(ox,oy,ox+44,oy+44);gr.addColorStop(0,g1);gr.addColorStop(.55,g2);gr.addColorStop(1,g3);
+  rr(ox,oy,44,44,13);g.fillStyle=gr;g.fill();
+  drawCmd({k:"t",x:22,y:23,s:"AI",f:"700 17px "+E.FF,c:"#fff",al:"center"},ox,oy);
+  let ttl=sp.title;g.font="700 24px "+E.FF;while(ttl.length>3&&g.measureText(ttl).width>aw2-60)ttl=ttl.slice(0,-2)+"…";
+  drawCmd({k:"t",x:58,y:13,s:ttl,f:"700 24px "+E.FF,c:E.TX},ox,oy);
+  drawCmd({k:"t",x:58,y:35,s:"Zaim’s Classroom · "+new Date().toLocaleString("id-ID",{day:"numeric",month:"short",year:"numeric",hour:"2-digit",minute:"2-digit"}),f:"400 14.5px "+E.FF,c:E.TX2},ox,oy);
+  drawCmd({k:"r",x:0,y:58,w:aw2,h:1.2,r:0,f:"rgba(120,120,160,.28)"},ox,oy);
+  // isi
+  let used=0;r.cs.forEach(col=>col.forEach(e=>{used=Math.max(used,e.y+e.it.h)}));
+  const off=sp.valign==="middle"?Math.max(0,(r.ah-used)/2):0,by=oy+BT+off;
+  r.cs.forEach((col,ci)=>{const cx=ox+ci*(r.cw+r.gut);
+    if(ci>0)drawCmd({k:"r",x:-r.gut/2-.6,y:-2,w:1.2,h:used+4,r:0,f:"rgba(120,120,160,.25)"},cx,by);
+    col.forEach(e=>e.it.cmds.forEach(d=>drawCmd(d,cx,by+e.y)))});
+  drawCmd({k:"t",x:aw2/2,y:chh-10,s:"Dibuat dari Zaim’s Classroom",f:"400 13px "+E.FF,c:E.TX2,al:"center"},ox,oy);
+  c.toBlob(b=>b?ok({blob:b,w:CW,h:CH}):no(new Error("toBlob")),"image/png")
 }catch(e){no(e)}})}
 async function chatImgOpen(content){if(FV)return;
   const el=document.createElement("div");el.className="fv";
-  el.innerHTML="<div class='fh'><button class='fb fx' type='button' aria-label='Tutup'><svg viewBox='0 0 24 24' width='20' height='20' fill='none' stroke='currentColor' stroke-width='2.4' stroke-linecap='round'><path d='M6 6l12 12M18 6L6 18'/></svg></button><b>Jawaban AI</b><button class='fb fd' type='button' style='display:none'>⬇ Unduh gambar</button></div><div class='fbody ci'><span style='color:#aab;margin:auto;font-size:14px'>Membuat gambar…</span></div>";
+  el.innerHTML="<div class='fh'><button class='fb fx' type='button' aria-label='Tutup'><svg viewBox='0 0 24 24' width='20' height='20' fill='none' stroke='currentColor' stroke-width='2.4' stroke-linecap='round'><path d='M6 6l12 12M18 6L6 18'/></svg></button><b>Jawaban AI</b><button class='fb fr' type='button' style='display:none'>⟳ Putar</button><button class='fb fd' type='button' style='display:none'>⬇ Unduh</button></div><div class='fbody ci'><span style='color:#aab;margin:auto;font-size:14px;text-align:center;padding:0 24px'>AI sedang menata gambar…</span></div>";
   document.body.appendChild(el);FV={el,url:null,a:{name:"jawaban-ai.png"}};
   requestAnimationFrame(()=>el.classList.add("show"));
   el.querySelector(".fx").onclick=fvClose;
-  const body=el.querySelector(".fbody"),dl=el.querySelector(".fd");
+  const body=el.querySelector(".fbody"),dl=el.querySelector(".fd"),rb=el.querySelector(".fr"),hd=el.querySelector(".fh b");
   try{
-    await new Promise(r=>setTimeout(r,60));
-    const blob=await ciRender(content);
+    const sp=await ciAskAI(content);
     if(!FV||FV.el!==el)return;
-    const url=URL.createObjectURL(blob);FV.url=url;body.innerHTML="";
-    const im=document.createElement("img");im.className="ci";im.src=url;im.alt="Jawaban AI";body.appendChild(im);
+    hd.textContent=sp.title;body.firstChild.textContent="Menggambar…";
+    await new Promise(z=>setTimeout(z,30));
+    const R=await ciRender(content,sp);
+    if(!FV||FV.el!==el)return;
+    const url=URL.createObjectURL(R.blob);FV.url=url;body.innerHTML="";
+    const wrap=document.createElement("div"),im=document.createElement("img");im.className="ci";im.src=url;im.alt=sp.title;im.draggable=false;wrap.appendChild(im);body.appendChild(wrap);
+    let rot=innerHeight>innerWidth;const a=R.w/R.h;
+    const fit=()=>{const bw=body.clientWidth,bh=body.clientHeight;
+      if(!rot){const w=Math.min(bw,bh*a),h=w/a;wrap.style.cssText="position:relative;margin:auto;flex:none;width:"+w+"px;height:"+h+"px";im.style.cssText=""}
+      else{const wd=Math.min(bh,bw*a),h=wd/a;wrap.style.cssText="position:relative;margin:auto;flex:none;width:"+h+"px;height:"+wd+"px";im.style.cssText="position:absolute;left:50%;top:50%;width:"+wd+"px;height:"+h+"px;transform:translate(-50%,-50%) rotate(90deg)"}};
+    fit();
+    const onr=()=>{if(!FV||FV.el!==el){removeEventListener("resize",onr);return}rot=innerHeight>innerWidth;fit()};addEventListener("resize",onr);
+    rb.style.display="";rb.onclick=()=>{rot=!rot;fit()};
     dl.style.display="";
     dl.onclick=()=>{const x=document.createElement("a");x.href=url;x.download="jawaban-ai-"+Date.now()+".png";document.body.appendChild(x);x.click();x.remove()}
   }catch(e){if(FV&&FV.el===el)body.innerHTML="<span style='color:#f99;margin:auto;font-size:14px'>Gagal membuat gambar.</span>"}}
-function imgBtn(content){const b=document.createElement("button");b.className="bm";b.type="button";b.textContent="🖼️ Baca sebagai gambar";b.onclick=()=>chatImgOpen(content);return b}
+function imgBtn(content){const b=document.createElement("button");b.className="bm";b.type="button";b.textContent="🖼️ Jadikan gambar";b.onclick=()=>chatImgOpen(content);return b}
 async function copyText(t){try{if(navigator.clipboard&&window.isSecureContext){await navigator.clipboard.writeText(t);return true}}catch(e){}
   try{const a=document.createElement("textarea");a.value=t;a.setAttribute("readonly","");a.style.cssText="position:fixed;left:-9999px;top:0;opacity:0";document.body.appendChild(a);a.select();a.setSelectionRange(0,t.length);const ok=document.execCommand("copy");a.remove();return ok}catch(e){return false}}
 function copyBtn(text){const b=document.createElement("button");b.className="bm";b.type="button";b.textContent="📋 Salin";
   b.onclick=async()=>{const ok=await copyText(text);b.textContent=ok?"✓ Tersalin":"Gagal menyalin";setTimeout(()=>{b.textContent="📋 Salin"},1600)};return b}
-function attachCopy(el,text){const w=document.createElement("div");w.className="acts";w.appendChild(copyBtn(text));el.appendChild(w)}
-function attachBm(el,content){const w=document.createElement("div");w.className="acts";w.appendChild(copyBtn(content));w.appendChild(imgBtn(content));if(TTS)w.appendChild(ttsBtn(content));el.appendChild(w)}
+function attachCopy(el,text){const w=document.createElement("div");w.className="acts out u";w.appendChild(copyBtn(text));el.after(w)}
+function attachBm(el,content){const w=document.createElement("div");w.className="acts out a";w.appendChild(copyBtn(content));w.appendChild(imgBtn(content));if(TTS)w.appendChild(ttsBtn(content));el.after(w)}
 
 // ---------- kelas: jadwal belajar, kehadiran, keterlambatan ----------
 let CLS=[],CLOK=true,CLNET=false,CLERR="",UP=[];
