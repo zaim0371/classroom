@@ -188,6 +188,7 @@ header>div:nth-child(2){min-width:0;flex:1}
 .fv iframe{width:100%;height:100%;border:0;background:#fff}
 .fv pre{margin:0;width:100%;box-sizing:border-box;padding:14px 16px calc(env(safe-area-inset-bottom,0px) + 16px);color:#e8ecf5;font:13px/1.55 ui-monospace,Menlo,Consolas,monospace;white-space:pre-wrap;word-break:break-word}
 .tst{position:fixed;left:50%;bottom:calc(env(safe-area-inset-bottom,0px) + 90px);transform:translateX(-50%);z-index:30;max-width:88vw;padding:11px 16px;border-radius:16px;background:rgba(40,20,20,.92);color:#fff;font:600 13px/1.4 inherit;font-family:inherit;text-align:center;box-shadow:0 8px 30px rgba(0,0,0,.35);animation:rise2 .3s both}
+#dx{white-space:pre-line}
 </style>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/katex.min.css">
 <script defer src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/katex.min.js"></script>
@@ -316,8 +317,8 @@ input,textarea,select,button{-webkit-appearance:none;appearance:none}
 <div class="sp" data-s="key"><div class="sh">API key Gemini</div><div class="srow"><span id="keytxt"></span><button class="chip" id="kchg" type="button">Ganti API key</button></div>
 <div id="kbox"><p style="margin:6px 0 10px">Ambil di aistudio.google.com/apikey</p><input id="kin" type="password" placeholder="AIza…" autocomplete="off"><div class="note" id="kerr"></div><div class="row"><button class="chip" id="kclear" type="button">Hapus key</button><button class="chip on" id="ksave" type="button">Simpan &amp; mulai</button></div></div></div>
 <div class="sp" data-s="chat"><div class="sh">Obrolan</div><div class="row wrap"><button class="chip" id="exptxt" type="button">Ekspor TXT</button><button class="chip" id="exppdf" type="button">Ekspor PDF</button><button class="chip" id="hclear" type="button">Hapus semua riwayat</button></div></div>
-<div class="sp" data-s="more"><div class="sh">Lainnya</div><div class="row wrap"><button class="chip" id="snd" type="button"></button><button class="chip" id="code" type="button">Kode sinkron</button></div></div>
-<div class="row end" style="align-items:center;justify-content:space-between"><span style="font-size:11px;color:var(--tx2)">Versi 25</span><button class="chip on" id="kclose" type="button">Tutup</button></div></div></div>
+<div class="sp" data-s="more"><div class="sh">Lainnya</div><div class="row wrap"><button class="chip" id="snd" type="button"></button><button class="chip" id="code" type="button">Kode sinkron</button><button class="chip" id="dbchk" type="button">Cek database</button></div></div>
+<div class="row end" style="align-items:center;justify-content:space-between"><span style="font-size:11px;color:var(--tx2)">Versi 26</span><button class="chip on" id="kclose" type="button">Tutup</button></div></div></div>
 <input type="file" id="fi" multiple hidden accept="image/*,application/pdf,text/*,.txt,.md,.csv,.json,.py,.js,.html,.css,.xml,.sql">
 <div class="dov" id="dov"></div>
 <aside class="drawer" id="drw" aria-label="Riwayat obrolan"><h2>Obrolan</h2><button class="chip on dnew" id="dnew" type="button">+ Obrolan baru</button><div class="dl" id="dl"></div>
@@ -614,15 +615,22 @@ const IC_DEL='<svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke
 function lsCid(){try{CID?localStorage.setItem("zc-cid",CID):localStorage.removeItem("zc-cid")}catch(e){}}
 function ensureConv(){if(CID||!CVOK)return Promise.resolve();
   return CP||(CP=(async()=>{try{const r=await sbx("conversations?select=id,subject,title,updated_at","POST",[uw({subject:subj,title:"Obrolan baru"})],"return=representation");
-    if(r&&r[0]){CID=r[0].id;CONVS.unshift(r[0]);lsCid();paintDrawer()}}catch(e){CVOK=false}finally{CP=null}})())}
+    if(r&&r[0]){CID=r[0].id;CONVS.unshift(r[0]);lsCid();paintDrawer()}}catch(e){CVERR=((e.status||"")+" "+(e.detail||e.message||"")).trim();if(e.status===404||/does not exist|relation|schema cache|column/i.test(e.detail||""))CVOK=false}finally{CP=null}})())}
+let CVERR="";
 const slp=ms=>new Promise(z=>setTimeout(z,ms));
 function toast(t){const d=document.createElement("div");d.className="tst";d.textContent=t;document.body.appendChild(d);setTimeout(()=>d.remove(),4200)}
 async function tryN(fn,n){n=n||3;let er;for(let i=0;i<n;i++){try{return await fn()}catch(e){er=e;if(i<n-1)await slp(600*(i+1))}}throw er}
-async function sbSave(rows,up){try{if(up)await up;await tok();await ensureConv();const cid=CID&&CVOK?CID:null;
-  const mk=wa=>JSON.stringify(rows.map(r=>uw(Object.assign({subject:subj,role:r.role,content:r.content},cid?{conversation_id:cid}:{},wa&&r.att&&r.att.length?{attachments:r.att}:{}))));
-  try{await tryN(async()=>{let rs=await fetch(SB_URL,{method:"POST",headers:{...sbH(),"Prefer":"return=minimal"},body:mk(true)});
+async function sbSave(rows,up){try{if(up)await up;await tok();let tries=0;
+  const attempt=async()=>{tries++;await ensureConv();const cid=CID&&CVOK?CID:null;
+    if(CVOK&&!CID&&tries<3)throw Object.assign(new Error("conv"),{detail:"riwayat gagal dibuat "+CVERR});
+    const mk=wa=>JSON.stringify(rows.map(r=>uw(Object.assign({subject:subj,role:r.role,content:r.content},cid?{conversation_id:cid}:{},wa&&r.att&&r.att.length?{attachments:r.att}:{}))));
+    let rs=await fetch(SB_URL,{method:"POST",headers:{...sbH(),"Prefer":"return=minimal"},body:mk(true)});
     if(!rs.ok&&rows.some(r=>r.att&&r.att.length))rs=await fetch(SB_URL,{method:"POST",headers:{...sbH(),"Prefer":"return=minimal"},body:mk(false)});
-    if(!rs.ok)throw new Error("save "+rs.status)})}catch(e){toast("Pesan belum tersimpan ke database. Cek koneksi.");return}
+    if(!rs.ok){let tx="";try{tx=await rs.text()}catch(e){}
+      if(cid&&/conversation|foreign key|violates/i.test(tx)){CONVS=CONVS.filter(x=>x.id!==cid);CID=null;lsCid()}
+      throw Object.assign(new Error("save"),{status:rs.status,detail:tx.slice(0,120)})}
+    return cid};
+  let cid;try{cid=await tryN(attempt,4)}catch(e){toast("Pesan belum tersimpan ("+((e.status||"")+" "+(e.detail||e.message||"")).trim().slice(0,90)+")");return}
   const c=cid&&CONVS.find(x=>x.id===cid);if(!c)return;
   if(c.title==="Obrolan baru")autoTitle(c,rows[0].content,rows[1].content);
   else{c.updated_at=new Date().toISOString();CONVS=[c,...CONVS.filter(x=>x!==c)];paintDrawer();sbx("conversations?id=eq."+c.id,"PATCH",{updated_at:c.updated_at},"return=minimal").catch(()=>{})}}catch(e){}}
@@ -922,6 +930,18 @@ showHero();setSync();clsLoad().then(renderCls);
 convLoad().then(()=>{let id="";try{id=localStorage.getItem("zc-cid")||""}catch(e){}const c=CONVS.find(x=>x.id===id);if(c&&!hist.length&&!busy)openConv(c)});
 $("code").onclick=async()=>{$("modal").classList.remove("show");const c=await dlg({title:"Kode sinkron",text:"Kode perangkat ini (simpan, jangan dibagikan). Untuk memakai data dari perangkat lain, ganti dengan kode dari perangkat itu.",input:DEV,ok:"Pakai"});
   if(c&&c.trim()&&c.trim()!==DEV){try{localStorage.setItem("zc-dev",c.trim())}catch(e){}location.reload()}};
+$("dbchk").onclick=async()=>{$("modal").classList.remove("show");const out=[];
+  const t=async(n,fn)=>{try{await fn();out.push("✓ "+n)}catch(e){out.push("✗ "+n+": "+((e.status||"")+" "+(e.detail||e.message||"")).trim().slice(0,100))}};
+  const wr=(tb,row,sel)=>async()=>{const r=await sbx(tb+"?select="+sel,"POST",[uw(row)],"return=representation");if(r&&r[0])await sbx(tb+"?id=eq."+r[0].id,"DELETE",undefined,"return=minimal")};
+  await t("conversations (baca)",()=>sbx("conversations?select=id&limit=1"+uf()));
+  await t("conversations (tulis)",wr("conversations",{subject:subj,title:"tes"},"id"));
+  await t("chat_messages (baca)",()=>sbx("chat_messages?select=id,conversation_id,attachments&limit=1"+uf()));
+  await t("chat_messages (tulis)",wr("chat_messages",{subject:subj,role:"user",content:"tes"},"id"));
+  await t("chat_files (baca)",()=>sbx("chat_files?select=id&limit=1"+uf()));
+  await t("class_sessions (baca)",()=>sbx("class_sessions?select="+CLSEL+"&limit=1"+uf()));
+  await t("quiz_results (baca)",()=>sbx("quiz_results?select=id&limit=1"+uf()));
+  await t("app_settings (baca)",()=>sbx("app_settings?select=key&limit=1"+uf()));
+  alertX(out.join("\n"),"Cek database ("+(SES?"akun":"perangkat")+")")};
 $("hclear").onclick=async()=>{$("modal").classList.remove("show");if(busy||!(await confirmX("Hapus semua riwayat?","Semua obrolan dan lampirannya akan dihapus permanen.","Hapus semua",true)))return;
   let bad=false;for(const t of ["conversations","chat_messages","chat_files"]){try{await sbx(t+"?id=not.is.null"+uf(),"DELETE",undefined,"return=minimal")}catch(e){bad=true}}
   CONVS=[];FC.clear();ttsStop();newChat();if(bad)alertX("Sebagian riwayat gagal dihapus dari database. Coba lagi.")};
