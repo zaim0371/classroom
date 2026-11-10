@@ -5,42 +5,37 @@
 <title>Zaim’s Classroom</title>
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <style>
-:root{--tx:#10162b;--tx2:rgba(16,22,43,.62);--gl:rgba(255,255,255,.34);--gl2:rgba(255,255,255,.55);--bd:rgba(255,255,255,.7);--sh:rgba(60,70,100,.14);--bg1:#e8edf5;--bg2:#f5f3f0;--ok:#1fa968;--no:#e5484d;--ac:#5e90f0;color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
-@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--tx:#f4f6ff;--tx2:rgba(244,246,255,.62);--gl:rgba(255,255,255,.09);--gl2:rgba(255,255,255,.17);--bd:rgba(255,255,255,.24);--sh:rgba(0,0,0,.5);--bg1:#1d2635;--bg2:#2a3140;color-scheme:dark}}
-:root[data-theme="dark"]{--tx:#f4f6ff;--tx2:rgba(244,246,255,.62);--gl:rgba(255,255,255,.09);--gl2:rgba(255,255,255,.17);--bd:rgba(255,255,255,.24);--sh:rgba(0,0,0,.5);--bg1:#1d2635;--bg2:#2a3140;color-scheme:dark}
+:root{--tx:#10162b;--tx2:rgba(16,22,43,.62);--gl:rgba(255,255,255,.52);--gl2:rgba(255,255,255,.74);--bd:rgba(255,255,255,.75);--sh:rgba(60,70,100,.14);--bg1:#e8edf5;--bg2:#f5f3f0;--ok:#1fa968;--no:#e5484d;--ac:#5e90f0;color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--tx:#f4f6ff;--tx2:rgba(244,246,255,.62);--gl:rgba(255,255,255,.12);--gl2:rgba(255,255,255,.2);--bd:rgba(255,255,255,.24);--sh:rgba(0,0,0,.5);--bg1:#1d2635;--bg2:#2a3140;color-scheme:dark}}
+:root[data-theme="dark"]{--tx:#f4f6ff;--tx2:rgba(244,246,255,.62);--gl:rgba(255,255,255,.12);--gl2:rgba(255,255,255,.2);--bd:rgba(255,255,255,.24);--sh:rgba(0,0,0,.5);--bg1:#1d2635;--bg2:#2a3140;color-scheme:dark}
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
 html,body{height:100%;margin:0}
 body{font-family:-apple-system,BlinkMacSystemFont,"SF Pro Display","Inter","Segoe UI",system-ui,sans-serif;color:var(--tx);background:linear-gradient(160deg,var(--bg1),var(--bg2));overflow:hidden}
 
 /* ---------- background ---------- */
-.orbs{position:fixed;inset:0;z-index:0;overflow:hidden;filter:saturate(.75)}
-.orb{position:absolute;border-radius:50%;filter:blur(60px);opacity:.5;will-change:transform;animation:fl 16s ease-in-out infinite alternate;transition:translate 1.2s cubic-bezier(.2,.8,.2,1)}
-.o1{width:52vmax;height:52vmax;left:-14vmax;top:-12vmax;background:radial-gradient(circle at 35% 35%,#a9c4f5,#8fb0ea 60%,transparent 72%);translate:calc(var(--px,0)*26px) calc(var(--py,0)*26px)}
-.o2{width:44vmax;height:44vmax;right:-14vmax;top:18vh;background:radial-gradient(circle at 40% 40%,#d9cfe9,#c4b9dc 60%,transparent 72%);animation-duration:20s;animation-delay:-6s;translate:calc(var(--px,0)*-34px) calc(var(--py,0)*18px)}
-.o3{width:40vmax;height:40vmax;left:8vw;bottom:-16vmax;background:radial-gradient(circle at 40% 40%,#b5dfd8,#9cd0d6 60%,transparent 72%);animation-duration:23s;animation-delay:-11s;translate:calc(var(--px,0)*20px) calc(var(--py,0)*-30px)}
-.o4{width:28vmax;height:28vmax;right:6vw;bottom:4vh;background:radial-gradient(circle at 40% 40%,#f1d4e3,#e6bfd6 60%,transparent 72%);opacity:.38;animation-duration:27s;animation-delay:-3s;translate:calc(var(--px,0)*-18px) calc(var(--py,0)*-22px)}
-@keyframes fl{0%{transform:translate3d(0,0,0) scale(1)}50%{transform:translate3d(7vw,6vh,0) scale(1.12)}100%{transform:translate3d(-6vw,-5vh,0) scale(.94)}}
+.orbs{position:fixed;inset:0;z-index:0;overflow:hidden;pointer-events:none}
+.orb{position:absolute;border-radius:50%;opacity:.6;will-change:transform;animation:fl 24s ease-in-out infinite alternate}
+.o1{width:62vmax;height:62vmax;left:-22vmax;top:-20vmax;background:radial-gradient(circle,#a9c4f5 0,rgba(169,196,245,.5) 38%,transparent 68%)}
+.o2{width:52vmax;height:52vmax;right:-20vmax;top:16vh;background:radial-gradient(circle,#d3c8e8 0,rgba(211,200,232,.5) 38%,transparent 68%);animation-duration:30s;animation-delay:-8s}
+.o3{width:48vmax;height:48vmax;left:4vw;bottom:-20vmax;background:radial-gradient(circle,#b0ddd6 0,rgba(176,221,214,.5) 38%,transparent 68%);animation-duration:34s;animation-delay:-14s}
+@keyframes fl{from{transform:translate3d(0,0,0)}to{transform:translate3d(5vw,4vh,0)}}
 
 /* ---------- glass ---------- */
-.glass{position:relative;background:linear-gradient(135deg,var(--gl2),var(--gl) 45%,var(--gl));-webkit-backdrop-filter:blur(26px) saturate(190%) brightness(1.06);backdrop-filter:blur(26px) saturate(190%) brightness(1.06);border:1px solid var(--bd);border-radius:26px;box-shadow:0 12px 34px var(--sh),inset 0 1.5px 0 rgba(255,255,255,.75),inset 0 -1px 0 rgba(255,255,255,.15),inset 0 0 22px rgba(255,255,255,.1);overflow:hidden}
-.glass::before{content:"";position:absolute;inset:0;border-radius:inherit;pointer-events:none;background:radial-gradient(240px circle at var(--mx,30%) var(--my,0%),rgba(255,255,255,.42),transparent 60%);opacity:.7;transition:opacity .3s}
+.glass{position:relative;background:linear-gradient(135deg,var(--gl2),var(--gl));border:1px solid var(--bd);border-radius:26px;box-shadow:0 6px 20px var(--sh),inset 0 1px 0 rgba(255,255,255,.7);overflow:hidden}
 .glass::after{content:"";position:absolute;left:10%;right:10%;top:0;height:1px;background:linear-gradient(90deg,transparent,rgba(255,255,255,.95),transparent);pointer-events:none}
 
 /* ---------- layout ---------- */
 .app{position:relative;z-index:1;height:100%;height:100dvh;max-width:760px;margin:0 auto;display:flex;flex-direction:column;padding:14px 14px 0}
 header{display:flex;align-items:center;gap:12px;padding:12px 16px;margin-bottom:10px;animation:rise .8s cubic-bezier(.2,.9,.25,1) both}
-.sheen{position:absolute;inset:0;pointer-events:none;background:linear-gradient(105deg,transparent 38%,rgba(255,255,255,.5) 50%,transparent 62%);transform:translateX(-130%);animation:sheen 7s 1.4s ease-in-out infinite}
-@keyframes sheen{0%{transform:translateX(-130%)}20%,100%{transform:translateX(130%)}}
-.logo{width:42px;height:42px;border-radius:14px;flex:none;display:grid;place-items:center;font-size:22px;color:#fff;font-weight:700;background:linear-gradient(180deg,#5e90f0,#3f73e0);box-shadow:inset 0 1.5px 2px rgba(255,255,255,.6),0 5px 12px rgba(63,115,224,.3);animation:float 4.5s ease-in-out infinite;cursor:pointer}
+.logo{width:42px;height:42px;border-radius:14px;flex:none;display:grid;place-items:center;font-size:22px;color:#fff;font-weight:700;background:linear-gradient(180deg,#5e90f0,#3f73e0);box-shadow:inset 0 1.5px 2px rgba(255,255,255,.6),0 5px 12px rgba(63,115,224,.3);cursor:pointer}
 .logo.tap{animation:wig .6s cubic-bezier(.3,1.5,.5,1)}
-@keyframes float{0%,100%{transform:translateY(0) rotate(0)}50%{transform:translateY(-3px) rotate(-3deg)}}
 @keyframes wig{0%{transform:scale(1) rotate(0)}30%{transform:scale(1.2) rotate(-14deg)}60%{transform:scale(.94) rotate(9deg)}100%{transform:scale(1) rotate(0)}}
 h1{font-size:19px;margin:0;letter-spacing:-.3px}
 header p{margin:1px 0 0;font-size:12.5px;color:var(--tx2)}
 .chips{display:flex;gap:8px;overflow-x:auto;padding:2px 2px 10px;scrollbar-width:none;animation:rise .9s .1s cubic-bezier(.2,.9,.25,1) both}
 .chips::-webkit-scrollbar{display:none}
 .chip,.opt,.send{position:relative;overflow:hidden}
-.chip{flex:none;border:1px solid var(--bd);background:var(--gl);color:var(--tx);padding:8px 15px;border-radius:99px;font:600 13px inherit;font-family:inherit;cursor:pointer;-webkit-backdrop-filter:blur(16px);backdrop-filter:blur(16px);box-shadow:inset 0 1px 0 rgba(255,255,255,.6);transition:transform .35s cubic-bezier(.3,1.6,.5,1),background .3s,box-shadow .3s}
+.chip{flex:none;border:1px solid var(--bd);background:var(--gl);color:var(--tx);padding:8px 15px;border-radius:99px;font:600 13px inherit;font-family:inherit;cursor:pointer;box-shadow:inset 0 1px 0 rgba(255,255,255,.6);transition:transform .35s cubic-bezier(.3,1.6,.5,1),background .3s,box-shadow .3s}
 @media (hover:hover){.chip:hover{transform:translateY(-2px);box-shadow:0 6px 14px var(--sh),inset 0 1px 0 rgba(255,255,255,.7)}}
 .chip:active{transform:scale(.92)}
 .chip.on{background:linear-gradient(180deg,#5e90f0,#3f73e0);color:#fff;border-color:rgba(255,255,255,.5);box-shadow:0 5px 12px rgba(63,115,224,.3),inset 0 1px 0 rgba(255,255,255,.7)}
@@ -54,11 +49,11 @@ main{flex:1;min-height:0;position:relative;animation:fade 1s .15s both}
 @keyframes fade{from{opacity:0}}
 
 /* ---------- views ---------- */
-.view{position:absolute;inset:0;display:flex;flex-direction:column;opacity:0;pointer-events:none;transition:opacity .4s,transform .6s cubic-bezier(.2,.9,.25,1)}
+.view{position:absolute;inset:0;display:flex;flex-direction:column;opacity:0;visibility:hidden;pointer-events:none;transition:opacity .35s,transform .5s cubic-bezier(.2,.9,.25,1),visibility 0s .5s}
 #v0:not(.show){transform:translateX(-40px) scale(.98)}
 #v1:not(.show){transform:translateX(40px) scale(.98)}
-.view.show{opacity:1;transform:none;pointer-events:auto}
-.scroll{flex:1;overflow-y:auto;padding:4px 2px 16px;display:flex;flex-direction:column;gap:10px;scrollbar-width:none}
+.view.show{opacity:1;transform:none;visibility:visible;pointer-events:auto;transition:opacity .35s,transform .5s cubic-bezier(.2,.9,.25,1),visibility 0s 0s}
+.scroll{flex:1;overflow-y:auto;padding:4px 2px 16px;display:flex;flex-direction:column;gap:10px;scrollbar-width:none;overscroll-behavior:contain;-webkit-overflow-scrolling:touch}
 .scroll::-webkit-scrollbar{display:none}
 .scroll>*{flex:none}
 
@@ -85,29 +80,24 @@ main{flex:1;min-height:0;position:relative;animation:fade 1s .15s both}
 .stat-top{display:flex;align-items:center;gap:9px;font-size:13.5px;font-weight:600}
 .st-t{transition:opacity .25s}
 .st-s{margin-left:auto;font-weight:500;color:var(--tx2);font-variant-numeric:tabular-nums;font-size:12px;white-space:nowrap}
-.pulse{flex:none;width:9px;height:9px;border-radius:50%;background:var(--ac);animation:pls 1.4s infinite}
-.stat.warn .pulse{background:#f0a24a;animation-name:plsw}
-@keyframes pls{0%{box-shadow:0 0 0 0 rgba(94,144,240,.6)}70%,100%{box-shadow:0 0 0 9px rgba(94,144,240,0)}}
-@keyframes plsw{0%{box-shadow:0 0 0 0 rgba(240,162,74,.6)}70%,100%{box-shadow:0 0 0 9px rgba(240,162,74,0)}}
-.steps,.stat-labels{display:grid;grid-template-columns:repeat(4,1fr);gap:5px}
+.pulse{flex:none;width:9px;height:9px;border-radius:50%;background:var(--ac);animation:pls 1.2s ease-in-out infinite}
+.stat.warn .pulse{background:#f0a24a}
+@keyframes pls{50%{opacity:.3}}
+.steps{display:grid;grid-template-columns:repeat(4,1fr);gap:5px}
 .steps{margin:11px 0 5px}
 .steps i{height:5px;border-radius:9px;background:rgba(120,130,170,.28);position:relative;overflow:hidden;transition:background .45s}
 .steps i.done{background:linear-gradient(90deg,#5e90f0,#86b3ff)}
 .steps i.act::after{content:"";position:absolute;inset:0;background:linear-gradient(90deg,transparent,#6b9bf5,transparent);transform:translateX(-100%);animation:ind 1.15s ease-in-out infinite}
 .stat.warn .steps i.act::after{background:linear-gradient(90deg,transparent,#f0a24a,transparent)}
 @keyframes ind{to{transform:translateX(100%)}}
-.stat-labels{font-size:10.5px;color:var(--tx2);text-align:center}
-.stat-labels span{transition:color .3s,font-weight .3s}
-.stat-labels span.act{color:var(--tx);font-weight:700}
-.st-m{margin-top:7px;font-size:11px;color:var(--tx2);word-break:break-all}
 .spin{display:inline-block;width:11px;height:11px;border:2px solid var(--tx2);border-top-color:transparent;border-radius:50%;vertical-align:-1px;animation:spin .7s linear infinite}
 @keyframes spin{to{transform:rotate(360deg)}}
 
 /* ---------- hero ---------- */
 .hero{margin:auto;text-align:center;padding:26px 22px;max-width:340px;animation:pop .8s cubic-bezier(.2,1.2,.4,1) both}
 .hero>*{animation:rise3 .6s both}
-.hero>:nth-child(1){animation-delay:.12s}.hero>:nth-child(2){animation-delay:.2s}.hero>:nth-child(3){animation-delay:.28s}.hero>:nth-child(4){animation-delay:.36s}
-.hic{width:46px;height:46px;margin:0 auto 12px;border-radius:50%;background:radial-gradient(circle at 35% 30%,#fff,#a9c4f5 45%,#5e90f0);box-shadow:0 10px 24px rgba(63,115,224,.35),inset 0 -4px 8px rgba(63,115,224,.35);animation:rise3 .6s .05s both,float 4s 1s ease-in-out infinite}
+.hero>:nth-child(1){animation-delay:.1s}.hero>:nth-child(2){animation-delay:.18s}.hero>:nth-child(3){animation-delay:.26s}
+.hic{width:46px;height:46px;margin:0 auto 12px;border-radius:50%;background:radial-gradient(circle at 35% 30%,#fff,#a9c4f5 45%,#5e90f0);box-shadow:0 10px 24px rgba(63,115,224,.35),inset 0 -4px 8px rgba(63,115,224,.35);animation:rise3 .6s .05s both}
 .hero b{font-size:22px;display:block;margin-bottom:6px}.hero span{color:var(--tx2);font-size:14px}
 .sug{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;margin-top:14px}
 @keyframes rise3{from{opacity:0;transform:translateY(12px)}}
@@ -123,8 +113,7 @@ main{flex:1;min-height:0;position:relative;animation:fade 1s .15s both}
 ::placeholder{color:var(--tx2)}
 .send{flex:none;width:44px;height:44px;border-radius:50%;border:0;cursor:pointer;color:#fff;display:grid;place-items:center;padding:0;background:linear-gradient(180deg,#5e90f0,#3f73e0);box-shadow:0 5px 12px rgba(63,115,224,.3),inset 0 1.5px 0 rgba(255,255,255,.7);opacity:.5;scale:.9;transition:transform .35s cubic-bezier(.3,1.6,.5,1),scale .45s cubic-bezier(.3,1.7,.5,1),opacity .3s}
 .send:active{transform:scale(.86)}
-.composer.has .send{opacity:1;scale:1;animation:ready 2.4s 0.4s ease-in-out infinite}
-@keyframes ready{0%,100%{box-shadow:0 5px 12px rgba(63,115,224,.3),inset 0 1.5px 0 rgba(255,255,255,.7),0 0 0 0 rgba(94,144,240,.5)}60%{box-shadow:0 5px 12px rgba(63,115,224,.3),inset 0 1.5px 0 rgba(255,255,255,.7),0 0 0 9px rgba(94,144,240,0)}}
+.composer.has .send{opacity:1;scale:1}
 .send svg{display:block}
 .send.busy,.send.busy:disabled{opacity:1;scale:1;animation:none}
 .send.busy svg{display:none}
@@ -165,7 +154,7 @@ main{flex:1;min-height:0;position:relative;animation:fade 1s .15s both}
 .note{font-size:12.5px;color:var(--tx2);text-align:center;padding:6px}
 
 /* ---------- modal ---------- */
-.modal{position:fixed;inset:0;z-index:10;display:grid;place-items:center;padding:20px;background:rgba(30,40,60,.25);-webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px);opacity:0;pointer-events:none;transition:opacity .4s}
+.modal{position:fixed;inset:0;z-index:10;display:grid;place-items:center;padding:20px;background:rgba(30,40,60,.38);opacity:0;pointer-events:none;transition:opacity .4s}
 .modal.show{opacity:1;pointer-events:auto}
 .card{width:min(400px,100%);padding:22px;transform:scale(.92) translateY(18px);transition:transform .6s cubic-bezier(.2,1.3,.4,1)}
 .modal.show .card{transform:none}
@@ -179,29 +168,29 @@ main{flex:1;min-height:0;position:relative;animation:fade 1s .15s both}
 </style>
 </head>
 <body>
-<div class="orbs"><i class="orb o1"></i><i class="orb o2"></i><i class="orb o3"></i><i class="orb o4"></i></div>
+<div class="orbs"><i class="orb o1"></i><i class="orb o2"></i><i class="orb o3"></i></div>
 <div class="app">
-  <header class="glass"><i class="sheen"></i><div class="logo" id="logo">Z</div><div><h1>Zaim’s Classroom</h1><p>Belajar bareng AI, kapan saja</p></div><button class="chip gear" id="gear" type="button">API Key</button></header>
+  <header class="glass"><div class="logo" id="logo">Z</div><div><h1>Zaim’s Classroom</h1></div><button class="chip gear" id="gear" type="button">API Key</button></header>
   <div class="chips" id="chips"></div>
   <main>
     <section class="view show" id="v0">
       <div class="scroll" id="log"></div>
       <form class="composer glass" id="f" onsubmit="return false">
-        <textarea id="in" rows="1" placeholder="Tanya apa saja soal pelajaran…" autocomplete="off" enterkeyhint="send"></textarea>
+        <textarea id="in" rows="1" placeholder="Tanya apa saja…" autocomplete="off" enterkeyhint="send"></textarea>
         <button class="send" id="sb" type="button" aria-label="Kirim"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M12 19V5M5 12l7-7 7 7"/></svg></button>
       </form>
     </section>
     <section class="view" id="v1">
       <form class="composer glass" id="qf" onsubmit="return false">
-        <input id="topic" placeholder="Topik kuis, mis. Pecahan, Fotosintesis…" autocomplete="off" enterkeyhint="go">
+        <input id="topic" placeholder="Topik kuis…" autocomplete="off" enterkeyhint="go">
         <button class="send" id="qb" type="button" aria-label="Buat kuis"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg></button>
       </form>
-      <div class="scroll" id="quiz"><div class="hero glass"><i class="hic"></i><b>Uji pemahamanmu</b><span>Ketik topik, AI akan membuat 5 soal pilihan ganda.</span></div></div>
+      <div class="scroll" id="quiz"><div class="hero glass"><i class="hic"></i><b>Kuis</b></div></div>
     </section>
   </main>
   <nav class="tabbar glass"><i class="pill" id="pill"></i><button class="on" data-t="0">Belajar</button><button data-t="1">Kuis</button></nav>
 </div>
-<div class="modal" id="modal"><div class="glass card"><h2>Hubungkan Google AI</h2><p>Cukup masukkan API key Gemini dari aistudio.google.com/apikey. Model dipilih otomatis. Key hanya disimpan di browser ini dan dikirim langsung ke Google.</p><input id="kin" type="password" placeholder="AIza…" autocomplete="off"><div class="note" id="kerr"></div><div class="row"><button class="chip" id="kclear" type="button">Hapus key</button><button class="chip" id="kclose" type="button">Tutup</button><button class="chip on" id="ksave" type="button">Simpan &amp; mulai</button></div></div></div>
+<div class="modal" id="modal"><div class="glass card"><h2>API Key Gemini</h2><p>Ambil di aistudio.google.com/apikey</p><input id="kin" type="password" placeholder="AIza…" autocomplete="off"><div class="note" id="kerr"></div><div class="row"><button class="chip" id="kclear" type="button">Hapus key</button><button class="chip" id="kclose" type="button">Tutup</button><button class="chip on" id="ksave" type="button">Simpan &amp; mulai</button></div></div></div>
 <script>
 let CATS=[];try{CATS=JSON.parse(localStorage.getItem("zc-cats")||"[]")}catch(e){}
 const $=s=>document.getElementById(s);
@@ -221,10 +210,6 @@ function renderChips(){const w=$("chips");w.innerHTML="";
   w.appendChild(a);w.scrollTo({left:w.scrollWidth,behavior:"smooth"});chipAnim="none"}
 renderChips();
 
-// cahaya mengikuti pointer + parallax latar
-document.addEventListener("pointermove",e=>{
-  const rt=document.documentElement.style;rt.setProperty("--px",(e.clientX/innerWidth*2-1).toFixed(3));rt.setProperty("--py",(e.clientY/innerHeight*2-1).toFixed(3));
-  const g=e.target.closest&&e.target.closest(".glass");if(!g)return;const r=g.getBoundingClientRect();g.style.setProperty("--mx",(e.clientX-r.left)+"px");g.style.setProperty("--my",(e.clientY-r.top)+"px")});
 // efek ripple
 document.addEventListener("pointerdown",e=>{const t=e.target.closest&&e.target.closest(".chip,.opt,.send,.tabbar button");if(!t||t.tagName==="INPUT"||t.disabled)return;
   const r=t.getBoundingClientRect(),d=Math.max(r.width,r.height)*2,s=document.createElement("span");s.className="rip";
@@ -261,7 +246,7 @@ $("topic").addEventListener("input",()=>$("qf").classList.toggle("has",!!$("topi
 function setBusy(b,on){b.disabled=on;b.classList.toggle("busy",on)}
 
 function showHero(){const l=$("log");l.innerHTML="";const h=document.createElement("div");h.className="hero glass";
-  h.innerHTML="<i class='hic'></i><b>Halo, Zaim</b><span>"+(subj==="Umum"?"Mau belajar apa hari ini? Buat kategori sendiri lewat tombol “+ Kategori”.":"Kategori: "+esc(subj)+". Mau belajar apa hari ini?")+"</span><div class='sug'></div>";
+  h.innerHTML="<i class='hic'></i><b>Halo, Zaim</b><div class='sug'></div>";
   const sg=subj==="Umum"?["Jelaskan fotosintesis dengan contoh sederhana","Beri aku 3 latihan soal pecahan"]:["Jelaskan konsep dasar "+subj+" dengan contoh","Beri aku latihan soal "+subj];
   sg.forEach(t=>{const c=document.createElement("button");c.className="chip";c.textContent=t;c.onclick=()=>{$("in").value=t;fit();send()};h.querySelector(".sug").appendChild(c)});l.appendChild(h)}
 showHero();
@@ -269,18 +254,18 @@ function add(cls,html){const l=$("log");const h=l.querySelector(".hero");if(h)h.
 const SYS=()=>"Kamu adalah guru AI yang ramah di “Zaim’s Classroom”. Kategori belajar: "+subj+" (jika Umum, boleh topik apa saja). Jawab dalam Bahasa Indonesia, singkat, jelas, beri contoh, dan akhiri dengan satu pertanyaan pendek untuk menguji pemahaman. Pakai **tebal** seperlunya.";
 
 // ---------- indikator progres ----------
-function mkStatus(el,last,thinkTxt){
-  thinkTxt=thinkTxt||"AI sedang berpikir…";
-  el.innerHTML='<div class="stat"><div class="stat-top"><span class="pulse"></span><span class="st-t"></span><span class="st-s"></span></div><div class="steps"><i></i><i></i><i></i><i></i></div><div class="stat-labels"><span>Siap</span><span>Kirim</span><span>Berpikir</span><span>'+last+'</span></div><div class="st-m"></div></div>';
-  const q=s=>el.querySelector(s),segs=el.querySelectorAll(".steps i"),labs=el.querySelectorAll(".stat-labels span");
-  let phase=0,t0=Date.now(),tp=t0,warn=false,txt="Menyiapkan…",live=true;
-  function paint(){if(!live)return;segs.forEach((s,i)=>s.className=i<phase?"done":i===phase?"act":"");labs.forEach((s,i)=>s.className=i===phase?"act":"");
-    const tt=q(".st-t");if(tt&&tt.textContent!==txt)tt.textContent=txt;const st=q(".stat");if(st)st.classList.toggle("warn",warn)}
-  function set(o){if(!live)return;if(o.p!=null&&o.p!==phase){phase=o.p;tp=Date.now()}if(o.t)txt=o.t;warn=!!o.warn;if(o.m){const m=q(".st-m");if(m)m.textContent="Model: "+o.m}paint()}
-  const iv=setInterval(()=>{if(!live)return;const s=Math.floor((Date.now()-t0)/1000);const ss=q(".st-s");if(ss)ss.textContent=s+" dtk";
+function mkStatus(el,thinkTxt){
+  thinkTxt=thinkTxt||"Berpikir…";
+  el.innerHTML='<div class="stat"><div class="stat-top"><span class="pulse"></span><span class="st-t"></span><span class="st-s">0 dtk</span></div><div class="steps"><i></i><i></i><i></i><i></i></div></div>';
+  const tt=el.querySelector(".st-t"),ss=el.querySelector(".st-s"),sx=el.querySelector(".stat"),segs=el.querySelectorAll(".steps i");
+  let phase=0,t0=Date.now(),tp=t0,warn=false,txt="Menyiapkan…",live=true,key="";
+  function paint(){if(!live)return;const k=phase+"|"+warn+"|"+txt;if(k===key)return;key=k;
+    segs.forEach((x,i)=>{const c=i<phase?"done":i===phase?"act":"";if(x.className!==c)x.className=c});tt.textContent=txt;sx.classList.toggle("warn",warn)}
+  function set(o){if(!live)return;if(o.p!=null&&o.p!==phase){phase=o.p;tp=Date.now()}if(o.t)txt=o.t;warn=!!o.warn;paint()}
+  const iv=setInterval(()=>{if(!live)return;const n=Math.floor((Date.now()-t0)/1000);ss.textContent=n+" dtk";
     if(phase===1&&!warn&&Date.now()-tp>700){phase=2;tp=Date.now();txt=thinkTxt}
-    if(phase===2&&!warn){txt=s>=15?"Masih menunggu… server Google agak lambat":s>=7?"Masih berpikir… sebentar lagi":thinkTxt}
-    paint()},250);
+    if(phase===2&&!warn&&n>=8)txt="Masih "+thinkTxt.charAt(0).toLowerCase()+thinkTxt.slice(1);
+    paint()},500);
   paint();
   return{set,stop(){live=false;clearInterval(iv)}}}
 
@@ -313,7 +298,7 @@ function openSet(){$("kin").value=KEY;$("kerr").textContent="";$("kclose").style
 $("gear").onclick=openSet;
 $("kclose").onclick=()=>$("modal").classList.remove("show");
 $("ksave").onclick=async()=>{const k=$("kin").value.trim();if(!k){$("kerr").textContent="Masukkan API key dulu.";return}
-  const b=$("ksave");b.disabled=true;$("kerr").innerHTML="<span class='spin'></span> Memeriksa key…";KEY=k;MODEL="";
+  const b=$("ksave");b.disabled=true;$("kerr").innerHTML="<span class='spin'></span> Memeriksa…";KEY=k;MODEL="";
   try{await detectModel();try{localStorage.setItem("zc-key",KEY)}catch(e){}$("modal").classList.remove("show");$("kerr").textContent=""}
   catch(e){KEY="";$("kerr").textContent=e.status?errMsg(e):(e.message==="nomodel"?"Tidak ada model Gemini yang bisa dipakai untuk key ini.":errMsg(e))}
   b.disabled=false};
@@ -324,31 +309,31 @@ const isNet=e=>!!(e&&(e.status||e.net||e.name==="TypeError"||/failed to fetch|ne
 
 async function gen(msgs,o={},retry,noThink){
   const st=o.onStatus||(()=>{});
-  if(!MODEL){st({p:0,t:"Memilih model terbaik…"});await detectModel()}
+  if(!MODEL){st({p:0,t:"Memilih model…"});await detectModel()}
   const url=API+"models/"+encodeURIComponent(MODEL)+(o.stream?":streamGenerateContent?alt=sse":":generateContent");
   const body={contents:msgs.slice(-12).map(m=>({role:m.role==="assistant"?"model":"user",parts:[{text:m.content}]}))};
   if(o.sys)body.systemInstruction={parts:[{text:o.sys}]};
   const gc={};if(o.json)gc.responseMimeType="application/json";
   if(!noThink){if(/gemini-2\.5/.test(MODEL)&&!/pro/.test(MODEL))gc.thinkingConfig={thinkingBudget:0};else if(/gemini-([3-9])/.test(MODEL))gc.thinkingConfig={thinkingLevel:"low"}}
   if(Object.keys(gc).length)body.generationConfig=gc;
-  st({p:1,t:"Mengirim pertanyaan…",m:MODEL});
+  st({p:1,t:"Mengirim…"});
   let r;
   try{r=await fetch(url,{method:"POST",headers:{"Content-Type":"application/json","x-goog-api-key":KEY},body:JSON.stringify(body)})}
   catch(err){
-    if(o.stream&&!o.ns){st({p:1,t:"Koneksi tersendat — mencoba cara lain…",warn:true});const t=await gen(msgs,{...o,stream:false,ns:1,onText:null},retry,noThink);o.onText&&o.onText(t);return t}
-    if(!o.nr){st({p:1,t:"Koneksi tersendat — mencoba lagi…",warn:true});await new Promise(z=>setTimeout(z,900));return gen(msgs,{...o,nr:1},retry,noThink)}
+    if(o.stream&&!o.ns){st({p:1,t:"Koneksi tersendat, mencoba lagi…",warn:true});const t=await gen(msgs,{...o,stream:false,ns:1,onText:null},retry,noThink);o.onText&&o.onText(t);return t}
+    if(!o.nr){st({p:1,t:"Koneksi tersendat, mencoba lagi…",warn:true});await new Promise(z=>setTimeout(z,900));return gen(msgs,{...o,nr:1},retry,noThink)}
     err.net=true;throw err}
   if(!r.ok){
     if([429,500,503,504].includes(r.status)&&(o.att||0)<4){
       const n=(o.att||0)+1,L=[...new Set([MODEL,...CANDS,"gemini-flash-latest","gemini-flash-lite-latest"])];
       MODEL=L[(L.indexOf(MODEL)+1)%L.length];
-      st({p:1,t:(r.status===429?"Kuota model penuh":"Server sibuk")+" — beralih model ("+n+"/4)…",warn:true,m:MODEL});
+      st({p:1,t:"Server sibuk, ganti model ("+n+"/4)…",warn:true});
       await new Promise(z=>setTimeout(z,700*n));
       return gen(msgs,{...o,att:n},retry,noThink)}
     if(r.status===400&&!noThink&&body.generationConfig&&body.generationConfig.thinkingConfig)return gen(msgs,o,retry,true);
-    if(r.status===404&&(retry||0)<2){st({p:0,t:"Model tidak cocok — mencari model lain…",warn:true});try{localStorage.removeItem("zc-model")}catch(e){}MODEL=retry?"gemini-flash-latest":"";return gen(msgs,o,(retry||0)+1,noThink)}
+    if(r.status===404&&(retry||0)<2){st({p:0,t:"Mencari model lain…",warn:true});try{localStorage.removeItem("zc-model")}catch(e){}MODEL=retry?"gemini-flash-latest":"";return gen(msgs,o,(retry||0)+1,noThink)}
     let dt="";try{dt=((await r.json()).error||{}).message||""}catch(_){}const e=new Error("http");e.status=r.status;e.detail=dt.slice(0,140);throw e}
-  st({p:3,t:o.stream?"Menulis jawaban…":"Merapikan hasil…"});
+  st({p:3,t:o.stream?"Menulis…":"Merapikan…"});
   const pk=j=>((j.candidates&&j.candidates[0]&&j.candidates[0].content&&j.candidates[0].content.parts)||[]).map(p=>p.text||"").join("");
   if(!o.stream)return pk(await r.json());
   const rd=r.body.getReader(),dc=new TextDecoder();let buf="",all="";
@@ -362,22 +347,22 @@ async function send(){
   if(!KEY){openSet();return}
   busy=true;setBusy($("sb"),true);$("in").value="";fit();
   add("u",esc(v));hist.push({role:"user",content:v});
-  const m=add("a","");const st=mkStatus(m,"Tulis");
+  const m=add("a","");const st=mkStatus(m);
   const l=$("log");let first=true,raf=0,pend="";
   const paint=()=>{raf=0;const near=l.scrollHeight-l.scrollTop-l.clientHeight<150;m.innerHTML=md(pend)+"<span class='caret'></span>";if(near)l.scrollTop=l.scrollHeight};
   try{
-    const t=await gen(hist,{stream:true,sys:SYS(),onStatus:st.set,onText:t=>{if(first){first=false;st.stop();m.classList.add("swap")}pend=t;if(!raf)raf=requestAnimationFrame(paint)}});
-    cancelAnimationFrame(raf);st.stop();
+    const t=await gen(hist,{stream:true,sys:SYS(),onStatus:st.set,onText:t=>{if(first){first=false;st.stop();m.classList.add("swap")}pend=t;if(!raf)raf=setTimeout(paint,80)}});
+    clearTimeout(raf);st.stop();
     if(!t)throw new Error("empty");
     m.classList.add("swap");m.innerHTML=md(t);hist.push({role:"assistant",content:t});l.scrollTo({top:l.scrollHeight,behavior:"smooth"})}
-  catch(e){cancelAnimationFrame(raf);st.stop();m.classList.add("err");m.textContent=e.message==="empty"?"AI tidak memberi jawaban. Coba ulangi pertanyaannya.":errMsg(e);hist.pop()}
+  catch(e){clearTimeout(raf);st.stop();m.classList.add("err");m.textContent=e.message==="empty"?"AI tidak memberi jawaban. Coba ulangi pertanyaannya.":errMsg(e);hist.pop()}
   busy=false;setBusy($("sb"),false);
 }
 $("sb").onclick=send;
 $("in").addEventListener("keydown",e=>{if(e.key==="Enter"&&!e.shiftKey&&!matchMedia("(pointer:coarse)").matches){e.preventDefault();send()}});
 
 function confetti(){const w=document.createElement("div");w.className="cfw";const cs=["#5e90f0","#3ddc97","#f0a24a","#e66ea8","#9b7cf0","#f5d547"];
-  for(let i=0;i<44;i++){const p=document.createElement("i");p.className="cf";p.style.cssText="left:"+(Math.random()*100)+"%;background:"+cs[i%cs.length]+";animation-delay:"+(Math.random()*.5)+"s;--dx:"+((Math.random()-.5)*160)+"px;--r:"+((Math.random()<.5?-1:1)*(360+Math.random()*540))+"deg";w.appendChild(p)}
+  for(let i=0;i<26;i++){const p=document.createElement("i");p.className="cf";p.style.cssText="left:"+(Math.random()*100)+"%;background:"+cs[i%cs.length]+";animation-delay:"+(Math.random()*.5)+"s;--dx:"+((Math.random()-.5)*160)+"px;--r:"+((Math.random()<.5?-1:1)*(360+Math.random()*540))+"deg";w.appendChild(p)}
   document.body.appendChild(w);setTimeout(()=>w.remove(),3200)}
 
 async function quiz(){
@@ -385,7 +370,7 @@ async function quiz(){
   if(!KEY){openSet();return}
   const q=$("quiz");busy=true;setBusy($("qb"),true);
   q.innerHTML="";const box=document.createElement("div");box.className="q glass";q.appendChild(box);
-  const st=mkStatus(box,"Susun","AI sedang menyusun soal…");
+  const st=mkStatus(box,"Menyusun soal…");
   try{
     const raw=await gen([{role:"user",content:"Buat 5 soal pilihan ganda tingkat sekolah tentang: "+t+" (kategori: "+subj+"). Bahasa Indonesia. Balas HANYA JSON array: [{\"q\":\"...\",\"options\":[\"A\",\"B\",\"C\",\"D\"],\"answer\":0,\"explain\":\"...\"}] dengan answer = indeks 0-3 jawaban benar."}],{json:true,onStatus:st.set});
     st.stop();
@@ -393,13 +378,13 @@ async function quiz(){
     if(!Array.isArray(d)||!d.length)throw new SyntaxError("bad");
     let sc=0,n=0;q.innerHTML="";const tot=d.length;
     const sd=document.createElement("div");sd.className="score glass";sd.innerHTML='<div class="sc-t"><span>Skor</span><b>0/'+tot+'</b></div><div class="sc-bar"><i></i></div>';
-    q.appendChild(sd);const sb=sd.querySelector("b"),bar=sd.querySelector("i"),sl=sd.querySelector("span");
+    q.appendChild(sd);const sb=sd.querySelector("b"),bar=sd.querySelector("i");
     d.forEach((it,i)=>{const c=document.createElement("div");c.className="q glass";c.style.animationDelay=(i*100+120)+"ms";c.innerHTML="<h3>"+(i+1)+". "+esc(String(it.q))+"</h3>";
       it.options.forEach((o,j)=>{const b=document.createElement("button");b.className="opt";b.textContent=o;b.onclick=()=>{if(c.dataset.d)return;c.dataset.d=1;n++;
         const bs=c.querySelectorAll(".opt");if(bs[it.answer])bs[it.answer].classList.add("ok");if(j===it.answer)sc++;else b.classList.add("no");
         const e=document.createElement("div");e.className="ex";e.textContent=it.explain||"";c.appendChild(e);
         sb.textContent=sc+"/"+tot;sb.classList.remove("bump");void sb.offsetWidth;sb.classList.add("bump");bar.style.width=(n/tot*100)+"%";
-        if(n===tot){sl.textContent=sc===tot?"Selesai · sempurna!":"Selesai · semangat terus!";if(sc===tot)confetti()}};c.appendChild(b)});
+        if(n===tot&&sc===tot)confetti()};c.appendChild(b)});
       q.appendChild(c)});
   }catch(e){st.stop();q.innerHTML="<div class='note'>"+(isNet(e)?errMsg(e):"Gagal membuat kuis. Coba topik lain.")+"</div>"}
   busy=false;setBusy($("qb"),false);
