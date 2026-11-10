@@ -121,6 +121,7 @@ const SYS=()=>"Kamu adalah guru AI yang ramah di “Zaim’s Classroom”. Kateg
 let KEY="",MODEL="";
 try{KEY=localStorage.getItem("zc-key")||"";MODEL=localStorage.getItem("zc-model")||""}catch(e){}
 const API="https://generativelanguage.googleapis.com/v1beta/";
+let CANDS=[];
 // pilih model otomatis dari daftar model yang tersedia untuk key ini
 async function detectModel(){
   const FB="gemini-flash-latest";
@@ -139,7 +140,7 @@ async function detectModel(){
   const tier=n=>/flash-lite/.test(n)?1:/flash/.test(n)?3:/pro/.test(n)?2:0;
   const stable=n=>/(preview|exp)/.test(n)?0:1;
   all.sort((a,b)=>(stable(b)-stable(a))||(tier(b)-tier(a))||(ver(b)-ver(a))||a.length-b.length);
-  MODEL=all[0];try{localStorage.setItem("zc-model",MODEL)}catch(e){}
+  CANDS=all.slice(0,5);MODEL=all[0];try{localStorage.setItem("zc-model",MODEL)}catch(e){}
   return MODEL;
 }
 function openSet(){$("kin").value=KEY;$("kerr").textContent="";$("kclose").style.display=KEY?"":"none";$("modal").classList.add("show");setTimeout(()=>$("kin").focus(),300)}
@@ -152,7 +153,7 @@ $("ksave").onclick=async()=>{const k=$("kin").value.trim();if(!k){$("kerr").text
   b.disabled=false};
 $("kclear").onclick=()=>{KEY="";MODEL="";try{localStorage.removeItem("zc-key");localStorage.removeItem("zc-model")}catch(e){}$("kin").value="";$("kclose").style.display="none"};
 if(!KEY)openSet();
-function errMsg(e){const s=e&&e.status;const d=e&&e.detail?" ("+e.detail+")":"";if(s===401||s===403||(s===400&&/api key/i.test(e.detail||"")))return"API key tidak valid atau belum aktif. Cek lewat tombol API Key.";if(s===404)return"Model Gemini tidak tersedia untuk key ini."+d;if(s===429)return"Kuota atau kecepatan terlampaui. Coba lagi sebentar.";if(s)return"Google AI error "+s+"."+d;if(e&&e.name==="TypeError")return"Tidak bisa terhubung ke Google AI. Cek koneksi internetmu.";return"Terjadi kesalahan: "+((e&&e.message)||"tidak diketahui")}
+function errMsg(e){const s=e&&e.status;const d=e&&e.detail?" ("+e.detail+")":"";if(s===401||s===403||(s===400&&/api key/i.test(e.detail||"")))return"API key tidak valid atau belum aktif. Cek lewat tombol API Key.";if(s===404)return"Model Gemini tidak tersedia untuk key ini."+d;if(s===429)return"Kuota atau kecepatan terlampaui. Coba lagi sebentar.";if(s===503||s===500||s===504)return"Server Google AI sedang sibuk. Coba kirim ulang sebentar lagi.";if(s)return"Google AI error "+s+"."+d;if(e&&(e.net||e.name==="TypeError"||/failed to fetch|network/i.test(e.message||"")))return"Tidak bisa terhubung ke Google AI. Cek internet/VPN, atau buka file ini langsung di browser (bukan lewat preview/aplikasi lain).";return"Terjadi kesalahan: "+((e&&e.message)||"tidak diketahui")}
 async function gen(msgs,o={},retry,noThink){
   if(!MODEL)await detectModel();
   const url=API+"models/"+encodeURIComponent(MODEL)+(o.stream?":streamGenerateContent?alt=sse":":generateContent");
@@ -161,8 +162,19 @@ async function gen(msgs,o={},retry,noThink){
   const gc={};if(o.json)gc.responseMimeType="application/json";
   if(!noThink){if(/gemini-2\.5/.test(MODEL)&&!/pro/.test(MODEL))gc.thinkingConfig={thinkingBudget:0};else if(/gemini-([3-9])/.test(MODEL))gc.thinkingConfig={thinkingLevel:"low"}}
   if(Object.keys(gc).length)body.generationConfig=gc;
-  const r=await fetch(url,{method:"POST",headers:{"Content-Type":"application/json","x-goog-api-key":KEY},body:JSON.stringify(body)});
-  if(!r.ok){if(r.status===400&&!noThink&&body.generationConfig&&body.generationConfig.thinkingConfig)return gen(msgs,o,retry,true);if(r.status===404&&(retry||0)<2){try{localStorage.removeItem("zc-model")}catch(e){}MODEL=retry?"gemini-flash-latest":"";return gen(msgs,o,(retry||0)+1,noThink)}let dt="";try{dt=((await r.json()).error||{}).message||""}catch(_){}const e=new Error("http");e.status=r.status;e.detail=dt.slice(0,140);throw e}
+  let r;
+  try{r=await fetch(url,{method:"POST",headers:{"Content-Type":"application/json","x-goog-api-key":KEY},body:JSON.stringify(body)})}
+  catch(err){
+    if(o.stream&&!o.ns){const t=await gen(msgs,{...o,stream:false,ns:1,onText:null},retry,noThink);o.onText&&o.onText(t);return t}
+    if(!o.nr){await new Promise(z=>setTimeout(z,900));return gen(msgs,{...o,nr:1},retry,noThink)}
+    err.net=true;throw err}
+  if(!r.ok){
+    if([429,500,503,504].includes(r.status)&&(o.att||0)<4){
+      const n=(o.att||0)+1,L=[...new Set([MODEL,...CANDS,"gemini-flash-latest","gemini-flash-lite-latest"])];
+      MODEL=L[(L.indexOf(MODEL)+1)%L.length];
+      await new Promise(z=>setTimeout(z,700*n));
+      return gen(msgs,{...o,att:n},retry,noThink)}
+    if(r.status===400&&!noThink&&body.generationConfig&&body.generationConfig.thinkingConfig)return gen(msgs,o,retry,true);if(r.status===404&&(retry||0)<2){try{localStorage.removeItem("zc-model")}catch(e){}MODEL=retry?"gemini-flash-latest":"";return gen(msgs,o,(retry||0)+1,noThink)}let dt="";try{dt=((await r.json()).error||{}).message||""}catch(_){}const e=new Error("http");e.status=r.status;e.detail=dt.slice(0,140);throw e}
   const pk=j=>((j.candidates&&j.candidates[0]&&j.candidates[0].content&&j.candidates[0].content.parts)||[]).map(p=>p.text||"").join("");
   if(!o.stream)return pk(await r.json());
   const rd=r.body.getReader(),dc=new TextDecoder();let buf="",all="";
