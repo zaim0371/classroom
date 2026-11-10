@@ -446,6 +446,22 @@ function inl(s){
    .replace(/(^|[^\w*])\*(?![\s*])([^*\n]+?)(?<![\s*])\*(?![\w*])/g,"$1<i>$2</i>")
    .replace(/(^|[^\w])_(?![\s_])([^_\n]+?)(?<![\s_])_(?![\w])/g,"$1<i>$2</i>");
   return s.replace(/\uE002(\d+)\uE003/g,(m,i)=>"<code>"+c[+i]+"</code>")}
+const MC=new Map();
+function texHTML(tex,disp){const k=(disp?"D":"I")+tex;if(MC.has(k))return MC.get(k);
+  let h;try{if(window.katex)h=katex.renderToString(tex,{displayMode:disp,throwOnError:false,strict:false})}catch(e){}
+  if(!h)h="<code>"+esc(tex)+"</code>";
+  if(window.katex){MC.set(k,h);if(MC.size>400)MC.clear()}return h}
+// ambil rumus ($..$, $$..$$, \(..\), \[..\]) dan ganti placeholder
+function mathIn(src,store){
+  const put=(t,d)=>{store.push(texHTML(t.trim(),d));return"\uE000"+(store.length-1)+"\uE001"};
+  return src
+    .replace(/\$\$([\s\S]+?)\$\$/g,(m,t)=>put(t,true))
+    .replace(/\\\[([\s\S]+?)\\\]/g,(m,t)=>put(t,true))
+    .replace(/\\\(([\s\S]+?)\\\)/g,(m,t)=>put(t,false))
+    .replace(/(^|[^\\$\w])\$(?!\s)([^$\n]+?)(?<!\s)\$(?![\d$])/g,(m,a,t)=>a+put(t,false))}
+function mathOut(h,store){return h.replace(/\uE000(\d+)\uE001/g,(m,i)=>store[+i]||"")}
+// teks pendek (kuis) dengan rumus
+function mx(s){const st=[];return mathOut(esc(mathIn(String(s==null?"":s),st)),st)}
 function md(src){
   const MS=[];src=mathIn(src,MS);
   return mathOut(md0(src),MS)}
