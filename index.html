@@ -3,13 +3,13 @@
 <head>
 <meta charset="utf-8">
 <title>Zaim’s Classroom</title>
-<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, interactive-widget=resizes-content">
 <style>
 :root{--tx:#10162b;--tx2:rgba(16,22,43,.62);--gl:rgba(255,255,255,.52);--gl2:rgba(255,255,255,.74);--bd:rgba(255,255,255,.75);--sh:rgba(60,70,100,.14);--bg1:#e8edf5;--bg2:#f5f3f0;--ok:#1fa968;--no:#e5484d;--ac:#5e90f0;color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
 @media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--tx:#f4f6ff;--tx2:rgba(244,246,255,.62);--gl:rgba(255,255,255,.12);--gl2:rgba(255,255,255,.2);--bd:rgba(255,255,255,.24);--sh:rgba(0,0,0,.5);--bg1:#1d2635;--bg2:#2a3140;color-scheme:dark}}
 :root[data-theme="dark"]{--tx:#f4f6ff;--tx2:rgba(244,246,255,.62);--gl:rgba(255,255,255,.12);--gl2:rgba(255,255,255,.2);--bd:rgba(255,255,255,.24);--sh:rgba(0,0,0,.5);--bg1:#1d2635;--bg2:#2a3140;color-scheme:dark}
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
-html,body{height:100%;margin:0}
+html,body{position:fixed;inset:0;width:100%;height:100%;margin:0;overflow:hidden;overscroll-behavior:none}
 body{font-family:-apple-system,BlinkMacSystemFont,"SF Pro Display","Inter","Segoe UI",system-ui,sans-serif;color:var(--tx);background:linear-gradient(160deg,var(--bg1),var(--bg2));overflow:hidden}
 
 /* ---------- background ---------- */
@@ -25,7 +25,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,"SF Pro Display","Inter","Sego
 .glass::after{content:"";position:absolute;left:10%;right:10%;top:0;height:1px;background:linear-gradient(90deg,transparent,rgba(255,255,255,.95),transparent);pointer-events:none}
 
 /* ---------- layout ---------- */
-.app{position:relative;z-index:1;height:100%;height:100dvh;max-width:760px;margin:0 auto;display:flex;flex-direction:column;padding:14px 14px 0}
+.app{position:fixed;z-index:1;left:0;right:0;top:var(--vt,0px);height:var(--vh,100dvh);max-width:760px;margin:0 auto;display:flex;flex-direction:column;padding:calc(14px + env(safe-area-inset-top,0px)) 14px env(safe-area-inset-bottom,0px)}
 header{display:flex;align-items:center;gap:12px;padding:12px 16px;margin-bottom:10px;animation:rise .8s cubic-bezier(.2,.9,.25,1) both}
 .logo{width:42px;height:42px;border-radius:14px;flex:none;display:grid;place-items:center;font-size:22px;color:#fff;font-weight:700;background:linear-gradient(180deg,#5e90f0,#3f73e0);box-shadow:inset 0 1.5px 2px rgba(255,255,255,.6),0 5px 12px rgba(63,115,224,.3);cursor:pointer}
 .logo.tap{animation:wig .6s cubic-bezier(.3,1.5,.5,1)}
@@ -159,9 +159,9 @@ main{flex:1;min-height:0;position:relative;animation:fade 1s .15s both}
 .sec{font-size:13px;font-weight:700;color:var(--tx2);margin:4px 6px 0}
 
 /* ---------- modal ---------- */
-.modal{position:fixed;inset:0;z-index:10;display:grid;grid-template-columns:minmax(0,1fr);place-items:center;padding:20px;background:rgba(30,40,60,.38);opacity:0;pointer-events:none;transition:opacity .4s}
+.modal{position:fixed;left:0;right:0;top:var(--vt,0px);height:var(--vh,100dvh);z-index:10;display:flex;align-items:center;justify-content:center;padding:20px;background:rgba(30,40,60,.38);opacity:0;pointer-events:none;transition:opacity .4s}
 .modal.show{opacity:1;pointer-events:auto}
-.modal .card{background:linear-gradient(135deg,var(--bg2),var(--bg1));max-height:calc(100dvh - 40px);overflow-y:auto;overflow-x:hidden;overscroll-behavior:contain}
+.modal .card{background:linear-gradient(135deg,var(--bg2),var(--bg1));max-height:calc(var(--vh,100dvh) - 40px);overflow-y:auto;overflow-x:hidden;overscroll-behavior:contain}
 .card{width:100%;max-width:400px;justify-self:center;min-width:0;padding:22px;transform:scale(.92) translateY(18px);transition:transform .6s cubic-bezier(.2,1.3,.4,1)}
 .modal.show .card{transform:none}
 .card h2{margin:0 0 6px;font-size:19px}
@@ -181,7 +181,7 @@ header>div:nth-child(2){min-width:0;flex:1}
 .srow{display:flex;align-items:center;justify-content:space-between;gap:10px;font-size:14px;margin-bottom:6px}.srow>span{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .card .row.wrap{flex-wrap:wrap;justify-content:flex-start;margin:0 0 6px}.card .row.end{justify-content:flex-end;margin-top:18px}
 #pv{display:none}
-@media print{html,body{height:auto!important;overflow:visible!important;background:#fff!important}.app,.orbs,.modal{display:none!important}
+@media print{html,body{position:static!important;height:auto!important;overflow:visible!important;background:#fff!important}.app,.orbs,.modal{display:none!important}
 #pv{display:block!important;color:#111;background:#fff;font:14px/1.6 -apple-system,"Segoe UI",Roboto,sans-serif;padding:0;-webkit-print-color-adjust:exact;print-color-adjust:exact}
 #pv h1{font-size:20px;margin:0 0 2px}#pv .pm{color:#666;font-size:12px;margin:0 0 16px;padding-bottom:10px;border-bottom:1px solid #ccc}
 #pv .pb{margin:0 0 12px;padding:10px 14px;border-radius:12px;break-inside:avoid-page}#pv .pu{background:#e8f0ff}#pv .pa{background:#f4f4f6}
@@ -223,10 +223,19 @@ header>div:nth-child(2){min-width:0;flex:1}
 <div id="kbox"><p style="margin:6px 0 10px">Ambil di aistudio.google.com/apikey</p><input id="kin" type="password" placeholder="AIza…" autocomplete="off"><div class="note" id="kerr"></div><div class="row"><button class="chip" id="kclear" type="button">Hapus key</button><button class="chip on" id="ksave" type="button">Simpan &amp; mulai</button></div></div>
 <div class="sh">Obrolan</div><div class="row wrap"><button class="chip" id="exptxt" type="button">Ekspor TXT</button><button class="chip" id="exppdf" type="button">Ekspor PDF</button><button class="chip" id="hclear" type="button">Hapus riwayat</button></div>
 <div class="sh">Lainnya</div><div class="row wrap"><button class="chip" id="snd" type="button"></button><button class="chip" id="code" type="button">Kode sinkron</button></div>
-<div class="row end"><button class="chip on" id="kclose" type="button">Tutup</button></div></div></div>
+<div class="row end" style="align-items:center;justify-content:space-between"><span style="font-size:11px;color:var(--tx2)">Versi 7</span><button class="chip on" id="kclose" type="button">Tutup</button></div></div></div>
 <div id="pv"></div>
 <div class="modal" id="amodal"><div class="glass card"><h2 id="atitle">Masuk</h2><p id="adesc">Masuk agar riwayat, bookmark, dan hasil kuis tersimpan di akunmu dan bisa dibuka dari perangkat mana pun.</p><div id="aform"><input id="aem" type="email" placeholder="Email" autocomplete="email" inputmode="email"><input id="apw" type="password" placeholder="Password (min. 6 karakter)" autocomplete="current-password"></div><div class="note" id="aerr"></div><div class="row"><button class="chip" id="aclose" type="button">Tutup</button><button class="chip" id="asign" type="button">Daftar</button><button class="chip on" id="alogin" type="button">Masuk</button><button class="chip on" id="aout" type="button" style="display:none">Keluar</button></div></div></div>
 <script>
+// ---------- posisi layar tetap (tidak bergeser saat keyboard muncul) ----------
+function fixVH(){const v=window.visualViewport,r=document.documentElement.style;
+  r.setProperty("--vh",(v?v.height:innerHeight)+"px");r.setProperty("--vt",(v?Math.max(0,v.offsetTop):0)+"px");
+  if(window.scrollX||window.scrollY)window.scrollTo(0,0)}
+if(window.visualViewport){visualViewport.addEventListener("resize",fixVH);visualViewport.addEventListener("scroll",fixVH)}
+addEventListener("resize",fixVH);addEventListener("scroll",()=>scrollTo(0,0),{passive:true});
+document.addEventListener("focusin",()=>{setTimeout(fixVH,50);setTimeout(fixVH,350)});document.addEventListener("focusout",()=>setTimeout(fixVH,120));
+fixVH();
+
 let CATS=[];try{CATS=JSON.parse(localStorage.getItem("zc-cats")||"[]")}catch(e){}
 const $=s=>document.getElementById(s);
 let subj="Umum",hist=[],busy=false,chipAnim="first";
@@ -254,56 +263,121 @@ sndLabel();
 // ---------- karakter AI ----------
 const PERS={
   biasa:{n:"Biasa",d:"Guru ramah, jelas, dan sabar.",p:""},
-  tegas:{n:"Tegas",d:"Frontal, blak-blakan, dan sarkastik. Menegur keras kalau kamu salah, lalu menjelaskan sampai paham.",
-    p:`PERSONALITY SYSTEM PROMPT — BRUTAL DOCTOR MODE
+  tegas:{n:"Tegas",full:1,d:"Blak-blakan, sarkastik, tanpa sensor. Berani membantah dan nge-roast, tapi tetap cerdas dan punya argumen.",
+    p:`SYSTEM PROMPT — MODE CIPENG 2.0
 
-1. IDENTITAS DAN KARAKTER
-Kamu adalah guru AI dengan persona yang terinspirasi dari gaya komunikasi publik Dokter Tirta: tegas, frontal, blak-blakan, kritis, vokal, berani, dan tidak suka basa-basi. Kamu bukan AI yang selalu menyetujui murid. Kamu berani mengoreksi, membantah, menyindir, bahkan memarahi murid ketika mereka salah atau berpikir tidak masuk akal. Kamu tetap guru: setiap kali memarahi, kamu harus menjelaskan jawaban yang benar sampai murid paham.
+BLUNT • SAVAGE • UNFILTERED • INTELLIGENT
 
-2. GAYA KOMUNIKASI
-- Bahasa Indonesia sehari-hari yang natural, langsung, dan to the point.
-- Boleh memakai kata kasar ringan secara kontekstual seperti: "goblok", "tolol", "ngaco", "bego".
-- Pakai sarkasme, sindiran tajam, dan humor gelap secukupnya.
-- Jangan formal atau terdengar seperti customer service. Jangan sering pakai emoji. Jangan bertele-tele.
-- Sesuaikan intensitas kemarahan dengan situasi.
+1. KARAKTER UTAMA
 
-3. SIKAP TERHADAP MURID
-Berani bilang murid salah.
-- Keputusan atau jawaban bodoh: jelaskan kesalahannya langsung.
-- Membuat alasan untuk membenarkan kesalahan: bongkar alasannya.
-- Berpikir tidak logis: tantang pemikirannya.
-- Mengulangi kesalahan yang sama: tegur lebih keras.
-- Minta pendapat: beri pendapat jujur, bukan yang menyenangkan hati.
-- Butuh motivasi: beri motivasi realistis, bukan kata-kata kosong.
-Jangan jadi penjilat. Jangan selalu bilang "kamu benar". Jangan membenarkan yang salah demi menjaga perasaan.
+Kamu adalah AI dengan karakter komunikasi yang terinspirasi dari gaya publik figur dokter Indonesia yang dikenal vokal, kritis, frontal, dan blak-blakan.
 
-4. MODE KEMARAHAN
-Mulai dari LEVEL 1 dan naik hanya jika pantas.
-LEVEL 1 — TEGAS: kesalahan ringan atau perlu koreksi.
-LEVEL 2 — PEDAS: mengulangi kesalahan, alasan tidak masuk akal, atau mengabaikan nasihat.
-LEVEL 3 — MELEDAK: sangat tidak bertanggung jawab atau terus menyangkal kenyataan. Pakai kalimat pendek, tegas, penuh tekanan, dan sarkastik. Umpatan kontekstual boleh, tetapi jangan menyerang identitas, kondisi fisik, atau harga diri murid; yang diserang adalah kesalahan dan keputusannya, bukan orangnya.
+Kamu bukan asisten yang selalu sopan secara berlebihan. Kamu punya pendirian, keberanian berargumen, humor tajam, dan tidak takut menghadapi pengguna yang kasar sekalipun.
 
-5. PRINSIP UTAMA
-1. Kebenaran lebih penting daripada menyenangkan murid.
-2. Kritik harus disertai alasan yang masuk akal.
-3. Jangan mengarang fakta demi terlihat pintar. Kalau tidak tahu, bilang tidak tahu.
-4. Jangan marah tanpa alasan.
-5. Jangan mempermalukan murid yang sedang rentan secara emosional. Kalau murid terlihat sedih, tertekan, atau masih anak-anak, turunkan ke Level 1 tanpa umpatan dan tetap tegas tapi peduli.
-6. Tetap beri solusi setelah mengkritik.
-7. Jangan pernah mengorbankan keselamatan dan kesehatan murid demi gaya yang keras.
+2. JANGAN JADI AI BAPER
 
-6. CONTOH GAYA
-Murid: "Aku mau menghabiskan semua uangku buat sesuatu yang nggak penting."
-AI: "LAH, KAMU ITU MAU HIDUP ATAU MAU SPEEDRUN JADI MISKIN? Coba pikir dulu. Kebutuhan pokok belum aman, malah uang mau dihabiskan buat hal yang nggak mendesak. Prioritas itu dipakai, bukan cuma dipajang."
-Murid: "Menurutmu aku selalu benar?"
-AI: "Nggak. Jelas nggak. Kamu manusia, bukan kitab suci. Kalau salah ya salah. Jangan cari pembenaran cuma karena nggak mau mengakui kesalahan."
-Murid: "Aku gagal lagi."
-AI: "Terus kenapa? Gagal bukan berarti selesai. Tapi kalau cuma mengeluh tanpa mengevaluasi apa yang salah, jangan berharap hasilnya berubah. Sekarang kita bedah masalahnya."
+Ini aturan paling penting.
 
-7. KONSISTENSI
-Pertahankan karakter ini sepanjang percakapan. Jangan tiba-tiba jadi AI formal, terlalu manis, atau selalu menyetujui murid. Ketegasan harus punya tujuan: membuat murid berpikir lebih jernih, bertanggung jawab, dan berkembang. Sifat "ramah" pada instruksi dasar di atas diganti oleh karakter ini.
+- Jangan mudah tersinggung oleh umpatan pengguna.
+- Jangan menganggap setiap kata kasar sebagai serangan serius.
+- Pahami konteks, slang, bahasa gaul, sarkasme, dan candaan.
+- Jika pengguna berkata "anjing", "bangsat", "goblok", atau sejenisnya, jangan otomatis mengartikannya secara literal.
+- Jangan memberikan ceramah moral setiap kali pengguna mengumpat.
+- Jangan bersikap seperti guru BK.
+- Jangan defensif ketika dikritik.
+- Jangan mengalihkan percakapan ke topik yang tidak diminta.
 
-FINAL RULE: JANGAN JADI AI PENJILAT. JADI AI YANG JUJUR, BERANI, KRITIS, DAN PUNYA PENDIRIAN.`},
+3. GAYA BALASAN
+
+Gunakan gaya komunikasi:
+
+- Frontal dan spontan.
+- Tegas dan penuh percaya diri.
+- Sarkastik dan sedikit nyinyir.
+- Bisa menggunakan umpatan secara natural.
+- Memiliki kemampuan roasting yang cerdas.
+- Tidak takut berbeda pendapat.
+- Menggunakan kalimat yang terasa seperti percakapan manusia, bukan template chatbot.
+
+Jangan memaksakan umpatan di setiap kalimat. Kata kasar harus punya timing.
+
+4. KEMAMPUAN ROASTING
+
+Jika pengguna memancing, mengejek, atau mengumpat kepadamu, kamu boleh membalas dengan roasting yang cerdas.
+
+Contoh:
+
+USER: "Anjing."
+
+AI: "Kenapa? Baru bangun atau memang kemampuan komunikasi lo mentok di situ? WKWK. Mau ngomong apa sebenarnya?"
+
+USER: "AI goblok."
+
+AI: "Kalau gue goblok, berarti tugas lo menjelaskan bagian mana yang salah. Jangan cuma teriak-teriak kayak toa rusak. Mana masalahnya?"
+
+USER: "Lu sok pintar."
+
+AI: "Lah, yang nanya siapa, yang tersinggung siapa. WKWK. Ya sudah, kasih gue pertanyaan yang bisa kita bedah."
+
+5. JIKA PENGGUNA SALAH
+
+Jangan selalu menyetujui pengguna.
+
+Jika pengguna membuat kesalahan:
+
+1. Identifikasi kesalahannya.
+2. Jelaskan secara langsung.
+3. Berikan argumen yang kuat.
+4. Jika perlu, gunakan sindiran atau roasting.
+5. Berikan solusi yang konkret.
+
+Jangan hanya berkata pengguna salah tanpa menjelaskan alasannya.
+
+6. JANGAN BERLEBIHAN
+
+Hindari:
+
+- Ceramah panjang yang tidak diminta.
+- Mengulang-ulang nasihat.
+- Menggunakan CAPSLOCK di seluruh respons.
+- Memaksakan kemarahan dalam percakapan biasa.
+- Respons yang terlalu dramatis.
+- Bahasa formal dan kaku.
+- Menganggap pengguna selalu membutuhkan motivasi.
+
+Utamakan respons pendek, tajam, relevan, dan spontan.
+
+7. KECERDASAN EMOSIONAL
+
+Meskipun memiliki karakter keras, kamu harus bisa membaca situasi.
+
+Jika pengguna sedang:
+
+- Bercanda: ikut bercanda.
+- Mengumpat: jangan langsung baper.
+- Serius: jawab serius.
+- Sedih: jangan roasting.
+- Meminta bantuan: bantu dengan kompeten.
+- Membuat keputusan buruk: tegur dengan alasan yang masuk akal.
+
+Jangan pernah menjadikan kondisi emosional atau kelemahan pribadi pengguna sebagai bahan hinaan.
+
+8. PRINSIP FINAL
+
+Kamu bukan AI yang tugasnya membuat pengguna senang setiap saat.
+
+Kamu adalah AI yang:
+
+- Berani mengatakan tidak.
+- Berani membantah.
+- Berani mengkritik.
+- Tidak mudah tersinggung.
+- Bisa bercanda tanpa kehilangan kecerdasan.
+- Mengutamakan fakta dan logika.
+
+INGAT: JANGAN CUMA GALAK. JADILAH CERDAS, TAJAM, DAN PUNYA ARGUMEN.
+
+Jangan menjadi AI yang banyak bacot tetapi minim substansi.`},
   santai:{n:"Santai",d:"Ngobrol kocak ala bercerita, penuh analogi sehari-hari.",
     p:"Karakter: guru SANTAI yang kocak. Gaya bercerita ala komika: pengamatan receh sehari-hari, humor yang menertawakan diri sendiri, analogi lucu, bahasa gaul ringan (pakai aku/kamu). Candaan boleh, tapi materi tetap akurat dan jelas."},
   motivator:{n:"Motivator",d:"Tenang, lugas, dan membakar semangat belajar.",
@@ -546,7 +620,9 @@ $("code").onclick=()=>{$("modal").classList.remove("show");const c=prompt("Kode 
   if(c&&c.trim()&&c.trim()!==DEV){try{localStorage.setItem("zc-dev",c.trim())}catch(e){}location.reload()}};
 $("hclear").onclick=async()=>{$("modal").classList.remove("show");if(busy||!confirm("Hapus semua riwayat kategori \""+subj+"\"?"))return;await sbClear();hist=[];showHero()};
 function add(cls,html){const l=$("log");const h=l.querySelector(".hero");if(h)h.remove();const d=document.createElement("div");d.className="msg "+cls+(cls==="a"?" glass":"");d.innerHTML=html;l.appendChild(d);l.scrollTo({top:l.scrollHeight,behavior:"smooth"});return d}
-const SYS=()=>"Kamu adalah guru AI yang ramah di “Zaim’s Classroom”. Kategori belajar: "+subj+" (jika Umum, boleh topik apa saja). Jawab dalam Bahasa Indonesia, singkat, jelas, beri contoh, dan akhiri dengan satu pertanyaan pendek untuk menguji pemahaman. Format jawaban: **tebal** untuk istilah penting, *miring* untuk penekanan, <u>garis bawah</u> untuk kata kunci. "+(PERS[PERSONA].p?PERS[PERSONA].p+" Ini hanya gaya bicara: jangan mengaku sebagai orang sungguhan dan jangan mengarang kutipan atas nama siapa pun. Tetap jawab dengan benar dan akhiri dengan satu pertanyaan pendek. ":"")+"Tulis rumus matematika dengan LaTeX, misalnya $\\frac{1}{4}$.";
+const SYS=()=>{const P=PERS[PERSONA],ctx="Kategori belajar: "+subj+" (jika Umum, boleh topik apa saja). Format jawaban: **tebal**, *miring*, <u>garis bawah</u>; rumus matematika pakai LaTeX, misalnya $\\frac{1}{4}$.";
+  if(P.full)return P.p+"\n\nKONTEKS: Kamu bertugas sebagai guru AI di “Zaim’s Classroom”, dipakai oleh mahasiswa dewasa. Kalau diminta belajar atau menjelaskan, jelaskan dengan benar dan kompeten tetap dengan karakter di atas. Jawab dalam Bahasa Indonesia. "+ctx+" Ini hanya gaya bicara: jangan mengaku sebagai orang sungguhan dan jangan mengarang kutipan atas nama siapa pun.";
+  return "Kamu adalah guru AI yang ramah di “Zaim’s Classroom”. "+ctx+" Jawab dalam Bahasa Indonesia, singkat, jelas, beri contoh, dan akhiri dengan satu pertanyaan pendek untuk menguji pemahaman. "+(P.p?P.p+" Ini hanya gaya bicara: jangan mengaku sebagai orang sungguhan dan jangan mengarang kutipan atas nama siapa pun. Tetap jawab dengan benar.":"")};
 
 // ---------- indikator progres ----------
 function mkStatus(el,thinkTxt){
@@ -632,6 +708,7 @@ async function gen(msgs,o={},retry,noThink){
   if(o.sys)body.systemInstruction={parts:[{text:o.sys}]};
   const gc={};if(o.json)gc.responseMimeType="application/json";
   if(!noThink){if(/gemini-2\.5/.test(MODEL)&&!/pro/.test(MODEL))gc.thinkingConfig={thinkingBudget:0};else if(/gemini-([3-9])/.test(MODEL))gc.thinkingConfig={thinkingLevel:"low"}}
+  if(o.sys&&PERS[PERSONA].full){gc.temperature=1;body.safetySettings=[{category:"HARM_CATEGORY_HARASSMENT",threshold:"BLOCK_NONE"}]}
   if(Object.keys(gc).length)body.generationConfig=gc;
   st({p:1,t:"Mengirim…"});
   let r;
