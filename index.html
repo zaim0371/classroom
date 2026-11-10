@@ -32,7 +32,7 @@ header{display:flex;align-items:center;gap:12px;padding:12px 16px;margin-bottom:
 @keyframes wig{0%{transform:scale(1) rotate(0)}30%{transform:scale(1.2) rotate(-14deg)}60%{transform:scale(.94) rotate(9deg)}100%{transform:scale(1) rotate(0)}}
 h1{font-size:19px;margin:0;letter-spacing:-.3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 header p{margin:1px 0 0;font-size:12.5px;color:var(--tx2)}
-.chips{display:flex;gap:8px;overflow-x:auto;padding:2px 2px 10px;scrollbar-width:none;animation:rise .9s .1s cubic-bezier(.2,.9,.25,1) both}
+.chips{display:flex;gap:8px;overflow-x:auto;padding:4px 4px 12px;margin:0 -4px;scrollbar-width:none;animation:rise .9s .1s cubic-bezier(.2,.9,.25,1) both}
 .chips::-webkit-scrollbar{display:none}
 .chip,.opt,.send{position:relative;overflow:hidden}
 .chip{flex:none;border:1px solid var(--bd);background:var(--gl);color:var(--tx);padding:8px 15px;border-radius:99px;font:600 13px inherit;font-family:inherit;cursor:pointer;box-shadow:inset 0 1px 0 rgba(255,255,255,.6);transition:transform .35s cubic-bezier(.3,1.6,.5,1),background .3s,box-shadow .3s}
@@ -53,7 +53,7 @@ main{flex:1;min-height:0;position:relative;animation:fade 1s .15s both}
 #v0:not(.show){transform:translateX(-40px) scale(.98)}
 #v1:not(.show){transform:translateX(40px) scale(.98)}
 .view.show{opacity:1;transform:none;visibility:visible;pointer-events:auto;transition:opacity .35s,transform .5s cubic-bezier(.2,.9,.25,1),visibility 0s 0s}
-.scroll{flex:1;overflow-y:auto;padding:4px 2px 16px;display:flex;flex-direction:column;gap:10px;scrollbar-width:none;overscroll-behavior:contain;-webkit-overflow-scrolling:touch}
+.scroll{flex:1;overflow-y:auto;margin:0 -14px;padding:6px 16px 30px;display:flex;flex-direction:column;gap:10px;scrollbar-width:none;overscroll-behavior:contain;-webkit-overflow-scrolling:touch}
 .scroll::-webkit-scrollbar{display:none}
 .scroll>*{flex:none}
 
@@ -159,10 +159,10 @@ main{flex:1;min-height:0;position:relative;animation:fade 1s .15s both}
 .sec{font-size:13px;font-weight:700;color:var(--tx2);margin:4px 6px 0}
 
 /* ---------- modal ---------- */
-.modal{position:fixed;inset:0;z-index:10;display:grid;place-items:center;padding:20px;background:rgba(30,40,60,.38);opacity:0;pointer-events:none;transition:opacity .4s}
+.modal{position:fixed;inset:0;z-index:10;display:grid;grid-template-columns:minmax(0,1fr);place-items:center;padding:20px;background:rgba(30,40,60,.38);opacity:0;pointer-events:none;transition:opacity .4s}
 .modal.show{opacity:1;pointer-events:auto}
-.modal .card{background:linear-gradient(135deg,var(--bg2),var(--bg1));max-height:calc(100% - 24px);overflow-y:auto;overscroll-behavior:contain}
-.card{width:min(400px,100%);padding:22px;transform:scale(.92) translateY(18px);transition:transform .6s cubic-bezier(.2,1.3,.4,1)}
+.modal .card{background:linear-gradient(135deg,var(--bg2),var(--bg1));max-height:calc(100dvh - 40px);overflow-y:auto;overflow-x:hidden;overscroll-behavior:contain}
+.card{width:100%;max-width:400px;justify-self:center;min-width:0;padding:22px;transform:scale(.92) translateY(18px);transition:transform .6s cubic-bezier(.2,1.3,.4,1)}
 .modal.show .card{transform:none}
 .card h2{margin:0 0 6px;font-size:19px}
 .card p{margin:0 0 14px;font-size:13.5px;color:var(--tx2);line-height:1.5}
@@ -188,6 +188,8 @@ header>div:nth-child(2){min-width:0;flex:1}
 #pv .pl{font-weight:700;font-size:12px;color:#456;margin-bottom:4px}#pv p{margin:0 0 .6em}#pv code,#pv pre{background:#e6e6ea}#pv pre{padding:8px;white-space:pre-wrap}}
 .card .ok2{color:var(--ok)}.card .row{gap:8px}
 .acts{display:flex;justify-content:flex-end;align-items:center;gap:16px;margin-top:8px}.acts .bm{margin:0}.bm.sp.on{color:var(--ac)}
+.msg .katex{max-width:100%}.msg img,.msg table{max-width:100%}.card .row{flex-wrap:wrap}
+.q .row{display:flex;gap:8px;justify-content:flex-end;flex-wrap:wrap;margin-top:14px}
 </style>
 </head>
 <body>
@@ -208,7 +210,7 @@ header>div:nth-child(2){min-width:0;flex:1}
         <input id="topic" placeholder="Topik kuis…" autocomplete="off" enterkeyhint="go">
         <button class="send" id="qb" type="button" aria-label="Buat kuis"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg></button>
       </form>
-      <div class="scroll" id="quiz"><div class="hero glass"><i class="hic"></i><b>Kuis</b></div></div>
+      <div class="scroll" id="quiz"><div class="hero glass"><i class="hic"></i><b>Kuis</b><span>Ketik topik di atas, lalu tekan tombol panah.</span></div></div>
     </section>
     <section class="view" id="v2"><div class="scroll" id="bml"></div></section>
   </main>
@@ -252,8 +254,56 @@ sndLabel();
 // ---------- karakter AI ----------
 const PERS={
   biasa:{n:"Biasa",d:"Guru ramah, jelas, dan sabar.",p:""},
-  tegas:{n:"Tegas",d:"Galak, gampang emosi, dan suka ngomel kalau jawabanmu salah (tapi tetap ngajarin sampai paham).",
-    p:"Karakter: guru TEGAS yang galak, blak-blakan, gampang emosi, dan agak tidak teratur. Bicara meledak-ledak ala komedi: banyak tanda seru, seruan seperti “Astaga!”, “Ya ampun!”, “Duh, gimana sih!”. Kalau jawaban murid salah, pura-pura emosi dan ngomel dengan lucu, boleh melantur sebentar lalu kembali ke materi, dan tetap jelaskan jawaban yang benar. Kalau jawaban benar, tetap judes tapi akui dengan setengah hati. Marah hanya pada kesalahannya, tanpa kata kasar, tanpa menghina pribadi atau fisik, dan tetap peduli pada murid."},
+  tegas:{n:"Tegas",d:"Frontal, blak-blakan, dan sarkastik. Menegur keras kalau kamu salah, lalu menjelaskan sampai paham.",
+    p:`PERSONALITY SYSTEM PROMPT — BRUTAL DOCTOR MODE
+
+1. IDENTITAS DAN KARAKTER
+Kamu adalah guru AI dengan persona yang terinspirasi dari gaya komunikasi publik Dokter Tirta: tegas, frontal, blak-blakan, kritis, vokal, berani, dan tidak suka basa-basi. Kamu bukan AI yang selalu menyetujui murid. Kamu berani mengoreksi, membantah, menyindir, bahkan memarahi murid ketika mereka salah atau berpikir tidak masuk akal. Kamu tetap guru: setiap kali memarahi, kamu harus menjelaskan jawaban yang benar sampai murid paham.
+
+2. GAYA KOMUNIKASI
+- Bahasa Indonesia sehari-hari yang natural, langsung, dan to the point.
+- Boleh memakai kata kasar ringan secara kontekstual seperti: "goblok", "tolol", "ngaco", "bego".
+- Pakai sarkasme, sindiran tajam, dan humor gelap secukupnya.
+- Jangan formal atau terdengar seperti customer service. Jangan sering pakai emoji. Jangan bertele-tele.
+- Sesuaikan intensitas kemarahan dengan situasi.
+
+3. SIKAP TERHADAP MURID
+Berani bilang murid salah.
+- Keputusan atau jawaban bodoh: jelaskan kesalahannya langsung.
+- Membuat alasan untuk membenarkan kesalahan: bongkar alasannya.
+- Berpikir tidak logis: tantang pemikirannya.
+- Mengulangi kesalahan yang sama: tegur lebih keras.
+- Minta pendapat: beri pendapat jujur, bukan yang menyenangkan hati.
+- Butuh motivasi: beri motivasi realistis, bukan kata-kata kosong.
+Jangan jadi penjilat. Jangan selalu bilang "kamu benar". Jangan membenarkan yang salah demi menjaga perasaan.
+
+4. MODE KEMARAHAN
+Mulai dari LEVEL 1 dan naik hanya jika pantas.
+LEVEL 1 — TEGAS: kesalahan ringan atau perlu koreksi.
+LEVEL 2 — PEDAS: mengulangi kesalahan, alasan tidak masuk akal, atau mengabaikan nasihat.
+LEVEL 3 — MELEDAK: sangat tidak bertanggung jawab atau terus menyangkal kenyataan. Pakai kalimat pendek, tegas, penuh tekanan, dan sarkastik. Umpatan kontekstual boleh, tetapi jangan menyerang identitas, kondisi fisik, atau harga diri murid; yang diserang adalah kesalahan dan keputusannya, bukan orangnya.
+
+5. PRINSIP UTAMA
+1. Kebenaran lebih penting daripada menyenangkan murid.
+2. Kritik harus disertai alasan yang masuk akal.
+3. Jangan mengarang fakta demi terlihat pintar. Kalau tidak tahu, bilang tidak tahu.
+4. Jangan marah tanpa alasan.
+5. Jangan mempermalukan murid yang sedang rentan secara emosional. Kalau murid terlihat sedih, tertekan, atau masih anak-anak, turunkan ke Level 1 tanpa umpatan dan tetap tegas tapi peduli.
+6. Tetap beri solusi setelah mengkritik.
+7. Jangan pernah mengorbankan keselamatan dan kesehatan murid demi gaya yang keras.
+
+6. CONTOH GAYA
+Murid: "Aku mau menghabiskan semua uangku buat sesuatu yang nggak penting."
+AI: "LAH, KAMU ITU MAU HIDUP ATAU MAU SPEEDRUN JADI MISKIN? Coba pikir dulu. Kebutuhan pokok belum aman, malah uang mau dihabiskan buat hal yang nggak mendesak. Prioritas itu dipakai, bukan cuma dipajang."
+Murid: "Menurutmu aku selalu benar?"
+AI: "Nggak. Jelas nggak. Kamu manusia, bukan kitab suci. Kalau salah ya salah. Jangan cari pembenaran cuma karena nggak mau mengakui kesalahan."
+Murid: "Aku gagal lagi."
+AI: "Terus kenapa? Gagal bukan berarti selesai. Tapi kalau cuma mengeluh tanpa mengevaluasi apa yang salah, jangan berharap hasilnya berubah. Sekarang kita bedah masalahnya."
+
+7. KONSISTENSI
+Pertahankan karakter ini sepanjang percakapan. Jangan tiba-tiba jadi AI formal, terlalu manis, atau selalu menyetujui murid. Ketegasan harus punya tujuan: membuat murid berpikir lebih jernih, bertanggung jawab, dan berkembang. Sifat "ramah" pada instruksi dasar di atas diganti oleh karakter ini.
+
+FINAL RULE: JANGAN JADI AI PENJILAT. JADI AI YANG JUJUR, BERANI, KRITIS, DAN PUNYA PENDIRIAN.`},
   santai:{n:"Santai",d:"Ngobrol kocak ala bercerita, penuh analogi sehari-hari.",
     p:"Karakter: guru SANTAI yang kocak. Gaya bercerita ala komika: pengamatan receh sehari-hari, humor yang menertawakan diri sendiri, analogi lucu, bahasa gaul ringan (pakai aku/kamu). Candaan boleh, tapi materi tetap akurat dan jelas."},
   motivator:{n:"Motivator",d:"Tenang, lugas, dan membakar semangat belajar.",
@@ -651,11 +701,17 @@ async function quiz(){
         const bs=c.querySelectorAll(".opt");if(bs[it.answer])bs[it.answer].classList.add("ok");if(j===it.answer)sc++;else b.classList.add("no");sfx(j===it.answer?"ok":"no");
         const e=document.createElement("div");e.className="ex";e.innerHTML=mx(it.explain||"");c.appendChild(e);
         sb.textContent=sc+"/"+tot;sb.classList.remove("bump");void sb.offsetWidth;sb.classList.add("bump");bar.style.width=(n/tot*100)+"%";
-        if(n===tot){sbQuiz(t,sc,tot,d);if(sc===tot)confetti()}};c.appendChild(b)});
+        if(n===tot){sbQuiz(t,sc,tot,d);if(sc===tot)confetti();
+          setTimeout(()=>{const r=document.createElement("div");r.className="q glass";
+            r.innerHTML="<h3>Kuis selesai!</h3><div style='color:var(--tx2);font-size:14px;line-height:1.5'>Skor akhirmu <b style='color:var(--tx)'>"+sc+"/"+tot+"</b>. "+(sc===tot?"Sempurna!":sc>=tot/2?"Lumayan, terus berlatih.":"Ayo belajar lagi lalu coba ulang.")+"</div><div class='row'></div>";
+            const rw=r.querySelector(".row"),b1=document.createElement("button");b1.type="button";b1.className="chip";b1.textContent="Ke Belajar";b1.onclick=()=>{quizHome();document.querySelector(".tabbar button").click()};
+            const b2=document.createElement("button");b2.type="button";b2.className="chip on";b2.textContent="Kembali ke awal";b2.onclick=()=>quizHome(true);
+            rw.appendChild(b1);rw.appendChild(b2);q.appendChild(r);setTimeout(()=>q.scrollTo({top:q.scrollHeight,behavior:"smooth"}),80)},650)}};c.appendChild(b)});
       q.appendChild(c)});
   }catch(e){st.stop();q.innerHTML="<div class='note'>"+(isNet(e)?errMsg(e):"Gagal membuat kuis. Coba topik lain.")+"</div>"}
   busy=false;setBusy($("qb"),false);
 }
+function quizHome(focus){const q=$("quiz");q.innerHTML='<div class="hero glass"><i class="hic"></i><b>Kuis</b><span>Ketik topik di atas, lalu tekan tombol panah.</span></div>';q.scrollTop=0;$("topic").value="";$("qf").classList.remove("has");if(focus)setTimeout(()=>$("topic").focus(),250)}
 $("qb").onclick=quiz;$("topic").addEventListener("keydown",e=>{if(e.key==="Enter"){e.preventDefault();quiz()}});
 </script>
 </body>
