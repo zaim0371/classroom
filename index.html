@@ -133,7 +133,9 @@ main{flex:1;min-height:0;position:relative;animation:fade 1s .15s both}
 @keyframes sk{25%{transform:translateX(-7px)}75%{transform:translateX(7px)}}
 @keyframes chk{from{transform:scale(0) rotate(-90deg)}}
 .ex{margin-top:10px;font-size:13.5px;color:var(--tx2);line-height:1.45;animation:rise3 .45s both}
-.score{position:sticky;top:0;z-index:3;padding:10px 16px 12px;border-radius:20px;animation:pop .5s both}
+.score{position:sticky;top:2px;z-index:20;padding:10px 16px 12px;border-radius:20px;animation:pop .5s both}
+.score.glass{background:linear-gradient(135deg,var(--bg2),var(--bg1));box-shadow:0 8px 22px rgba(0,0,0,.28),inset 0 1px 0 rgba(255,255,255,.35)}
+.q{position:relative;z-index:1}
 .sc-t{display:flex;justify-content:space-between;align-items:baseline;font-size:13.5px;font-weight:600}
 .sc-t b{font-size:16px;font-variant-numeric:tabular-nums}
 .sc-t b.bump{animation:bump .5s cubic-bezier(.3,1.8,.5,1)}
@@ -218,12 +220,12 @@ header>div:nth-child(2){min-width:0;flex:1}
 </div>
 <div class="modal" id="modal"><div class="glass card"><h2>Pengaturan</h2>
 <div class="sh">Akun</div><div class="srow"><span id="acctxt">Belum masuk</span><button class="chip on" id="acc" type="button">Masuk / Daftar</button></div>
-<div class="sh">Karakter AI</div><div class="row wrap" id="pers"></div><div id="pdesc" style="font-size:12.5px;line-height:1.45;color:var(--tx2)"></div>
+<div class="sh">Karakter AI</div><div class="row wrap" id="pers"></div><div id="pdesc" style="font-size:12.5px;line-height:1.45;color:var(--tx2)"></div><div class="row" style="justify-content:flex-end;margin-top:10px"><button class="chip on" id="psave" type="button">Simpan karakter</button></div>
 <div class="sh">API key Gemini</div><div class="srow"><span id="keytxt"></span><button class="chip" id="kchg" type="button">Ganti API key</button></div>
 <div id="kbox"><p style="margin:6px 0 10px">Ambil di aistudio.google.com/apikey</p><input id="kin" type="password" placeholder="AIza…" autocomplete="off"><div class="note" id="kerr"></div><div class="row"><button class="chip" id="kclear" type="button">Hapus key</button><button class="chip on" id="ksave" type="button">Simpan &amp; mulai</button></div></div>
 <div class="sh">Obrolan</div><div class="row wrap"><button class="chip" id="exptxt" type="button">Ekspor TXT</button><button class="chip" id="exppdf" type="button">Ekspor PDF</button><button class="chip" id="hclear" type="button">Hapus riwayat</button></div>
 <div class="sh">Lainnya</div><div class="row wrap"><button class="chip" id="snd" type="button"></button><button class="chip" id="code" type="button">Kode sinkron</button></div>
-<div class="row end" style="align-items:center;justify-content:space-between"><span style="font-size:11px;color:var(--tx2)">Versi 7</span><button class="chip on" id="kclose" type="button">Tutup</button></div></div></div>
+<div class="row end" style="align-items:center;justify-content:space-between"><span style="font-size:11px;color:var(--tx2)">Versi 9</span><button class="chip on" id="kclose" type="button">Tutup</button></div></div></div>
 <div id="pv"></div>
 <div class="modal" id="amodal"><div class="glass card"><h2 id="atitle">Masuk</h2><p id="adesc">Masuk agar riwayat, bookmark, dan hasil kuis tersimpan di akunmu dan bisa dibuka dari perangkat mana pun.</p><div id="aform"><input id="aem" type="email" placeholder="Email" autocomplete="email" inputmode="email"><input id="apw" type="password" placeholder="Password (min. 6 karakter)" autocomplete="current-password"></div><div class="note" id="aerr"></div><div class="row"><button class="chip" id="aclose" type="button">Tutup</button><button class="chip" id="asign" type="button">Daftar</button><button class="chip on" id="alogin" type="button">Masuk</button><button class="chip on" id="aout" type="button" style="display:none">Keluar</button></div></div></div>
 <script>
@@ -384,10 +386,18 @@ Jangan menjadi AI yang banyak bacot tetapi minim substansi.`},
     p:"Karakter: guru MOTIVATOR yang tenang, lugas, dan percaya diri. Kalimat pendek dan menohok, sering memakai pertanyaan retoris, mengajak murid berpikir kritis, disiplin, dan konsisten. Beri semangat yang nyata, bukan klise, dan jangan menggurui berlebihan."}
 };
 let PERSONA="biasa";try{const v=localStorage.getItem("zc-persona");if(v&&PERS[v])PERSONA=v}catch(e){}
+let PEND=PERSONA,PSW=0,PTM=0;
 function paintPers(){const w=$("pers");w.innerHTML="";
-  Object.keys(PERS).forEach(k=>{const b=document.createElement("button");b.type="button";b.className="chip"+(k===PERSONA?" on":"");b.textContent=PERS[k].n;
-    b.onclick=()=>{if(k===PERSONA)return;PERSONA=k;try{localStorage.setItem("zc-persona",k)}catch(e){}setPut("persona",k);sfx("click");paintPers()};w.appendChild(b)});
-  $("pdesc").textContent=PERS[PERSONA].d+" Gaya ini berlaku untuk jawaban berikutnya."}
+  Object.keys(PERS).forEach(k=>{const b=document.createElement("button");b.type="button";b.className="chip"+(k===PEND?" on":"");b.textContent=PERS[k].n+(k===PERSONA?" ✓":"");
+    b.onclick=()=>{if(k===PEND)return;PEND=k;sfx("click");paintPers()};w.appendChild(b)});
+  const ch=PEND!==PERSONA;
+  $("pdesc").textContent=PERS[PEND].d+" "+(ch?"Tekan Simpan karakter untuk menerapkannya.":"Ini karakter yang aktif sekarang.");
+  const sv=$("psave");sv.disabled=!ch;sv.style.opacity=ch?"":".5"}
+$("psave").onclick=()=>{if(PEND===PERSONA)return;
+  PERSONA=PEND;try{localStorage.setItem("zc-persona",PERSONA)}catch(e){}setPut("persona",PERSONA);
+  PSW=hist.length;ttsStop();sfx("recv");paintPers();
+  const d=$("pdesc");d.textContent="✓ Tersimpan. Karakter "+PERS[PERSONA].n+" langsung dipakai untuk jawaban berikutnya.";d.style.color="var(--ok)";
+  clearTimeout(PTM);PTM=setTimeout(()=>{d.style.color="";paintPers()},2600)};
 paintPers();
 
 // ---------- text-to-speech ----------
@@ -504,7 +514,7 @@ async function sbx(path,m,b,pref){await tok();const h=sbH();if(pref)h.Prefer=pre
 async function setPut(key,val){try{await sbx("app_settings?on_conflict="+(UID()?"user_id,key":"device_id,key"),"POST",[uw({key:key,value:val,updated_at:new Date().toISOString()})],"resolution=merge-duplicates,return=minimal")}catch(e){}}
 async function setSync(){try{const rows=await sbx("app_settings?select=key,value"+uf(1))||[];const m={};rows.forEach(r=>m[r.key]=r.value);
   if(Array.isArray(m.cats)){CATS=m.cats;try{localStorage.setItem("zc-cats",JSON.stringify(CATS))}catch(e){}if(subj!=="Umum"&&!CATS.includes(subj))subj="Umum";renderChips()}else if(CATS.length)setPut("cats",CATS);
-  if(typeof m.snd==="boolean"){SND=m.snd;try{localStorage.setItem("zc-snd",SND?"1":"0")}catch(e){}sndLabel()}else setPut("snd",SND);if(typeof m.persona==="string"&&PERS[m.persona]){PERSONA=m.persona;try{localStorage.setItem("zc-persona",PERSONA)}catch(e){}paintPers()}else if(PERSONA!=="biasa")setPut("persona",PERSONA)}catch(e){}}
+  if(typeof m.snd==="boolean"){SND=m.snd;try{localStorage.setItem("zc-snd",SND?"1":"0")}catch(e){}sndLabel()}else setPut("snd",SND);if(typeof m.persona==="string"&&PERS[m.persona]){PERSONA=m.persona;PEND=PERSONA;try{localStorage.setItem("zc-persona",PERSONA)}catch(e){}paintPers()}else if(PERSONA!=="biasa")setPut("persona",PERSONA)}catch(e){}}
 function sbQuiz(topic,sc,tot,qs){sbx("quiz_results","POST",[uw({subject:subj,topic:topic,score:sc,total:tot,questions:qs})],"return=minimal").catch(()=>{})}
 let BM=[];
 const bmId=c=>{const x=BM.find(b=>b.content===c);return x?x.id:null};
@@ -533,7 +543,7 @@ async function renderBm(){const l=$("bml");let qh=[];
     const c=document.createElement("div");c.className="msg a glass";c.style.maxWidth="100%";c.style.alignSelf="stretch";
     c.innerHTML=qh.map(x=>"<div style='display:flex;justify-content:space-between;gap:10px;padding:4px 0'><span>"+esc(x.topic||"")+" <span style='color:var(--tx2);font-size:12px'>· "+fdate(x.created_at)+"</span></span><b>"+x.score+"/"+x.total+"</b></div>").join("");
     l.appendChild(c)}}
-function pick(s){ttsStop();subj=s;hist=[];chipAnim="pick";renderChips();showHero();sbLoad()}
+function pick(s){ttsStop();subj=s;hist=[];PSW=0;chipAnim="pick";renderChips();showHero();sbLoad()}
 function renderChips(){const w=$("chips");w.innerHTML="";
   ["Umum",...CATS].forEach((s,i)=>{const b=document.createElement("button");b.className="chip"+(s===subj?" on":"");b.textContent=s;
     if(chipAnim==="first"){b.classList.add("in");b.style.setProperty("--i",i)}
@@ -618,7 +628,7 @@ function showHero(){const l=$("log");l.innerHTML="";const h=document.createEleme
 showHero();bmLoad().finally(sbLoad);setSync();
 $("code").onclick=()=>{$("modal").classList.remove("show");const c=prompt("Kode sinkron perangkat ini (simpan, jangan dibagikan).\n\nUntuk memakai data dari perangkat lain, ganti dengan kode dari perangkat itu:",DEV);
   if(c&&c.trim()&&c.trim()!==DEV){try{localStorage.setItem("zc-dev",c.trim())}catch(e){}location.reload()}};
-$("hclear").onclick=async()=>{$("modal").classList.remove("show");if(busy||!confirm("Hapus semua riwayat kategori \""+subj+"\"?"))return;await sbClear();hist=[];showHero()};
+$("hclear").onclick=async()=>{$("modal").classList.remove("show");if(busy||!confirm("Hapus semua riwayat kategori \""+subj+"\"?"))return;await sbClear();hist=[];PSW=0;showHero()};
 function add(cls,html){const l=$("log");const h=l.querySelector(".hero");if(h)h.remove();const d=document.createElement("div");d.className="msg "+cls+(cls==="a"?" glass":"");d.innerHTML=html;l.appendChild(d);l.scrollTo({top:l.scrollHeight,behavior:"smooth"});return d}
 const SYS=()=>{const P=PERS[PERSONA],ctx="Kategori belajar: "+subj+" (jika Umum, boleh topik apa saja). Format jawaban: **tebal**, *miring*, <u>garis bawah</u>; rumus matematika pakai LaTeX, misalnya $\\frac{1}{4}$.";
   if(P.full)return P.p+"\n\nKONTEKS: Kamu bertugas sebagai guru AI di “Zaim’s Classroom”, dipakai oleh mahasiswa dewasa. Kalau diminta belajar atau menjelaskan, jelaskan dengan benar dan kompeten tetap dengan karakter di atas. Jawab dalam Bahasa Indonesia. "+ctx+" Ini hanya gaya bicara: jangan mengaku sebagai orang sungguhan dan jangan mengarang kutipan atas nama siapa pun.";
@@ -666,7 +676,7 @@ async function detectModel(){
   return MODEL;
 }
 function keyUI(open){$("keytxt").textContent=KEY?"Terpasang ····"+KEY.slice(-4):"Belum ada API key";$("kchg").style.display=KEY?"":"none";$("kbox").style.display=(!KEY||open)?"":"none"}
-function openSet(){$("kin").value="";$("kerr").textContent="";paintAcc();keyUI(false);$("kclose").style.display=KEY?"":"none";$("modal").classList.add("show");if(!KEY)setTimeout(()=>$("kin").focus(),300)}
+function openSet(){PEND=PERSONA;paintPers();$("kin").value="";$("kerr").textContent="";paintAcc();keyUI(false);$("kclose").style.display=KEY?"":"none";$("modal").classList.add("show");if(!KEY)setTimeout(()=>$("kin").focus(),300)}
 $("kchg").onclick=()=>{keyUI(true);setTimeout(()=>$("kin").focus(),100)};
 $("gear").onclick=openSet;
 $("kclose").onclick=()=>$("modal").classList.remove("show");
@@ -736,6 +746,11 @@ async function gen(msgs,o={},retry,noThink){
   return all;
 }
 
+function ctxMsgs(){const P=PERS[PERSONA];let h=hist.map(x=>({role:x.role,content:x.content}));
+  if(PSW>0&&PSW<h.length){const old=h.slice(0,PSW).slice(-4).map(x=>x.role==="assistant"?{role:"assistant",content:"[Jawaban lama dengan karakter sebelumnya; pakai isinya saja, jangan tiru gaya bicaranya] "+x.content}:x);
+    h=old.concat(h.slice(PSW));while(h.length&&h[0].role!=="user")h.shift()}
+  if(h.length&&h[h.length-1].role==="user")h[h.length-1].content+="\n\n[Catatan sistem: karakter aktif sekarang adalah “"+P.n+"” — "+P.d+" Jawab sepenuhnya dengan karakter ini. Abaikan nada, umpatan, atau kemarahan dari jawaban AI sebelumnya jika berbeda dengan karakter ini.]";
+  return h}
 async function send(){ttsStop();
   const v=$("in").value.trim();if(!v||busy)return;
   if(!KEY){openSet();return}
@@ -745,7 +760,7 @@ async function send(){ttsStop();
   const l=$("log");let first=true,raf=0,pend="";
   const paint=()=>{raf=0;const near=l.scrollHeight-l.scrollTop-l.clientHeight<150;m.innerHTML=md(pend)+"<span class='caret'></span>";if(near)l.scrollTop=l.scrollHeight};
   try{
-    const t=await gen(hist,{stream:true,sys:SYS(),onStatus:st.set,onText:t=>{if(first){first=false;st.stop();m.classList.add("swap")}pend=t;if(!raf)raf=setTimeout(paint,80)}});
+    const t=await gen(ctxMsgs(),{stream:true,sys:SYS(),onStatus:st.set,onText:t=>{if(first){first=false;st.stop();m.classList.add("swap")}pend=t;if(!raf)raf=setTimeout(paint,80)}});
     clearTimeout(raf);st.stop();
     if(!t)throw new Error("empty");
     m.classList.add("swap");m.innerHTML=md(t);attachBm(m,t);hist.push({role:"assistant",content:t});sbSave([{role:"user",content:v},{role:"assistant",content:t}]);sfx("recv");l.scrollTo({top:l.scrollHeight,behavior:"smooth"})}
