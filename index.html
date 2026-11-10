@@ -190,7 +190,9 @@ header>div:nth-child(2){min-width:0;flex:1}
 .fv iframe{width:100%;height:100%;border:0;background:#fff}
 .fv pre{margin:0;width:100%;box-sizing:border-box;padding:14px 16px calc(env(safe-area-inset-bottom,0px) + 16px);color:#e8ecf5;font:13px/1.55 ui-monospace,Menlo,Consolas,monospace;white-space:pre-wrap;word-break:break-word}
 .fv img.ci{display:block;max-width:none;max-height:none;margin:0;cursor:default;object-fit:fill}
-.fv .fbody.ci{align-items:center;justify-content:center;overflow:hidden}
+.fv .fbody.ci{align-items:center;justify-content:center;overflow:hidden;touch-action:none;user-select:none;-webkit-user-select:none}
+.fv .fbody.ci img{-webkit-user-drag:none;pointer-events:none}
+.bm.ic{display:inline-flex;align-items:center;gap:6px}.bm.ic svg{flex:none}
 .acts.out{align-self:flex-start;margin:-4px 8px 0;max-width:92%;justify-content:flex-start;gap:16px;flex-wrap:wrap}
 .acts.out.u{align-self:flex-end;justify-content:flex-end}
 .tst{position:fixed;left:50%;bottom:calc(env(safe-area-inset-bottom,0px) + 90px);transform:translateX(-50%);z-index:30;max-width:88vw;padding:11px 16px;border-radius:16px;background:rgba(40,20,20,.92);color:#fff;font:600 13px/1.4 inherit;font-family:inherit;text-align:center;box-shadow:0 8px 30px rgba(0,0,0,.35);animation:rise2 .3s both}
@@ -624,18 +626,20 @@ function ttsChunks(t){
   const out=[];let cur="";parts.forEach(p=>{if(cur&&(cur+" "+p).length>180){out.push(cur);cur=p}else cur=cur?cur+" "+p:p});if(cur)out.push(cur);
   return out.flatMap(c=>c.length<=250?[c]:(c.match(/.{1,220}(\s|$)/g)||[c]))}
 let TT=0,TB=null;
-function ttsStop(){TT++;if(TTS){try{speechSynthesis.cancel()}catch(e){}}if(TB){TB.classList.remove("on");TB.textContent="🔊 Dengar";TB=null}}
+const BI={copy:'<rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/>',check:'<path d="M20 6L9 17l-5-5"/>',img:'<rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/>',vol:'<path d="M11 5L6 9H2v6h4l5 4V5z"/><path d="M15.5 8.5a5 5 0 010 7M19 5a10 10 0 010 14"/>',stop:'<rect x="6" y="6" width="12" height="12" rx="2"/>',x:'<path d="M18 6L6 18M6 6l12 12"/>'};
+function bmSet(b,n,t){b.innerHTML='<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">'+BI[n]+'</svg><span></span>';b.lastChild.textContent=t}
+function ttsStop(){TT++;if(TTS){try{speechSynthesis.cancel()}catch(e){}}if(TB){TB.classList.remove("on");bmSet(TB,"vol","Dengar");TB=null}}
 function ttsPlay(content,btn){
   if(TB===btn){ttsStop();return}
   ttsStop();const ch=ttsChunks(toSpeech(content));if(!ch.length)return;
-  const my=++TT;TB=btn;btn.classList.add("on");btn.textContent="⏹ Berhenti";
+  const my=++TT;TB=btn;btn.classList.add("on");bmSet(btn,"stop","Berhenti");
   const pr={biasa:[1,1],tegas:[1.12,1.1],santai:[1,1.05],motivator:[.95,.9]}[PERSONA]||[1,1];
   loadVoices();const v=idVoice();let i=0;
   const next=()=>{if(my!==TT)return;if(i>=ch.length){ttsStop();return}
     const u=new SpeechSynthesisUtterance(ch[i++]);u.lang="id-ID";if(v)u.voice=v;u.rate=pr[0];u.pitch=pr[1];
     u.onend=next;u.onerror=()=>{if(my===TT)ttsStop()};try{speechSynthesis.speak(u)}catch(e){ttsStop()}};
   setTimeout(next,80)}
-function ttsBtn(content){const b=document.createElement("button");b.className="bm sp";b.type="button";b.textContent="🔊 Dengar";b.onclick=()=>ttsPlay(content,b);return b}
+function ttsBtn(content){const b=document.createElement("button");b.className="bm sp ic";b.type="button";bmSet(b,"vol","Dengar");b.onclick=()=>ttsPlay(content,b);return b}
 
 // ---------- riwayat obrolan (Supabase) ----------
 const SB_URL="https://ypdtaoccfxzquyfsiloy.supabase.co/rest/v1/chat_messages";
@@ -823,17 +827,17 @@ const CI_FILL=(items,L,cols)=>{const out=[[]];let y=0;
 const CI_CL=(v,a,b,d)=>{v=parseFloat(v);return isFinite(v)?Math.min(b,Math.max(a,v)):d};
 function ciAuto(t){const n=t.length;
   if(n<160)return{aspect:1.78,cols:1,font:38,lh:1.5,pad:56,gap:.6,family:"sans",align:"center",valign:"middle"};
-  if(n<420)return{aspect:1.78,cols:1,font:28,lh:1.55,pad:48,gap:.6,family:"sans",align:"left",valign:"middle"};
-  if(n<900)return{aspect:1.8,cols:2,font:22,lh:1.55,pad:44,gap:.55,family:"sans",align:"left",valign:"top"};
-  if(n<1800)return{aspect:1.9,cols:2,font:19,lh:1.5,pad:40,gap:.5,family:"sans",align:"left",valign:"top"};
-  return{aspect:2.1,cols:3,font:17,lh:1.45,pad:36,gap:.45,family:"sans",align:"left",valign:"top"}}
+  if(n<420)return{aspect:1.7,cols:1,font:28,lh:1.55,pad:48,gap:.6,family:"sans",align:"left",valign:"middle"};
+  if(n<900)return{aspect:1.5,cols:1,font:22,lh:1.55,pad:44,gap:.55,family:"sans",align:"left",valign:"top"};
+  if(n<1800)return{aspect:1.4,cols:1,font:19,lh:1.5,pad:40,gap:.5,family:"sans",align:"left",valign:"top"};
+  return{aspect:1.3,cols:1,font:17,lh:1.45,pad:36,gap:.45,family:"sans",align:"left",valign:"top"}}
 function ciSpec(o,t){const d=ciAuto(t);o=(o&&typeof o==="object"&&!Array.isArray(o))?o:{};
   return{aspect:CI_CL(o.aspect,1.3,2.3,d.aspect),cols:Math.round(CI_CL(o.cols,1,3,d.cols)),font:CI_CL(o.font,15,48,d.font),lh:CI_CL(o.lh,1.3,1.85,d.lh),pad:CI_CL(o.pad,24,80,d.pad),gap:CI_CL(o.gap,.25,1.1,d.gap),
     family:["sans","serif","mono"].indexOf(o.family)>=0?o.family:d.family,align:o.align==="center"?"center":(o.align==="left"?"left":d.align),valign:o.valign==="middle"?"middle":(o.valign==="top"?"top":d.valign),
     title:String(o.title||"").replace(/\s+/g," ").trim().slice(0,48)||"Jawaban AI",ai:!!o.__ai}}
 async function ciAskAI(t){
   const paras=t.split(/\n\s*\n/).length,lists=(t.match(/^\s*([-*•]|\d+[.)])\s/gm)||[]).length;
-  const sys="Kamu adalah desainer tata letak. Tugasmu merancang gambar LANDSCAPE (lebar lebih besar dari tinggi) yang memuat SELURUH teks jawaban supaya jelas dan enak dibaca. Kanvas selalu selebar 1280 px, tingginya 1280/aspect. Balas HANYA satu objek JSON tanpa teks lain, dengan kunci: title (judul pendek maksimal 6 kata yang merangkum isi), aspect (1.4 sampai 2.2), cols (1 sampai 3 kolom), font (16 sampai 44, ukuran teks isi dalam px), lh (1.35 sampai 1.8), pad (28 sampai 72), gap (0.3 sampai 1.0, jarak antar paragraf dalam kelipatan ukuran font), family (\"sans\", \"serif\", atau \"mono\"), align (\"left\" atau \"center\"), valign (\"top\" atau \"middle\"). Panduan: teks pendek pakai font besar, 1 kolom, align center, valign middle; teks sedang pakai 1 sampai 2 kolom dengan font 22 sampai 28; teks panjang pakai 2 sampai 3 kolom, font 17 sampai 21, aspect sekitar 1.7 sampai 2.2. Usahakan satu baris berisi 40 sampai 75 karakter. Pakai mono hanya jika isi didominasi kode, serif untuk teks naratif atau puitis. Jangan mengubah isi teks.";
+  const sys="Kamu adalah desainer tata letak. Tugasmu merancang gambar LANDSCAPE (lebar lebih besar dari tinggi) yang memuat SELURUH teks jawaban supaya jelas dan enak dibaca. Teks selalu disusun dalam SATU kolom yang mengalir ke bawah, paragraf demi paragraf, tanpa dipecah ke samping. Kanvas selalu selebar 1280 px, tingginya 1280/aspect. Balas HANYA satu objek JSON tanpa teks lain, dengan kunci: title (judul pendek maksimal 6 kata yang merangkum isi), aspect (1.3 sampai 2.2; makin rendah makin tinggi kanvasnya), font (16 sampai 44, ukuran teks isi dalam px), lh (1.35 sampai 1.8), pad (28 sampai 72), gap (0.3 sampai 1.0, jarak antar paragraf dalam kelipatan ukuran font), family (\"sans\", \"serif\", atau \"mono\"), align (\"left\" atau \"center\"), valign (\"top\" atau \"middle\"). Panduan: teks pendek pakai font besar (32 sampai 44), aspect sekitar 1.78, align center, valign middle; teks sedang pakai font 22 sampai 28 dan aspect 1.5 sampai 1.7; teks panjang pakai aspect rendah (1.3 sampai 1.5) supaya ada cukup tinggi, font 17 sampai 21. Pakai mono hanya jika isi didominasi kode, serif untuk teks naratif atau puitis. Jangan mengubah isi teks.";
   const usr="Statistik teks: "+t.length+" karakter, "+paras+" paragraf, "+lists+" butir daftar, "+(/```/.test(t)?"ada":"tanpa")+" blok kode, "+(/\$|\\\(|\\\[/.test(t)?"ada":"tanpa")+" rumus.\n\nTeks:\n"+t.slice(0,5000);
   try{
     const out=await Promise.race([gen([{role:"user",content:usr}],{sys:sys,json:true,onStatus:()=>{}}),new Promise((_,no)=>setTimeout(()=>no(new Error("timeout")),14000))]);
@@ -919,9 +923,9 @@ function ciRender(content,sp){return new Promise((ok,no)=>{try{
     while(lo<hi){const mid=(lo+hi)>>1;if(CI_FILL(items,mid,cols))hi=mid;else lo=mid+1}
     return{H:H,F:F,cols:cols,cs:CI_FILL(items,lo,cols),cw:cw,gut:gut,ah:ah}};
   let r=null;
-  const asps=[...new Set([sp.aspect,Math.min(sp.aspect,1.5),1.35])].filter(a=>a>=1.3).sort((a,b)=>b-a);
+  const asps=[...new Set([sp.aspect,1.7,1.55,1.4,1.3].filter(a=>a<=sp.aspect+1e-6&&a>=1.3))].sort((a,b)=>b-a);
   for(let ai=0;ai<asps.length&&!r;ai++){const H=Math.round(W/asps[ai]),last=ai===asps.length-1;
-    for(let F=sp.font;F>=(last?8:sp.font*.85);F*=.95){r=tryFit(H,F,sp.cols);if(r)break}}
+    for(let F=sp.font;F>=(last?8:sp.font*.88);F*=.96){r=tryFit(H,F,1);if(r)break}}
   if(!r){const aw=W-2*M-2*P,items=ciItems(root,aw,12,sp,E);let tot=0;items.forEach(i=>{tot+=i.h+i.m});
     r={H:Math.ceil(tot+2*M+2*P+BT+FH+10),F:12,cols:1,cs:CI_FILL(items,tot+10,1),cw:aw,gut:0,ah:tot+10}}
   const H=r.H,CW=W,CH=H;
@@ -960,11 +964,11 @@ function ciRender(content,sp){return new Promise((ok,no)=>{try{
 }catch(e){no(e)}})}
 async function chatImgOpen(content){if(FV)return;
   const el=document.createElement("div");el.className="fv";
-  el.innerHTML="<div class='fh'><button class='fb fx' type='button' aria-label='Tutup'><svg viewBox='0 0 24 24' width='20' height='20' fill='none' stroke='currentColor' stroke-width='2.4' stroke-linecap='round'><path d='M6 6l12 12M18 6L6 18'/></svg></button><b>Jawaban AI</b><button class='fb fr' type='button' style='display:none'>⟳ Putar</button><button class='fb fd' type='button' style='display:none'>⬇ Unduh</button></div><div class='fbody ci'><span style='color:#aab;margin:auto;font-size:14px;text-align:center;padding:0 24px'>AI sedang menata gambar…</span></div>";
+  el.innerHTML="<div class='fh'><button class='fb fx' type='button' aria-label='Tutup'><svg viewBox='0 0 24 24' width='20' height='20' fill='none' stroke='currentColor' stroke-width='2.4' stroke-linecap='round'><path d='M6 6l12 12M18 6L6 18'/></svg></button><b>Jawaban AI</b><button class='fb fd' type='button' style='display:none'><svg viewBox=\'0 0 24 24\' width=\'18\' height=\'18\' fill=\'none\' stroke=\'currentColor\' stroke-width=\'2\' stroke-linecap=\'round\' stroke-linejoin=\'round\'><path d=\'M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M7 10l5 5 5-5M12 15V3\'/></svg>Unduh</button></div><div class='fbody ci'><span style='color:#aab;margin:auto;font-size:14px;text-align:center;padding:0 24px'>AI sedang menata gambar…</span></div>";
   document.body.appendChild(el);FV={el,url:null,a:{name:"jawaban-ai.png"}};
   requestAnimationFrame(()=>el.classList.add("show"));
   el.querySelector(".fx").onclick=fvClose;
-  const body=el.querySelector(".fbody"),dl=el.querySelector(".fd"),rb=el.querySelector(".fr"),hd=el.querySelector(".fh b");
+  const body=el.querySelector(".fbody"),dl=el.querySelector(".fd"),hd=el.querySelector(".fh b");
   try{
     const sp=await ciAskAI(content);
     if(!FV||FV.el!==el)return;
@@ -974,21 +978,40 @@ async function chatImgOpen(content){if(FV)return;
     if(!FV||FV.el!==el)return;
     const url=URL.createObjectURL(R.blob);FV.url=url;body.innerHTML="";
     const wrap=document.createElement("div"),im=document.createElement("img");im.className="ci";im.src=url;im.alt=sp.title;im.draggable=false;wrap.appendChild(im);body.appendChild(wrap);
-    let rot=innerHeight>innerWidth;const a=R.w/R.h;
-    const fit=()=>{const bw=body.clientWidth,bh=body.clientHeight;
-      if(!rot){const w=Math.min(bw,bh*a),h=w/a;wrap.style.cssText="position:relative;margin:auto;flex:none;width:"+w+"px;height:"+h+"px";im.style.cssText=""}
-      else{const wd=Math.min(bh,bw*a),h=wd/a;wrap.style.cssText="position:relative;margin:auto;flex:none;width:"+h+"px;height:"+wd+"px";im.style.cssText="position:absolute;left:50%;top:50%;width:"+wd+"px;height:"+h+"px;transform:translate(-50%,-50%) rotate(90deg)"}};
+    const a=R.w/R.h;let sc=1,tx=0,ty=0;
+    const apply=()=>{const bw=body.clientWidth,bh=body.clientHeight,w=wrap.offsetWidth*sc,h=wrap.offsetHeight*sc,mx=Math.max(0,(w-bw)/2),my=Math.max(0,(h-bh)/2);
+      tx=Math.min(mx,Math.max(-mx,tx));ty=Math.min(my,Math.max(-my,ty));wrap.style.transform="translate("+tx+"px,"+ty+"px) scale("+sc+")"};
+    const fit=()=>{const bw=body.clientWidth,bh=body.clientHeight,w=Math.min(bw,bh*a),h=w/a;
+      wrap.style.cssText="position:relative;flex:none;margin:auto;width:"+w+"px;height:"+h+"px;transform-origin:50% 50%;will-change:transform";im.style.cssText="width:100%;height:100%";apply()};
     fit();
-    const onr=()=>{if(!FV||FV.el!==el){removeEventListener("resize",onr);return}rot=innerHeight>innerWidth;fit()};addEventListener("resize",onr);
-    rb.style.display="";rb.onclick=()=>{rot=!rot;fit()};
+    const onr=()=>{if(!FV||FV.el!==el){removeEventListener("resize",onr);return}fit()};addEventListener("resize",onr);
+    // zoom cubit (dua jari), geser (satu jari saat diperbesar), ketuk dua kali, dan roda mouse
+    const PT=new Map();let pd=0,pm=null,lastTap=0,lx=0,ly=0;
+    const cen=(x,y)=>{const r=body.getBoundingClientRect();return[x-r.left-r.width/2,y-r.top-r.height/2]};
+    const zoomAt=(s2,px,py)=>{s2=Math.min(6,Math.max(1,s2));tx=px-(px-tx)*(s2/sc);ty=py-(py-ty)*(s2/sc);sc=s2;apply()};
+    body.addEventListener("pointerdown",e=>{try{body.setPointerCapture(e.pointerId)}catch(_){}PT.set(e.pointerId,[e.clientX,e.clientY]);
+      if(PT.size===1){const t=Date.now();
+        if(t-lastTap<300&&Math.hypot(e.clientX-lx,e.clientY-ly)<30){const c=cen(e.clientX,e.clientY);if(sc>1.05){sc=1;tx=0;ty=0;apply()}else zoomAt(2.5,c[0],c[1]);lastTap=0}
+        else{lastTap=t;lx=e.clientX;ly=e.clientY}}
+      if(PT.size===2){const v=[...PT.values()];pd=Math.hypot(v[0][0]-v[1][0],v[0][1]-v[1][1]);pm=[(v[0][0]+v[1][0])/2,(v[0][1]+v[1][1])/2]}});
+    body.addEventListener("pointermove",e=>{if(!PT.has(e.pointerId))return;const old=PT.get(e.pointerId);PT.set(e.pointerId,[e.clientX,e.clientY]);
+      if(PT.size===1){if(sc>1){tx+=e.clientX-old[0];ty+=e.clientY-old[1];apply()}}
+      else if(PT.size===2){const v=[...PT.values()],d=Math.hypot(v[0][0]-v[1][0],v[0][1]-v[1][1]),m=[(v[0][0]+v[1][0])/2,(v[0][1]+v[1][1])/2];
+        if(pd>0&&pm){const c1=cen(m[0],m[1]),c0=cen(pm[0],pm[1]),s2=Math.min(6,Math.max(1,sc*d/pd));
+          tx=c1[0]-(c0[0]-tx)*(s2/sc);ty=c1[1]-(c0[1]-ty)*(s2/sc);sc=s2;apply()}
+        pd=d;pm=m}});
+    const up=e=>{PT.delete(e.pointerId);if(PT.size<2){pd=0;pm=null}if(sc<1.02){sc=1;tx=0;ty=0;apply()}};
+    body.addEventListener("pointerup",up);body.addEventListener("pointercancel",up);
+    body.addEventListener("wheel",e=>{e.preventDefault();const c=cen(e.clientX,e.clientY);zoomAt(sc*(e.deltaY<0?1.15:1/1.15),c[0],c[1])},{passive:false});
     dl.style.display="";
-    dl.onclick=()=>{const x=document.createElement("a");x.href=url;x.download="jawaban-ai-"+Date.now()+".png";document.body.appendChild(x);x.click();x.remove()}
+    dl.onclick=()=>{const x=document.createElement("a");x.href=url;x.download="jawaban-ai-"+Date.now()+".png";document.body.appendChild(x);x.click();x.remove()};
+    toast("Cubit layar untuk zoom")
   }catch(e){if(FV&&FV.el===el)body.innerHTML="<span style='color:#f99;margin:auto;font-size:14px'>Gagal membuat gambar.</span>"}}
-function imgBtn(content){const b=document.createElement("button");b.className="bm";b.type="button";b.textContent="🖼️ Jadikan gambar";b.onclick=()=>chatImgOpen(content);return b}
+function imgBtn(content){const b=document.createElement("button");b.className="bm ic";b.type="button";bmSet(b,"img","Jadikan gambar");b.onclick=()=>chatImgOpen(content);return b}
 async function copyText(t){try{if(navigator.clipboard&&window.isSecureContext){await navigator.clipboard.writeText(t);return true}}catch(e){}
   try{const a=document.createElement("textarea");a.value=t;a.setAttribute("readonly","");a.style.cssText="position:fixed;left:-9999px;top:0;opacity:0";document.body.appendChild(a);a.select();a.setSelectionRange(0,t.length);const ok=document.execCommand("copy");a.remove();return ok}catch(e){return false}}
-function copyBtn(text){const b=document.createElement("button");b.className="bm";b.type="button";b.textContent="📋 Salin";
-  b.onclick=async()=>{const ok=await copyText(text);b.textContent=ok?"✓ Tersalin":"Gagal menyalin";setTimeout(()=>{b.textContent="📋 Salin"},1600)};return b}
+function copyBtn(text){const b=document.createElement("button");b.className="bm ic";b.type="button";bmSet(b,"copy","Salin");
+  b.onclick=async()=>{const ok=await copyText(text);if(ok)bmSet(b,"check","Tersalin");else bmSet(b,"x","Gagal menyalin");setTimeout(()=>bmSet(b,"copy","Salin"),1600)};return b}
 function attachCopy(el,text){const w=document.createElement("div");w.className="acts out u";w.appendChild(copyBtn(text));el.after(w)}
 function attachBm(el,content){const w=document.createElement("div");w.className="acts out a";w.appendChild(copyBtn(content));w.appendChild(imgBtn(content));if(TTS)w.appendChild(ttsBtn(content));el.after(w)}
 
