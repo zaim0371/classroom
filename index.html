@@ -2,6 +2,7 @@
 <html lang="id">
 <head>
 <meta charset="utf-8">
+<link rel="preconnect" href="https://generativelanguage.googleapis.com" crossorigin>
 <title>Zaim’s Classroom</title>
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, interactive-widget=resizes-content">
 <style>
@@ -316,7 +317,7 @@ input,textarea,select,button{-webkit-appearance:none;appearance:none}
 <div id="kbox"><p style="margin:6px 0 10px">Ambil di aistudio.google.com/apikey</p><input id="kin" type="password" placeholder="AIza…" autocomplete="off"><div class="note" id="kerr"></div><div class="row"><button class="chip" id="kclear" type="button">Hapus key</button><button class="chip on" id="ksave" type="button">Simpan &amp; mulai</button></div></div></div>
 <div class="sp" data-s="chat"><div class="sh">Obrolan</div><div class="row wrap"><button class="chip" id="exptxt" type="button">Ekspor TXT</button><button class="chip" id="exppdf" type="button">Ekspor PDF</button><button class="chip" id="hclear" type="button">Hapus semua riwayat</button></div></div>
 <div class="sp" data-s="more"><div class="sh">Lainnya</div><div class="row wrap"><button class="chip" id="snd" type="button"></button><button class="chip" id="code" type="button">Kode sinkron</button></div></div>
-<div class="row end" style="align-items:center;justify-content:space-between"><span style="font-size:11px;color:var(--tx2)">Versi 24</span><button class="chip on" id="kclose" type="button">Tutup</button></div></div></div>
+<div class="row end" style="align-items:center;justify-content:space-between"><span style="font-size:11px;color:var(--tx2)">Versi 25</span><button class="chip on" id="kclose" type="button">Tutup</button></div></div></div>
 <input type="file" id="fi" multiple hidden accept="image/*,application/pdf,text/*,.txt,.md,.csv,.json,.py,.js,.html,.css,.xml,.sql">
 <div class="dov" id="dov"></div>
 <aside class="drawer" id="drw" aria-label="Riwayat obrolan"><h2>Obrolan</h2><button class="chip on dnew" id="dnew" type="button">+ Obrolan baru</button><div class="dl" id="dl"></div>
@@ -948,6 +949,7 @@ function mkStatus(el,thinkTxt){
 let KEY="",MODEL="";
 try{KEY=localStorage.getItem("zc-key")||"";MODEL=localStorage.getItem("zc-model3")||""}catch(e){}
 const API="https://generativelanguage.googleapis.com/v1beta/";
+setTimeout(()=>{if(KEY&&!MODEL)detectModel().catch(()=>{})},0);
 let CANDS=[];
 // pilih model otomatis dari daftar model yang tersedia untuk key ini
 async function detectModel(){
@@ -1012,7 +1014,8 @@ function errMsg(e){const s=e&&e.status;const d=e&&e.detail?" ("+e.detail+")":"";
 const isNet=e=>!!(e&&(e.status||e.net||e.name==="TypeError"||/failed to fetch|network/i.test(e.message||"")));
 
 // pengaturan "berpikir" paling ringan per model; tl = tingkat fallback kalau ditolak (400)
-function thkOpts(m){if(/gemini-2\.5/.test(m))return/pro/.test(m)?[{thinkingBudget:128}]:[{thinkingBudget:0}];if(/gemini-([3-9])/.test(m))return[{thinkingLevel:"minimal"},{thinkingLevel:"low"}];return[]}
+const TKM={};
+function thkOpts(m){if(/latest/.test(m))return[{thinkingBudget:0},{thinkingLevel:"minimal"},{thinkingLevel:"low"}];if(/gemini-2\.5/.test(m))return/pro/.test(m)?[{thinkingBudget:128}]:[{thinkingBudget:0}];if(/gemini-([3-9])/.test(m))return[{thinkingLevel:"minimal"},{thinkingLevel:"low"}];return[]}
 async function gen(msgs,o={},retry,noThink){
   const st=o.onStatus||(()=>{});if(o.fc)o.fc.length=0;
   if(!MODEL){st({p:0,t:"Memilih model…"});await detectModel()}
@@ -1022,7 +1025,7 @@ async function gen(msgs,o={},retry,noThink){
   if(o.sys)body.systemInstruction={parts:[{text:o.sys}]};
   if(o.tools)body.tools=[{functionDeclarations:TOOLDEFS}];
   const gc={};if(o.json)gc.responseMimeType="application/json";
-  const tl=noThink===true?99:(noThink||0),tk=thkOpts(MODEL)[tl];if(tk)gc.thinkingConfig=tk;
+  const tl=noThink===true?99:(typeof noThink==="number"?noThink:(TKM[MODEL]||0)),tk=thkOpts(MODEL)[tl];if(tk)gc.thinkingConfig=tk;
   if(!o.json)gc.maxOutputTokens=3000;
   if(o.sys&&PERS[PERSONA].full){gc.temperature=1;body.safetySettings=[{category:"HARM_CATEGORY_HARASSMENT",threshold:"BLOCK_NONE"}]}
   if(Object.keys(gc).length)body.generationConfig=gc;
@@ -1045,7 +1048,7 @@ async function gen(msgs,o={},retry,noThink){
     if(r.status===400&&body.generationConfig&&body.generationConfig.thinkingConfig)return gen(msgs,o,retry,tl+1);
     if(r.status===404&&(retry||0)<2){st({p:0,t:"Mencari model lain…",warn:true});try{localStorage.removeItem("zc-model3")}catch(e){}MODEL=retry?"gemini-flash-latest":"";return gen(msgs,o,(retry||0)+1,noThink)}
     let dt="";try{dt=((await r.json()).error||{}).message||""}catch(_){}const e=new Error("http");e.status=r.status;e.detail=dt.slice(0,140);throw e}
-  st({p:3,t:o.stream?"Menulis…":"Merapikan…"});
+  TKM[MODEL]=tl;st({p:3,t:o.stream?"Menulis…":"Merapikan…"});
   const pk=j=>((j.candidates&&j.candidates[0]&&j.candidates[0].content&&j.candidates[0].content.parts)||[]).map(p=>p.text||"").join("");
   const cf=j=>{((j.candidates&&j.candidates[0]&&j.candidates[0].content&&j.candidates[0].content.parts)||[]).forEach(p=>{if(p.functionCall&&o.fc)o.fc.push(p)})};
   if(!o.stream){const jj=await r.json();cf(jj);return pk(jj)}
@@ -1067,7 +1070,7 @@ const TOOLDEFS=[
  {name:"update_class",description:"Ubah kelas yang akan datang (judul, tanggal, jam, atau durasi). Isi hanya yang berubah.",parameters:{type:"object",properties:{ref:{type:"integer",description:"Nomor # kelas dari daftar"},title:{type:"string"},date:{type:"string",description:"YYYY-MM-DD"},time:{type:"string",description:"HH:MM"},duration_min:{type:"integer"}},required:["ref"]}},
  {name:"delete_class",description:"Hapus kelas (pengguna akan diminta konfirmasi).",parameters:{type:"object",properties:{ref:{type:"integer",description:"Nomor # kelas dari daftar"}},required:["ref"]}}];
 let CSNAP=[];
-const CRX=/kelas|jadwal|class|belajar|materi|jam \d|\d[.:]\d\d|besok|lusa|hapus|batal|ubah|ganti|pindah|tambah|undur|majuk|telat|terlewat|hadir/i;
+const CRX=/kelas|jadwal|class|jam \d|\d[.:]\d\d|besok|lusa|undur|majuk|telat|terlewat/i;
 const isoD=d=>d.getFullYear()+"-"+p2(d.getMonth()+1)+"-"+p2(d.getDate());
 function clsCtx(){const n=new Date();
   const up=CLS.filter(c=>c.status==="scheduled").sort((a,b)=>tms(a.scheduled_at)-tms(b.scheduled_at)).slice(0,15),
@@ -1122,7 +1125,7 @@ async function send(){ttsStop();
     let msgs=ctxMsgs(),acc="",did=false;const sys=SYS()+(useC?clsCtx():"");
     for(let rd=0;rd<4;rd++){
       const fc=[],base=acc?acc+"\n\n":"";
-      const t0=await gen(msgs,{stream:true,sys,tools:useC,fc,onStatus:st.set,onText:t=>{if(first){first=false;st.stop();m.classList.add("swap")}pend=base+t;if(!raf)raf=setTimeout(paint,80)}});
+      const t0=await gen(msgs,{stream:true,sys,tools:useC,fc,onStatus:st.set,onText:t=>{if(first){first=false;st.stop();m.classList.add("swap")}pend=base+t;if(!raf)raf=setTimeout(paint,140)}});
       acc=base+t0;if(!fc.length)break;
       did=true;const res=[];for(const p of fc)res.push({functionResponse:{name:p.functionCall.name,response:await runTool(p.functionCall.name,p.functionCall.args)}});
       msgs=msgs.concat([{role:"assistant",raw:fc},{role:"user",raw:res}])}
