@@ -175,6 +175,17 @@ main{flex:1;min-height:0;position:relative;animation:fade 1s .15s both}
 header>div:nth-child(2){min-width:0;flex:1}
 .sug .chip{white-space:normal;max-width:100%;text-align:center;line-height:1.3}
 @media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}.cf{display:none}}
+.fv{position:fixed;left:0;right:0;top:var(--vt,0px);height:var(--vh,100dvh);z-index:14;display:flex;flex-direction:column;background:rgba(8,12,22,.96);opacity:0;pointer-events:none;transition:opacity .25s}
+.fv.show{opacity:1;pointer-events:auto}
+.fv .fh{display:flex;align-items:center;gap:8px;padding:calc(env(safe-area-inset-top,0px) + 10px) 12px 10px;color:#fff}
+.fv .fh b{flex:1;min-width:0;font-size:15px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.fv .fb{flex:none;border:0;border-radius:999px;min-width:40px;height:40px;padding:0 14px;background:rgba(255,255,255,.14);color:#fff;font:600 14px inherit;font-family:inherit;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:6px}
+.fv .fb:active{background:rgba(255,255,255,.28)}
+.fv .fbody{flex:1;min-height:0;overflow:auto;display:flex;align-items:flex-start;justify-content:center;-webkit-overflow-scrolling:touch}
+.fv img{max-width:100%;max-height:100%;margin:auto;object-fit:contain;cursor:zoom-in}
+.fv img.z{max-width:none;max-height:none;width:220%;margin:0;cursor:zoom-out}
+.fv iframe{width:100%;height:100%;border:0;background:#fff}
+.fv pre{margin:0;width:100%;box-sizing:border-box;padding:14px 16px calc(env(safe-area-inset-bottom,0px) + 16px);color:#e8ecf5;font:13px/1.55 ui-monospace,Menlo,Consolas,monospace;white-space:pre-wrap;word-break:break-word}
 </style>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/katex.min.css">
 <script defer src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/katex.min.js"></script>
@@ -304,7 +315,7 @@ input,textarea,select,button{-webkit-appearance:none;appearance:none}
 <div id="kbox"><p style="margin:6px 0 10px">Ambil di aistudio.google.com/apikey</p><input id="kin" type="password" placeholder="AIza…" autocomplete="off"><div class="note" id="kerr"></div><div class="row"><button class="chip" id="kclear" type="button">Hapus key</button><button class="chip on" id="ksave" type="button">Simpan &amp; mulai</button></div></div></div>
 <div class="sp" data-s="chat"><div class="sh">Obrolan</div><div class="row wrap"><button class="chip" id="exptxt" type="button">Ekspor TXT</button><button class="chip" id="exppdf" type="button">Ekspor PDF</button><button class="chip" id="hclear" type="button">Hapus semua riwayat</button></div></div>
 <div class="sp" data-s="more"><div class="sh">Lainnya</div><div class="row wrap"><button class="chip" id="snd" type="button"></button><button class="chip" id="code" type="button">Kode sinkron</button></div></div>
-<div class="row end" style="align-items:center;justify-content:space-between"><span style="font-size:11px;color:var(--tx2)">Versi 19</span><button class="chip on" id="kclose" type="button">Tutup</button></div></div></div>
+<div class="row end" style="align-items:center;justify-content:space-between"><span style="font-size:11px;color:var(--tx2)">Versi 21</span><button class="chip on" id="kclose" type="button">Tutup</button></div></div></div>
 <input type="file" id="fi" multiple hidden accept="image/*,application/pdf,text/*,.txt,.md,.csv,.json,.py,.js,.html,.css,.xml,.sql">
 <div class="dov" id="dov"></div>
 <aside class="drawer" id="drw" aria-label="Riwayat obrolan"><h2>Obrolan</h2><button class="chip on dnew" id="dnew" type="button">+ Obrolan baru</button><div class="dl" id="dl"></div>
@@ -862,9 +873,29 @@ $("fi").onchange=async e=>{const fs=[...e.target.files];e.target.value="";
     try{PA.push(await prepFile(f));paintAtt()}catch(x){alertX((f.name||"File")+": "+(x.message||"gagal dibaca."))}}};
 async function fileGet(id){if(FC.has(id))return FC.get(id);
   try{const r=await sbx("chat_files?select=data&id=eq."+id);const d=r&&r[0]?r[0].data:null;if(d)FC.set(id,d);return d}catch(e){return null}}
-async function fileOpen(a){const d=a.data||await fileGet(a.id);if(!d){alertX("File tidak ditemukan di database.");return}
-  const bin=atob(d),u=new Uint8Array(bin.length);for(let i=0;i<bin.length;i++)u[i]=bin.charCodeAt(i);
-  const url=URL.createObjectURL(new Blob([u],{type:a.mime})),x=document.createElement("a");x.href=url;x.target="_blank";x.download=a.name;document.body.appendChild(x);x.click();x.remove();setTimeout(()=>URL.revokeObjectURL(url),60000)}
+async function fileBlob(a){const d=a.data||await fileGet(a.id);if(!d)return null;
+  const bin=atob(d),u=new Uint8Array(bin.length);for(let i=0;i<bin.length;i++)u[i]=bin.charCodeAt(i);return{u,blob:new Blob([u],{type:a.mime})}}
+// penampil file layar penuh + konfirmasi sebelum unduh
+let FV=null;
+function fvClose(){if(!FV)return;const v=FV;FV=null;v.el.classList.remove("show");setTimeout(()=>{v.el.remove();if(v.url)URL.revokeObjectURL(v.url)},260)}
+async function fileOpen(a){if(FV)return;
+  const el=document.createElement("div");el.className="fv";
+  el.innerHTML="<div class='fh'><button class='fb fx' type='button' aria-label='Tutup'><svg viewBox='0 0 24 24' width='20' height='20' fill='none' stroke='currentColor' stroke-width='2.4' stroke-linecap='round'><path d='M6 6l12 12M18 6L6 18'/></svg></button><b></b><button class='fb fd' type='button'>Unduh</button></div><div class='fbody'><span style='color:#aab;margin:auto;font-size:14px'>Memuat…</span></div>";
+  el.querySelector("b").textContent=a.name;document.body.appendChild(el);FV={el,url:null,a};
+  requestAnimationFrame(()=>el.classList.add("show"));
+  el.querySelector(".fx").onclick=fvClose;
+  const body=el.querySelector(".fbody"),fb=await fileBlob(a);
+  if(!FV||FV.el!==el)return;
+  if(!fb){body.innerHTML="<span style='color:#f99;margin:auto;font-size:14px'>File tidak ditemukan di database.</span>";el.querySelector(".fd").style.display="none";return}
+  const url=URL.createObjectURL(fb.blob);FV.url=url;body.innerHTML="";
+  const mime=a.mime||"";
+  if(/^image\//.test(mime)){const im=document.createElement("img");im.src=url;im.alt=a.name;im.onclick=()=>im.classList.toggle("z");body.appendChild(im)}
+  else if(mime==="application/pdf"){const f=document.createElement("iframe");f.src=url;f.title=a.name;body.appendChild(f)}
+  else{const pre=document.createElement("pre");try{pre.textContent=new TextDecoder("utf-8").decode(fb.u)}catch(e){pre.textContent="(Tidak bisa menampilkan isi file.)"}body.appendChild(pre)}
+  el.querySelector(".fd").onclick=async()=>{
+    if(!(await confirmX("Unduh file?","\""+a.name+"\" akan diunduh ke perangkatmu.","Unduh")))return;
+    const x=document.createElement("a");x.href=url;x.download=a.name;document.body.appendChild(x);x.click();x.remove()}}
+document.addEventListener("keydown",e=>{if(e.key==="Escape"&&FV&&!$("dmodal").classList.contains("show"))fvClose()});
 function mkAtt(a){const im=/^image\//.test(a.mime||""),e=document.createElement(im?"img":"button");
   if(im){e.className="at-i";e.alt=a.name;if(a.data)e.src="data:"+a.mime+";base64,"+a.data;else fileGet(a.id).then(d=>{if(d)e.src="data:"+a.mime+";base64,"+d})}
   else{e.type="button";e.className="at-f";e.textContent="📄 "+a.name}
@@ -979,12 +1010,13 @@ const isNet=e=>!!(e&&(e.status||e.net||e.name==="TypeError"||/failed to fetch|ne
 // pengaturan "berpikir" paling ringan per model; tl = tingkat fallback kalau ditolak (400)
 function thkOpts(m){if(/gemini-2\.5/.test(m))return/pro/.test(m)?[{thinkingBudget:128}]:[{thinkingBudget:0}];if(/gemini-([3-9])/.test(m))return[{thinkingLevel:"minimal"},{thinkingLevel:"low"}];return[]}
 async function gen(msgs,o={},retry,noThink){
-  const st=o.onStatus||(()=>{});
+  const st=o.onStatus||(()=>{});if(o.fc)o.fc.length=0;
   if(!MODEL){st({p:0,t:"Memilih model…"});await detectModel()}
   const url=API+"models/"+encodeURIComponent(MODEL)+(o.stream?":streamGenerateContent?alt=sse":":generateContent");
   const msl=msgs.slice(-10);let keep=2;for(let i=msl.length-1;i>=0;i--){if(msl[i].files&&msl[i].files.length){if(keep>0)keep--;else msl[i]={...msl[i],files:null}}}
-  const body={contents:msl.map(m=>{const parts=[];(m.files||[]).forEach(f=>{if(f.kind==="txt")parts.push({text:"[Isi file "+f.name+"]\n"+String(f.text||"").slice(0,100000)});else parts.push({inline_data:{mime_type:f.mime,data:f.data}})});parts.push({text:m.content});return{role:m.role==="assistant"?"model":"user",parts}})};
+  const body={contents:msl.map(m=>{if(m.raw)return{role:m.role==="assistant"?"model":"user",parts:m.raw};const parts=[];(m.files||[]).forEach(f=>{if(f.kind==="txt")parts.push({text:"[Isi file "+f.name+"]\n"+String(f.text||"").slice(0,100000)});else parts.push({inline_data:{mime_type:f.mime,data:f.data}})});parts.push({text:m.content});return{role:m.role==="assistant"?"model":"user",parts}})};
   if(o.sys)body.systemInstruction={parts:[{text:o.sys}]};
+  if(o.tools)body.tools=[{functionDeclarations:TOOLDEFS}];
   const gc={};if(o.json)gc.responseMimeType="application/json";
   const tl=noThink===true?99:(noThink||0),tk=thkOpts(MODEL)[tl];if(tk)gc.thinkingConfig=tk;
   if(!o.json)gc.maxOutputTokens=3000;
@@ -1011,10 +1043,11 @@ async function gen(msgs,o={},retry,noThink){
     let dt="";try{dt=((await r.json()).error||{}).message||""}catch(_){}const e=new Error("http");e.status=r.status;e.detail=dt.slice(0,140);throw e}
   st({p:3,t:o.stream?"Menulis…":"Merapikan…"});
   const pk=j=>((j.candidates&&j.candidates[0]&&j.candidates[0].content&&j.candidates[0].content.parts)||[]).map(p=>p.text||"").join("");
-  if(!o.stream)return pk(await r.json());
+  const cf=j=>{((j.candidates&&j.candidates[0]&&j.candidates[0].content&&j.candidates[0].content.parts)||[]).forEach(p=>{if(p.functionCall&&o.fc)o.fc.push(p)})};
+  if(!o.stream){const jj=await r.json();cf(jj);return pk(jj)}
   const rd=r.body.getReader(),dc=new TextDecoder();let buf="",all="";
   for(;;){const x=await rd.read();if(x.done)break;buf+=dc.decode(x.value,{stream:true});const ls=buf.split("\n");buf=ls.pop();
-    for(const l of ls){if(l.startsWith("data:")){try{all+=pk(JSON.parse(l.slice(5)));o.onText&&o.onText(all)}catch(e){}}}}
+    for(const l of ls){if(l.startsWith("data:")){try{const jj=JSON.parse(l.slice(5));cf(jj);all+=pk(jj);o.onText&&o.onText(all)}catch(e){}}}}
   return all;
 }
 
@@ -1023,6 +1056,51 @@ function ctxMsgs(){const P=PERS[PERSONA];let h=hist.map(x=>({role:x.role,content
     h=old.concat(h.slice(PSW));while(h.length&&h[0].role!=="user")h.shift()}
   if(h.length&&h[h.length-1].role==="user")h[h.length-1].content+="\n\n[Catatan sistem: karakter aktif sekarang adalah “"+P.n+"” — "+P.d+" Jawab sepenuhnya dengan karakter ini. Abaikan nada, umpatan, atau kemarahan dari jawaban AI sebelumnya jika berbeda dengan karakter ini.]";
   return h}
+// ---------- AI bisa membaca, menambah, mengubah, dan menghapus kelas ----------
+const DAYL=["Minggu","Senin","Selasa","Rabu","Kamis","Jumat","Sabtu"];
+const TOOLDEFS=[
+ {name:"add_class",description:"Tambah jadwal kelas baru.",parameters:{type:"object",properties:{title:{type:"string",description:"Materi/judul kelas"},date:{type:"string",description:"Tanggal YYYY-MM-DD"},time:{type:"string",description:"Jam 24 jam HH:MM"},duration_min:{type:"integer",description:"Durasi menit (5-300), default 60"}},required:["title","date","time"]}},
+ {name:"update_class",description:"Ubah kelas yang akan datang (judul, tanggal, jam, atau durasi). Isi hanya yang berubah.",parameters:{type:"object",properties:{ref:{type:"integer",description:"Nomor # kelas dari daftar"},title:{type:"string"},date:{type:"string",description:"YYYY-MM-DD"},time:{type:"string",description:"HH:MM"},duration_min:{type:"integer"}},required:["ref"]}},
+ {name:"delete_class",description:"Hapus kelas (pengguna akan diminta konfirmasi).",parameters:{type:"object",properties:{ref:{type:"integer",description:"Nomor # kelas dari daftar"}},required:["ref"]}}];
+let CSNAP=[];
+const CRX=/kelas|jadwal|class|belajar|materi|jam \d|\d[.:]\d\d|besok|lusa|hapus|batal|ubah|ganti|pindah|tambah|undur|majuk|telat|terlewat|hadir/i;
+const isoD=d=>d.getFullYear()+"-"+p2(d.getMonth()+1)+"-"+p2(d.getDate());
+function clsCtx(){const n=new Date();
+  const up=CLS.filter(c=>c.status==="scheduled").sort((a,b)=>tms(a.scheduled_at)-tms(b.scheduled_at)).slice(0,15),
+        hi=CLS.filter(c=>c.status!=="scheduled").sort((a,b)=>tms(b.scheduled_at)-tms(a.scheduled_at)).slice(0,6);
+  CSNAP=up.concat(hi);
+  const ln=(c,i)=>{const d=new Date(c.scheduled_at);let t="#"+(i+1)+" \""+c.title+"\" "+DAYL[d.getDay()]+" "+isoD(d)+" "+p2(d.getHours())+"."+p2(d.getMinutes())+", "+c.duration_min+" mnt";
+    if(c.status==="scheduled")t+=" [akan datang]";else if(c.status==="missed")t+=" [terlewat]";else t+=(c.late_seconds||0)>LATE_GRACE?" [hadir, telat "+fdur(c.late_seconds)+"]":" [hadir, tepat waktu]";return t};
+  return "\n\nFITUR KELAS: Kamu bisa mengelola jadwal kelas pengguna. Sekarang: "+DAYL[n.getDay()]+", "+isoD(n)+" "+p2(n.getHours())+"."+p2(n.getMinutes())+" (waktu pengguna). "+
+   "Daftar kelas saat ini (nomor # dipakai sebagai ref):\n"+(CSNAP.length?CSNAP.map(ln).join("\n"):"(belum ada kelas)")+
+   "\nAturan: untuk MEMBACA/menanyakan kelas, jawab langsung dari daftar ini tanpa memanggil fungsi. Panggil add_class/update_class/delete_class HANYA jika pengguna jelas memintanya. Hitung sendiri tanggal dari kata seperti besok/lusa/hari Senin. Kalau materi, tanggal, atau jam belum jelas, tanya singkat dulu. Setelah fungsi sukses, konfirmasi dalam 1-2 kalimat; kalau error, jelaskan penyebabnya. Kelas yang sudah dimulai/terlewat tidak bisa diubah."}
+function vSched(date,time,min,ign){
+  const dm=/^(\d{4})-(\d{2})-(\d{2})$/.exec(String(date||"").trim()),tm=/^(\d{1,2})[.:](\d{2})$/.exec(String(time||"").trim());
+  if(!dm)return{err:"Format tanggal harus YYYY-MM-DD."};if(!tm)return{err:"Format jam harus HH:MM."};
+  const y=+dm[1],mo=+dm[2]-1,d=+dm[3],h=+tm[1],mi=+tm[2],st=new Date(y,mo,d,h,mi);
+  if(st.getFullYear()!==y||st.getMonth()!==mo||st.getDate()!==d||h>23||mi>59)return{err:"Tanggal atau jam tidak valid."};
+  min=Math.round(+min||60);if(min<5)return{err:"Durasi minimal 5 menit."};if(min>300)return{err:"Durasi maksimal 300 menit."};
+  if(st.getTime()<Date.now()-60000)return{err:"Waktu itu sudah lewat."};if(st.getTime()>Date.now()+365*864e5)return{err:"Jadwal maksimal 1 tahun ke depan."};
+  const en=st.getTime()+min*6e4,cl=CLS.find(c=>c!==ign&&c.status==="scheduled"&&tms(c.scheduled_at)<en&&tms(c.scheduled_at)+c.duration_min*6e4>st.getTime());
+  if(cl)return{err:"Bentrok dengan kelas \""+cl.title+"\" ("+fwhen(cl.scheduled_at)+")."};
+  return{st,min}}
+async function runTool(name,a){a=a||{};
+  try{
+    if(name==="add_class"){const t=String(a.title||"").trim().slice(0,80);if(t.length<3)return{error:"Judul minimal 3 huruf."};
+      const v=vSched(a.date,a.time,a.duration_min,null);if(v.err)return{error:v.err};
+      const r=await sbx("class_sessions?select="+CLSEL,"POST",[uw({title:t,scheduled_at:v.st.toISOString(),duration_min:v.min,status:"scheduled"})],"return=representation");
+      CLS.unshift(r[0]);renderCls();csumUpd();return{ok:true,kelas:t,waktu:fwhen(r[0].scheduled_at),durasi_menit:v.min}}
+    const c=CSNAP[(+a.ref)-1];if(!c||!CLS.includes(c))return{error:"Kelas dengan nomor itu tidak ditemukan."};
+    if(name==="update_class"){if(c.status!=="scheduled")return{error:"Hanya kelas yang akan datang yang bisa diubah."};
+      const od=new Date(c.scheduled_at),t=a.title!=null?String(a.title).trim().slice(0,80):c.title;if(t.length<3)return{error:"Judul minimal 3 huruf."};
+      const v=vSched(a.date||isoD(od),a.time||p2(od.getHours())+":"+p2(od.getMinutes()),a.duration_min||c.duration_min,c);if(v.err)return{error:v.err};
+      const pl={title:t,scheduled_at:v.st.toISOString(),duration_min:v.min};
+      await sbx("class_sessions?id=eq."+c.id,"PATCH",pl,"return=minimal");Object.assign(c,pl);delete c._n;renderCls();csumUpd();
+      return{ok:true,kelas:t,waktu:fwhen(c.scheduled_at),durasi_menit:v.min}}
+    if(name==="delete_class"){if(!(await confirmX("Hapus kelas?","\""+c.title+"\" akan dihapus.","Hapus",true)))return{ok:false,error:"Pengguna membatalkan penghapusan."};
+      await sbx("class_sessions?id=eq."+c.id,"DELETE",undefined,"return=minimal");CLS=CLS.filter(x=>x!==c);renderCls();csumUpd();return{ok:true,dihapus:c.title}}
+    return{error:"Fungsi tidak dikenal."}
+  }catch(e){return{error:"Gagal ("+((e.status||"")+" "+(e.detail||e.message||"")).trim()+")"}}}
 async function send(){ttsStop();
   let v=$("in").value.trim();if((!v&&!PA.length)||busy)return;
   if(!KEY){openSet();return}
@@ -1036,7 +1114,15 @@ async function send(){ttsStop();
   const l=$("log");let first=true,raf=0,pend="";
   const paint=()=>{raf=0;const near=l.scrollHeight-l.scrollTop-l.clientHeight<150;m.innerHTML=md(pend)+"<span class='caret'></span>";if(near)l.scrollTop=l.scrollHeight};
   try{
-    const t=await gen(ctxMsgs(),{stream:true,sys:SYS(),onStatus:st.set,onText:t=>{if(first){first=false;st.stop();m.classList.add("swap")}pend=t;if(!raf)raf=setTimeout(paint,80)}});
+    const useC=CLOK&&hist.slice(-4).some(x=>x.role==="user"&&CRX.test(x.content));
+    let msgs=ctxMsgs(),acc="",did=false;const sys=SYS()+(useC?clsCtx():"");
+    for(let rd=0;rd<4;rd++){
+      const fc=[],base=acc?acc+"\n\n":"";
+      const t0=await gen(msgs,{stream:true,sys,tools:useC,fc,onStatus:st.set,onText:t=>{if(first){first=false;st.stop();m.classList.add("swap")}pend=base+t;if(!raf)raf=setTimeout(paint,80)}});
+      acc=base+t0;if(!fc.length)break;
+      did=true;const res=[];for(const p of fc)res.push({functionResponse:{name:p.functionCall.name,response:await runTool(p.functionCall.name,p.functionCall.args)}});
+      msgs=msgs.concat([{role:"assistant",raw:fc},{role:"user",raw:res}])}
+    const t=acc.trim()||(did?"Beres.":"");
     clearTimeout(raf);st.stop();
     if(!t)throw new Error("empty");
     m.classList.add("swap");m.innerHTML=md(t);attachBm(m,t);hist.push({role:"assistant",content:t});sbSave([{role:"user",content:v,att:meta},{role:"assistant",content:t}],up);sfx("recv");l.scrollTo({top:l.scrollHeight,behavior:"smooth"})}
