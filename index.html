@@ -1,6 +1,8 @@
 <!DOCTYPE html>
 <html lang="id">
 <head>
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 1000 1000%22%3E%3Crect width=%221000%22 height=%221000%22 rx=%22224%22 fill=%22%23101010%22/%3E%3Csvg x=%22110%22 y=%22110%22 width=%22780%22 height=%22780%22 viewBox=%22196 202 860 860%22%3E%3Cdefs%3E%3ClinearGradient id=%22zpk%22 x1=%220%22 y1=%220%22 x2=%221%22 y2=%221%22%3E%3Cstop offset=%220%22 stop-color=%22%23ffa3c4%22/%3E%3Cstop offset=%221%22 stop-color=%22%23ff7ac6%22/%3E%3C/linearGradient%3E%3C/defs%3E%3Cpath fill=%22%23f1eef0%22 d=%22M292,498 L415,375 Q424,367 437,367 L930,367 Q958,367 958,397 L959,452 Q959,468 947,479 L497,897 L318,897 Q294,897 293,872 L292,826 Q292,818 300,811 L690,498 Z%22/%3E%3Cpath fill=%22%23f1eef0%22 d=%22M546,897 L645,803 L958,803 L958,828 Q958,838 950,846 L895,889 Q882,897 868,897 Z%22/%3E%3Cpath fill=%22url%28%23zpk%29%22 d=%22M648,803 L800,669 Q812,656 830,656 L958,657 L958,803 Z%22/%3E%3C/svg%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <meta charset="utf-8">
 <link rel="preconnect" href="https://generativelanguage.googleapis.com" crossorigin>
 <title>Zaim’s Classroom</title>
@@ -286,12 +288,86 @@ input,textarea,select,button{-webkit-appearance:none;appearance:none}
 .mi{display:flex;align-items:center;justify-content:space-between;gap:10px;width:100%;text-align:left;padding:14px 16px;margin-bottom:8px;border-radius:18px;border:1px solid var(--bd);background:var(--gl);color:var(--tx);font-family:inherit;cursor:pointer;transition:transform .3s cubic-bezier(.3,1.6,.5,1),background .3s}
 .mi:active{transform:scale(.97)}.mi b{display:block;font-size:15px}.mi small{display:block;margin-top:2px;font-size:12.5px;color:var(--tx2)}.mi svg{flex:none;color:var(--tx2)}
 .sp .sh{display:none}.sp{animation:rise3 .35s both}
+
+/* ===== desain ulang: aurora + kaca sungguhan + gerak yang menjawab sentuhan ===== */
+:root{--ac:#7c6cf6;--g1:#6f8cff;--g2:#9b6bff;--g3:#ff7ac6;--grad:linear-gradient(135deg,var(--g1),var(--g2) 55%,var(--g3));--gsh:rgba(124,108,246,.38);--bg1:#e9e6fb;--bg2:#fbeaf3}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg1:#0b0e22;--bg2:#1c1033;--gl:rgba(255,255,255,.07);--gl2:rgba(255,255,255,.14);--bd:rgba(255,255,255,.16)}}
+:root[data-theme="dark"]{--bg1:#0b0e22;--bg2:#1c1033;--gl:rgba(255,255,255,.07);--gl2:rgba(255,255,255,.14);--bd:rgba(255,255,255,.16)}
+body{font-family:"Plus Jakarta Sans",-apple-system,BlinkMacSystemFont,"Inter","Segoe UI",system-ui,sans-serif;letter-spacing:-.005em}
+.o1{background:radial-gradient(circle,#8aa4ff 0,rgba(138,164,255,.55) 36%,transparent 68%)}
+.o2{background:radial-gradient(circle,#ff9ad0 0,rgba(255,154,208,.5) 36%,transparent 68%)}
+.o3{background:radial-gradient(circle,#7fe3d0 0,rgba(127,227,208,.45) 36%,transparent 68%)}
+.orb{opacity:.7;animation-name:fl2}
+@keyframes fl2{0%{transform:translate3d(0,0,0) scale(1)}50%{transform:translate3d(6vw,-3vh,0) scale(1.12)}100%{transform:translate3d(-4vw,5vh,0) scale(.94)}}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .orb{opacity:.42}}
+:root[data-theme="dark"] .orb{opacity:.42}
+.orbs::after{content:"";position:absolute;inset:0;opacity:.18;mix-blend-mode:overlay;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E")}
+.glass{-webkit-backdrop-filter:blur(24px) saturate(1.7);backdrop-filter:blur(24px) saturate(1.7);box-shadow:0 10px 30px var(--sh),0 1px 0 rgba(255,255,255,.5) inset,0 -1px 0 rgba(255,255,255,.08) inset}
+.glass::before{content:"";position:absolute;inset:0;border-radius:inherit;background:radial-gradient(260px circle at var(--mx,50%) var(--my,0%),rgba(255,255,255,.42),rgba(255,255,255,0) 62%);opacity:0;transition:opacity .35s;pointer-events:none}
+.glass.lit::before{opacity:1}
+@media (hover:hover){.glass:hover::before{opacity:1}}
+h1{font-weight:800;letter-spacing:-.6px;background:linear-gradient(100deg,var(--tx) 30%,var(--g2) 55%,var(--g3) 75%,var(--tx));background-size:220% 100%;-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;animation:shine 7s ease-in-out infinite}
+@keyframes shine{0%,100%{background-position:100% 0}50%{background-position:0 0}}
+.logo,.send,.msg.u{background:var(--grad);box-shadow:inset 0 1.5px 2px rgba(255,255,255,.55),0 8px 20px var(--gsh)}
+.msg.u{box-shadow:0 8px 20px var(--gsh),inset 0 1px 0 rgba(255,255,255,.45)}
+.logo{animation:breathe 4.5s ease-in-out infinite}
+@keyframes breathe{50%{box-shadow:inset 0 1.5px 2px rgba(255,255,255,.55),0 10px 30px rgba(155,107,255,.6)}}
+.logo.tap{animation:wig .6s cubic-bezier(.3,1.5,.5,1)}
+.hic{background:radial-gradient(circle at 32% 28%,#fff,#c9b8ff 42%,#7c6cf6 75%,#ff7ac6);box-shadow:0 14px 34px var(--gsh),inset 0 -6px 12px rgba(124,108,246,.4);animation:rise3 .6s .05s both,bob 5s 1s ease-in-out infinite}
+@keyframes bob{50%{transform:translateY(-6px) scale(1.05)}}
+.hero b{font-size:26px;font-weight:800;letter-spacing:-.8px}
+.composer{position:relative}
+.composer:focus-within{border-color:transparent;box-shadow:0 14px 38px var(--sh),0 0 0 2px rgba(155,107,255,.55),0 0 28px rgba(155,107,255,.28)}
+.send{transition:transform .35s cubic-bezier(.3,1.6,.5,1),box-shadow .3s}
+.composer.has .send{animation:ping 2.4s ease-out infinite}
+@keyframes ping{0%{box-shadow:0 5px 12px var(--gsh),0 0 0 0 rgba(155,107,255,.5)}70%,100%{box-shadow:0 5px 12px var(--gsh),0 0 0 14px rgba(155,107,255,0)}}
+.send.busy{animation:none}
+.tabbar{background:rgba(255,255,255,.1);-webkit-backdrop-filter:blur(18px) saturate(1.8);backdrop-filter:blur(18px) saturate(1.8);border-color:rgba(255,255,255,.4);box-shadow:0 8px 28px rgba(0,0,0,.1),inset 0 1px 0 rgba(255,255,255,.55),inset 0 -1px 0 rgba(255,255,255,.12)}
+.pill{background:linear-gradient(180deg,rgba(255,255,255,.42),rgba(255,255,255,.16));border:1px solid rgba(255,255,255,.55);-webkit-backdrop-filter:blur(4px) saturate(2) brightness(1.12);backdrop-filter:blur(4px) saturate(2) brightness(1.12);box-shadow:0 4px 14px rgba(0,0,0,.12),inset 0 1.5px 1px rgba(255,255,255,.9),inset 0 -1.5px 2px rgba(255,255,255,.35),inset 0 0 14px rgba(255,255,255,.18)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .pill{background:linear-gradient(180deg,rgba(255,255,255,.26),rgba(255,255,255,.08));border-color:rgba(255,255,255,.3);box-shadow:0 4px 14px rgba(0,0,0,.35),inset 0 1.5px 1px rgba(255,255,255,.5),inset 0 -1px 2px rgba(255,255,255,.18)}}
+:root[data-theme="dark"] .pill{background:linear-gradient(180deg,rgba(255,255,255,.26),rgba(255,255,255,.08));border-color:rgba(255,255,255,.3);box-shadow:0 4px 14px rgba(0,0,0,.35),inset 0 1.5px 1px rgba(255,255,255,.5),inset 0 -1px 2px rgba(255,255,255,.18)}
+.tabbar button.on{color:var(--tx)}
+.tabbar button{transition:color .3s,transform .3s cubic-bezier(.3,1.6,.5,1)}
+.tabbar button:active{transform:scale(.92)}
+.sc-bar i{background:var(--grad);box-shadow:0 0 14px rgba(155,107,255,.6)}
+.opt{backdrop-filter:blur(10px)}
+.opt:active{transform:scale(.97)}
+@media (hover:hover){.opt:hover:not(.ok):not(.no){transform:translateX(5px);border-color:rgba(155,107,255,.6)}}
+.msg.a{border-left:3px solid transparent;border-image:none}
+.msg.a::before{z-index:0}
+::selection{background:rgba(155,107,255,.35)}
+@media (prefers-reduced-motion:reduce){.orb,h1,.logo,.hic,.composer.has .send{animation:none!important}.glass::before{display:none}}
+
+/* ===== logo Z: tile hitam, blok pink hidup ===== */
+.logo{background:#101010!important;padding:7px;box-shadow:inset 0 0 0 1px rgba(255,255,255,.14),inset 0 1px 0 rgba(255,255,255,.22),0 8px 22px rgba(255,122,198,.38)!important;animation:zbreathe 4.5s ease-in-out infinite}
+.logo .zmk{width:100%;height:100%;display:block;overflow:visible}
+.logo .zp{transform-box:fill-box;transform-origin:center;animation:zpulse 4.5s ease-in-out infinite}
+@keyframes zbreathe{50%{box-shadow:inset 0 0 0 1px rgba(255,255,255,.14),inset 0 1px 0 rgba(255,255,255,.22),0 10px 30px rgba(255,122,198,.65)}}
+@keyframes zpulse{0%,100%{filter:brightness(1)}50%{filter:brightness(1.18) saturate(1.2)}}
+.logo.tap{animation:wig .6s cubic-bezier(.3,1.5,.5,1)}
+.logo.tap .zp{animation:zslide .65s cubic-bezier(.2,1.3,.4,1)}
+.logo.tap .zw{transform-box:fill-box;animation:zslide .65s .06s cubic-bezier(.2,1.3,.4,1) backwards}
+@keyframes zslide{0%{transform:translateX(60%);opacity:0}100%{transform:none;opacity:1}}
+@media (prefers-reduced-motion:reduce){.logo .zp{animation:none!important}}
+
+.srow{display:flex;align-items:center;gap:12px;width:100%;margin-top:10px;padding:13px 14px;border-radius:18px;border:1px solid var(--bd);background:var(--gl);color:var(--tx);font:600 14.5px inherit;font-family:inherit;cursor:pointer;text-align:left;-webkit-backdrop-filter:blur(14px);backdrop-filter:blur(14px);box-shadow:inset 0 1px 0 rgba(255,255,255,.3);transition:transform .3s cubic-bezier(.3,1.6,.5,1),background .3s}
+.srow span{flex:1}.srow svg{flex:none;color:var(--tx2)}.srow .sch{transition:transform .3s}
+.srow:active{transform:scale(.97);background:var(--gl2)}.srow:active .sch{transform:translateX(3px)}
+.srow+.dfoot{margin-top:10px}
+
+/* ===== perbaikan: logo fix ukuran, kaca lebih bening tanpa tint warna, ikon beranda tampil ===== */
+.logo{flex:0 0 42px!important;width:42px!important;min-width:42px;height:42px!important;overflow:hidden}
+.logo .zmk{width:28px!important;height:28px!important;max-width:none;overflow:hidden}
+.hic{display:block}
+.glass{-webkit-backdrop-filter:blur(20px) saturate(1.15);backdrop-filter:blur(20px) saturate(1.15)}
+.tabbar{background:rgba(255,255,255,.07);-webkit-backdrop-filter:blur(14px) saturate(1);backdrop-filter:blur(14px) saturate(1);border-color:rgba(255,255,255,.34)}
+.composer{background:rgba(255,255,255,.07)}
 </style>
 </head>
 <body>
 <div class="orbs"><i class="orb o1"></i><i class="orb o2"></i><i class="orb o3"></i></div>
 <div class="app">
-  <header class="glass"><button class="chip menub" id="menu" type="button" aria-label="Riwayat obrolan"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M4 7h16M4 12h10M4 17h16"/></svg></button><div class="logo" id="logo">Z</div><div><h1>Zaim’s Classroom</h1></div><button class="chip gear" id="gear" type="button" aria-label="Pengaturan">⚙︎</button></header>
+  <header class="glass"><button class="chip menub" id="menu" type="button" aria-label="Riwayat obrolan"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M4 7h16M4 12h10M4 17h16"/></svg></button><div class="logo" id="logo" role="img" aria-label="Zaim’s Classroom"><svg class="zmk" viewBox="196 202 860 860" aria-hidden="true"><defs><linearGradient id="zpk" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#ffa3c4"/><stop offset="1" stop-color="#ff7ac6"/></linearGradient></defs><path class="zz" fill="#f1eef0" d="M292,498 L415,375 Q424,367 437,367 L930,367 Q958,367 958,397 L959,452 Q959,468 947,479 L497,897 L318,897 Q294,897 293,872 L292,826 Q292,818 300,811 L690,498 Z"/><path class="zw" fill="#f1eef0" d="M546,897 L645,803 L958,803 L958,828 Q958,838 950,846 L895,889 Q882,897 868,897 Z"/><path class="zp" fill="url(#zpk)" d="M648,803 L800,669 Q812,656 830,656 L958,657 L958,803 Z"/></svg></div><div><h1>Zaim’s Classroom</h1></div></header>
   <main>
     <section class="view show" id="v0">
       <div class="scroll" id="log"></div>
@@ -324,6 +400,7 @@ input,textarea,select,button{-webkit-appearance:none;appearance:none}
 <input type="file" id="fi" multiple hidden accept="image/*,application/pdf,text/*,.txt,.md,.csv,.json,.py,.js,.html,.css,.xml,.sql">
 <div class="dov" id="dov"></div>
 <aside class="drawer" id="drw" aria-label="Riwayat obrolan"><h2>Obrolan</h2><button class="chip on dnew" id="dnew" type="button">+ Obrolan baru</button><div class="dl" id="dl"></div>
+<button class="srow" id="gear" type="button"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"><path d="M4 7h9M17 7h3M4 17h3M11 17h9"/><circle cx="15" cy="7" r="2"/><circle cx="9" cy="17" r="2"/></svg><span>Pengaturan</span><svg class="sch" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6l6 6-6 6"/></svg></button>
 <div class="dfoot"><button class="acct" id="acct" type="button"><i class="av" id="av">?</i><span class="at"><b id="acn">Belum masuk</b><small id="acs">Ketuk untuk masuk atau daftar</small></span></button><button class="abtn in" id="abtn" type="button" aria-label="Masuk"></button></div></aside>
 <div class="modal" id="qmodal"><div class="glass card"><h2>Kuis baru</h2><input id="qtopic" placeholder="Topik kuis…" autocomplete="off" enterkeyhint="go" maxlength="120">
 <button class="mi" id="qopt" type="button" style="margin-top:10px"><span><b>Opsi kuis</b><small id="qsum"></small></span><svg id="qchev" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" style="transition:transform .3s"><path d="M6 9l6 6 6-6"/></svg></button>
@@ -1021,7 +1098,7 @@ document.querySelectorAll("#smenu .mi").forEach(b=>b.onclick=()=>{sfx("click");s
 $("sback").onclick=()=>{PEND=PERSONA;paintPers();keyUI(false);$("kin").value="";$("kerr").textContent="";showSec(null)};
 function openSet(){PEND=PERSONA;paintPers();$("kin").value="";$("kerr").textContent="";paintAcc();keyUI(false);$("kclose").style.display=KEY?"":"none";showSec(KEY?null:"key");$("modal").classList.add("show");if(!KEY)setTimeout(()=>$("kin").focus(),300)}
 $("kchg").onclick=()=>{keyUI(true);setTimeout(()=>$("kin").focus(),100)};
-$("gear").onclick=openSet;
+$("gear").onclick=()=>{closeDrawer();setTimeout(openSet,180)};
 $("kclose").onclick=()=>$("modal").classList.remove("show");
 $("ksave").onclick=async()=>{const k=$("kin").value.trim();if(!k){$("kerr").textContent="Masukkan API key dulu.";return}
   const b=$("ksave");b.disabled=true;$("kerr").innerHTML="<span class='spin'></span> Memeriksa…";KEY=k;MODEL="";
@@ -1251,7 +1328,7 @@ async function quiz(topic){
       setTimeout(()=>{const r=document.createElement("div");r.className="q glass";
         r.innerHTML="<h3>Kuis selesai!</h3><div style='color:var(--tx2);font-size:14px;line-height:1.5'>Skor akhirmu <b style='color:var(--tx)'>"+sc+"/"+tot+"</b>. "+(sc===tot?"Sempurna!":sc>=tot/2?"Lumayan, terus berlatih.":"Coba lagi, pasti bisa.")+"</div><div class='row'></div>";
         const rw=r.querySelector(".row"),b1=document.createElement("button");b1.type="button";b1.className="chip";b1.textContent="Ke Belajar";b1.onclick=()=>{quizHome();document.querySelector(".tabbar button").click()};
-        const b2=document.createElement("button");b2.type="button";b2.className="chip on";b2.textContent="Kembali ke awal";b2.onclick=()=>quizHome(true);
+        const b2=document.createElement("button");b2.type="button";b2.className="chip on";b2.textContent="Halaman kuis";b2.onclick=()=>quizHome();
         rw.appendChild(b1);rw.appendChild(b2);q.appendChild(r);setTimeout(()=>q.scrollTo({top:q.scrollHeight,behavior:"smooth"}),80)},650)};
     d.forEach((it,i)=>{const c=document.createElement("div");c.className="q glass";c.style.animationDelay=(i*100+120)+"ms";c.innerHTML="<h3>"+(i+1)+". "+mx(it.q)+"</h3>";
       if(es){
@@ -1283,6 +1360,12 @@ $("qopt").onclick=()=>{const o=$("qopts"),sh=o.style.display==="none";o.style.di
 $("qno").onclick=()=>$("qmodal").classList.remove("show");
 const qGo=()=>{const t=$("qtopic").value.trim();if(!t){$("qtopic").focus();return}$("qmodal").classList.remove("show");quiz(t)};
 $("qgo").onclick=qGo;$("qtopic").addEventListener("keydown",e=>{if(e.key==="Enter"){e.preventDefault();qGo()}});
+</script>
+<script>
+(()=>{const set=(e,on)=>{const g=e.target.closest&&e.target.closest(".glass");if(!g)return;const r=g.getBoundingClientRect();g.style.setProperty("--mx",(e.clientX-r.left)+"px");g.style.setProperty("--my",(e.clientY-r.top)+"px");if(on!==undefined)g.classList.toggle("lit",on)};
+document.addEventListener("pointermove",e=>set(e),{passive:true});
+document.addEventListener("pointerdown",e=>set(e,true),{passive:true});
+["pointerup","pointercancel"].forEach(t=>document.addEventListener(t,()=>setTimeout(()=>document.querySelectorAll(".glass.lit").forEach(g=>g.classList.remove("lit")),260),{passive:true}))})();
 </script>
 </body>
 </html>
