@@ -186,6 +186,7 @@ header>div:nth-child(2){min-width:0;flex:1}
 .fv img.z{max-width:none;max-height:none;width:220%;margin:0;cursor:zoom-out}
 .fv iframe{width:100%;height:100%;border:0;background:#fff}
 .fv pre{margin:0;width:100%;box-sizing:border-box;padding:14px 16px calc(env(safe-area-inset-bottom,0px) + 16px);color:#e8ecf5;font:13px/1.55 ui-monospace,Menlo,Consolas,monospace;white-space:pre-wrap;word-break:break-word}
+.tst{position:fixed;left:50%;bottom:calc(env(safe-area-inset-bottom,0px) + 90px);transform:translateX(-50%);z-index:30;max-width:88vw;padding:11px 16px;border-radius:16px;background:rgba(40,20,20,.92);color:#fff;font:600 13px/1.4 inherit;font-family:inherit;text-align:center;box-shadow:0 8px 30px rgba(0,0,0,.35);animation:rise2 .3s both}
 </style>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/katex.min.css">
 <script defer src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/katex.min.js"></script>
@@ -315,7 +316,7 @@ input,textarea,select,button{-webkit-appearance:none;appearance:none}
 <div id="kbox"><p style="margin:6px 0 10px">Ambil di aistudio.google.com/apikey</p><input id="kin" type="password" placeholder="AIza…" autocomplete="off"><div class="note" id="kerr"></div><div class="row"><button class="chip" id="kclear" type="button">Hapus key</button><button class="chip on" id="ksave" type="button">Simpan &amp; mulai</button></div></div></div>
 <div class="sp" data-s="chat"><div class="sh">Obrolan</div><div class="row wrap"><button class="chip" id="exptxt" type="button">Ekspor TXT</button><button class="chip" id="exppdf" type="button">Ekspor PDF</button><button class="chip" id="hclear" type="button">Hapus semua riwayat</button></div></div>
 <div class="sp" data-s="more"><div class="sh">Lainnya</div><div class="row wrap"><button class="chip" id="snd" type="button"></button><button class="chip" id="code" type="button">Kode sinkron</button></div></div>
-<div class="row end" style="align-items:center;justify-content:space-between"><span style="font-size:11px;color:var(--tx2)">Versi 21</span><button class="chip on" id="kclose" type="button">Tutup</button></div></div></div>
+<div class="row end" style="align-items:center;justify-content:space-between"><span style="font-size:11px;color:var(--tx2)">Versi 24</span><button class="chip on" id="kclose" type="button">Tutup</button></div></div></div>
 <input type="file" id="fi" multiple hidden accept="image/*,application/pdf,text/*,.txt,.md,.csv,.json,.py,.js,.html,.css,.xml,.sql">
 <div class="dov" id="dov"></div>
 <aside class="drawer" id="drw" aria-label="Riwayat obrolan"><h2>Obrolan</h2><button class="chip on dnew" id="dnew" type="button">+ Obrolan baru</button><div class="dl" id="dl"></div>
@@ -613,10 +614,14 @@ function lsCid(){try{CID?localStorage.setItem("zc-cid",CID):localStorage.removeI
 function ensureConv(){if(CID||!CVOK)return Promise.resolve();
   return CP||(CP=(async()=>{try{const r=await sbx("conversations?select=id,subject,title,updated_at","POST",[uw({subject:subj,title:"Obrolan baru"})],"return=representation");
     if(r&&r[0]){CID=r[0].id;CONVS.unshift(r[0]);lsCid();paintDrawer()}}catch(e){CVOK=false}finally{CP=null}})())}
+const slp=ms=>new Promise(z=>setTimeout(z,ms));
+function toast(t){const d=document.createElement("div");d.className="tst";d.textContent=t;document.body.appendChild(d);setTimeout(()=>d.remove(),4200)}
+async function tryN(fn,n){n=n||3;let er;for(let i=0;i<n;i++){try{return await fn()}catch(e){er=e;if(i<n-1)await slp(600*(i+1))}}throw er}
 async function sbSave(rows,up){try{if(up)await up;await tok();await ensureConv();const cid=CID&&CVOK?CID:null;
   const mk=wa=>JSON.stringify(rows.map(r=>uw(Object.assign({subject:subj,role:r.role,content:r.content},cid?{conversation_id:cid}:{},wa&&r.att&&r.att.length?{attachments:r.att}:{}))));
-  const rs=await fetch(SB_URL,{method:"POST",headers:{...sbH(),"Prefer":"return=minimal"},body:mk(true)});
-  if(!rs.ok&&rows.some(r=>r.att&&r.att.length))await fetch(SB_URL,{method:"POST",headers:{...sbH(),"Prefer":"return=minimal"},body:mk(false)});
+  try{await tryN(async()=>{let rs=await fetch(SB_URL,{method:"POST",headers:{...sbH(),"Prefer":"return=minimal"},body:mk(true)});
+    if(!rs.ok&&rows.some(r=>r.att&&r.att.length))rs=await fetch(SB_URL,{method:"POST",headers:{...sbH(),"Prefer":"return=minimal"},body:mk(false)});
+    if(!rs.ok)throw new Error("save "+rs.status)})}catch(e){toast("Pesan belum tersimpan ke database. Cek koneksi.");return}
   const c=cid&&CONVS.find(x=>x.id===cid);if(!c)return;
   if(c.title==="Obrolan baru")autoTitle(c,rows[0].content,rows[1].content);
   else{c.updated_at=new Date().toISOString();CONVS=[c,...CONVS.filter(x=>x!==c)];paintDrawer();sbx("conversations?id=eq."+c.id,"PATCH",{updated_at:c.updated_at},"return=minimal").catch(()=>{})}}catch(e){}}
@@ -668,7 +673,7 @@ async function sbx(path,m,b,pref){await tok();const h=sbH();if(pref)h.Prefer=pre
 async function setPut(key,val){try{await sbx("app_settings?on_conflict="+(UID()?"user_id,key":"device_id,key"),"POST",[uw({key:key,value:val,updated_at:new Date().toISOString()})],"resolution=merge-duplicates,return=minimal")}catch(e){}}
 async function setSync(){try{const rows=await sbx("app_settings?select=key,value"+uf(1))||[];const m={};rows.forEach(r=>m[r.key]=r.value);
   if(typeof m.snd==="boolean"){SND=m.snd;try{localStorage.setItem("zc-snd",SND?"1":"0")}catch(e){}sndLabel()}else setPut("snd",SND);if(typeof m.persona==="string"&&PERS[m.persona]){PERSONA=m.persona;PEND=PERSONA;try{localStorage.setItem("zc-persona",PERSONA)}catch(e){}paintPers()}else if(PERSONA!=="biasa")setPut("persona",PERSONA)}catch(e){}}
-function sbQuiz(topic,sc,tot,qs){sbx("quiz_results","POST",[uw({subject:subj,topic:topic,score:sc,total:tot,questions:qs})],"return=minimal").catch(()=>{})}
+function sbQuiz(topic,sc,tot,qs){tryN(()=>sbx("quiz_results","POST",[uw({subject:subj,topic:topic,score:sc,total:tot,questions:qs})],"return=minimal")).catch(()=>toast("Skor kuis belum tersimpan ke database"))}
 const fdate=s=>{try{return new Date(s).toLocaleDateString("id-ID",{day:"numeric",month:"short"})}catch(e){return""}};
 // jawaban AI hanya punya tombol dengar (fitur simpan dihapus)
 function attachBm(el,content){const w=document.createElement("div");w.className="acts";if(TTS)w.appendChild(ttsBtn(content));if(w.childNodes.length)el.appendChild(w)}
@@ -901,7 +906,7 @@ function mkAtt(a){const im=/^image\//.test(a.mime||""),e=document.createElement(
   else{e.type="button";e.className="at-f";e.textContent="📄 "+a.name}
   e.onclick=()=>fileOpen(a);return e}
 function attRow(list){const r=document.createElement("div");r.className="atr";list.forEach(a=>r.appendChild(mkAtt(a)));return r}
-async function upFiles(list){for(const a of list){try{await sbx("chat_files","POST",[uw({id:a.id,name:a.name,mime:a.mime,size:a.size||0,data:a.data})],"return=minimal")}catch(e){}}}
+async function upFiles(list){for(const a of list){try{await tryN(()=>sbx("chat_files","POST",[uw({id:a.id,name:a.name,mime:a.mime,size:a.size||0,data:a.data})],"return=minimal"))}catch(e){toast("Lampiran \""+a.name+"\" gagal tersimpan ke database")}}}
 
 function fit(){const t=$("in");t.style.height="auto";t.style.height=Math.min(t.scrollHeight,130)+"px";$("f").classList.toggle("has",!!t.value.trim()||PA.length>0)}
 $("in").addEventListener("input",fit);
@@ -917,9 +922,8 @@ convLoad().then(()=>{let id="";try{id=localStorage.getItem("zc-cid")||""}catch(e
 $("code").onclick=async()=>{$("modal").classList.remove("show");const c=await dlg({title:"Kode sinkron",text:"Kode perangkat ini (simpan, jangan dibagikan). Untuk memakai data dari perangkat lain, ganti dengan kode dari perangkat itu.",input:DEV,ok:"Pakai"});
   if(c&&c.trim()&&c.trim()!==DEV){try{localStorage.setItem("zc-dev",c.trim())}catch(e){}location.reload()}};
 $("hclear").onclick=async()=>{$("modal").classList.remove("show");if(busy||!(await confirmX("Hapus semua riwayat?","Semua obrolan dan lampirannya akan dihapus permanen.","Hapus semua",true)))return;
-  try{await sbx("conversations?id=not.is.null"+uf(),"DELETE",undefined,"return=minimal")}catch(e){}
-  try{await sbx("chat_messages?id=not.is.null"+uf(),"DELETE",undefined,"return=minimal")}catch(e){}
-  CONVS=[];ttsStop();newChat()};
+  let bad=false;for(const t of ["conversations","chat_messages","chat_files"]){try{await sbx(t+"?id=not.is.null"+uf(),"DELETE",undefined,"return=minimal")}catch(e){bad=true}}
+  CONVS=[];FC.clear();ttsStop();newChat();if(bad)alertX("Sebagian riwayat gagal dihapus dari database. Coba lagi.")};
 function add(cls,html){const l=$("log");const h=l.querySelector(".hero");if(h)h.remove();const d=document.createElement("div");d.className="msg "+cls+(cls==="a"?" glass":"");d.innerHTML=html;l.appendChild(d);l.scrollTo({top:l.scrollHeight,behavior:"smooth"});return d}
 const SYS=()=>{const P=PERS[PERSONA],ctx="Boleh topik apa saja. Format jawaban: **tebal**, *miring*, <u>garis bawah</u>; rumus matematika pakai LaTeX, misalnya $\\frac{1}{4}$.";
   if(P.full)return P.p+"\n\nKONTEKS: Kamu bertugas sebagai guru AI di “Zaim’s Classroom”, dipakai oleh mahasiswa dewasa. Kalau diminta belajar atau menjelaskan, jelaskan dengan benar dan kompeten tetap dengan karakter di atas. Jawab dalam Bahasa Indonesia. "+ctx+" Ini hanya gaya bicara: jangan mengaku sebagai orang sungguhan dan jangan mengarang kutipan atas nama siapa pun.";
@@ -1136,6 +1140,29 @@ function confetti(){sfx("win");const w=document.createElement("div");w.className
   for(let i=0;i<26;i++){const p=document.createElement("i");p.className="cf";p.style.cssText="left:"+(Math.random()*100)+"%;background:"+cs[i%cs.length]+";animation-delay:"+(Math.random()*.5)+"s;--dx:"+((Math.random()-.5)*160)+"px;--r:"+((Math.random()<.5?-1:1)*(360+Math.random()*540))+"deg";w.appendChild(p)}
   document.body.appendChild(w);setTimeout(()=>w.remove(),3200)}
 
+// kuis disimpan ke riwayat yang sama dengan chat: dibuat saat jawaban pertama, diperbarui tiap jawaban (termasuk yang belum selesai)
+function quizText(topic,sc,n,qs,ans){const tot=qs.length,done=n>=tot,L="ABCDEFGH",o=(it,j)=>it.options[j]?L[j]+". "+it.options[j]:"(tidak dijawab)";
+  const head=done?"**Hasil kuis: "+topic+"**\nSkor **"+sc+"/"+tot+"**":"**Kuis: "+topic+"** (belum selesai)\nTerjawab "+n+"/"+tot+" · skor sementara **"+sc+"**";
+  const body=qs.map((it,i)=>{if(ans[i]==null)return "**"+(i+1)+". "+it.q+"**\n"+it.options.map((x,j)=>L[j]+". "+x).join("\n")+"\n⏳ Belum dijawab";
+    const ok=ans[i]===it.answer;return "**"+(i+1)+". "+it.q+"**\n"+(ok?"✅ ":"❌ ")+"Jawabanmu: "+o(it,ans[i])+(ok?"":"\nJawaban benar: "+o(it,it.answer))+(it.explain?"\n💡 "+it.explain:"")}).join("\n\n");
+  return head+"\n\n"+body}
+function qzStart(topic,qs){const S={mid:null,cid:null,tm:0,ready:null,dead:!CVOK};
+  const mk=txt=>tryN(async()=>{
+    const r=await sbx("conversations?select=id,subject,title,updated_at","POST",[uw({subject:subj,title:("Kuis: "+topic).slice(0,60)})],"return=representation");
+    const c=r&&r[0];if(!c)throw new Error("no conv");
+    let m;try{m=await sbx("chat_messages?select=id,role","POST",[uw({subject:subj,role:"user",content:"Kuis: "+topic,conversation_id:c.id}),uw({subject:subj,role:"assistant",content:txt,conversation_id:c.id})],"return=representation")}
+    catch(e){sbx("conversations?id=eq."+c.id,"DELETE",undefined,"return=minimal").catch(()=>{});throw e}
+    S.cid=c.id;S.mid=((m||[]).find(x=>x.role==="assistant")||{}).id;if(!S.mid)throw new Error("no msg");CONVS.unshift(c);paintDrawer()})
+   .catch(()=>{S.dead=true;toast("Riwayat kuis belum tersimpan ke database")});
+  S.upd=(sc,n,ans,now)=>{if(S.dead)return;const txt=quizText(topic,sc,n,qs,ans);
+    if(!S.ready){S.ready=mk(txt);return}
+    clearTimeout(S.tm);
+    const run=async()=>{await S.ready;if(S.dead||!S.mid)return;
+      try{await tryN(()=>sbx("chat_messages?id=eq."+S.mid,"PATCH",{content:txt},"return=minimal"));
+        const c=CONVS.find(x=>x.id===S.cid);if(c){c.updated_at=new Date().toISOString();CONVS=[c,...CONVS.filter(x=>x!==c)];paintDrawer();sbx("conversations?id=eq."+c.id,"PATCH",{updated_at:c.updated_at},"return=minimal").catch(()=>{})}}
+      catch(e){toast("Progres kuis belum tersimpan ke database")}};
+    if(now)run();else S.tm=setTimeout(run,300)};
+  return S}
 async function quiz(){
   const t=$("topic").value.trim();if(!t||busy)return;
   if(!KEY){openSet();return}
@@ -1147,14 +1174,14 @@ async function quiz(){
     st.stop();
     const d=JSON.parse(raw.replace(/```json|```/g,"").trim());
     if(!Array.isArray(d)||!d.length)throw new SyntaxError("bad");
-    let sc=0,n=0;q.innerHTML="";const tot=d.length;
+    let sc=0,n=0;const ans=[],qz=qzStart(t,d);q.innerHTML="";const tot=d.length;
     const sd=document.createElement("div");sd.className="score glass";sd.innerHTML='<div class="sc-t"><span>Skor</span><b>0/'+tot+'</b></div><div class="sc-bar"><i></i></div>';
     q.appendChild(sd);const sb=sd.querySelector("b"),bar=sd.querySelector("i");
     d.forEach((it,i)=>{const c=document.createElement("div");c.className="q glass";c.style.animationDelay=(i*100+120)+"ms";c.innerHTML="<h3>"+(i+1)+". "+mx(it.q)+"</h3>";
-      it.options.forEach((o,j)=>{const b=document.createElement("button");b.className="opt";b.innerHTML=mx(o);b.onclick=()=>{if(c.dataset.d)return;c.dataset.d=1;n++;
+      it.options.forEach((o,j)=>{const b=document.createElement("button");b.className="opt";b.innerHTML=mx(o);b.onclick=()=>{if(c.dataset.d)return;c.dataset.d=1;n++;ans[i]=j;
         const bs=c.querySelectorAll(".opt");if(bs[it.answer])bs[it.answer].classList.add("ok");if(j===it.answer)sc++;else b.classList.add("no");sfx(j===it.answer?"ok":"no");
         const e=document.createElement("div");e.className="ex";e.innerHTML=mx(it.explain||"");c.appendChild(e);
-        sb.textContent=sc+"/"+tot;sb.classList.remove("bump");void sb.offsetWidth;sb.classList.add("bump");bar.style.width=(n/tot*100)+"%";
+        qz.upd(sc,n,ans,n===tot);sb.textContent=sc+"/"+tot;sb.classList.remove("bump");void sb.offsetWidth;sb.classList.add("bump");bar.style.width=(n/tot*100)+"%";
         if(n===tot){sbQuiz(t,sc,tot,d);if(sc===tot)confetti();
           setTimeout(()=>{const r=document.createElement("div");r.className="q glass";
             r.innerHTML="<h3>Kuis selesai!</h3><div style='color:var(--tx2);font-size:14px;line-height:1.5'>Skor akhirmu <b style='color:var(--tx)'>"+sc+"/"+tot+"</b>. "+(sc===tot?"Sempurna!":sc>=tot/2?"Lumayan, terus berlatih.":"Ayo belajar lagi lalu coba ulang.")+"</div><div class='row'></div>";
