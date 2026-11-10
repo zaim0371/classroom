@@ -123,15 +123,23 @@ try{KEY=localStorage.getItem("zc-key")||"";MODEL=localStorage.getItem("zc-model"
 const API="https://generativelanguage.googleapis.com/v1beta/";
 // pilih model otomatis dari daftar model yang tersedia untuk key ini
 async function detectModel(){
-  const r=await fetch(API+"models?pageSize=200",{headers:{"x-goog-api-key":KEY}});
-  if(!r.ok){const e=new Error("http");e.status=r.status;throw e}
-  const j=await r.json();
-  const ok=(j.models||[]).filter(m=>(m.supportedGenerationMethods||[]).includes("generateContent")).map(m=>m.name.replace(/^models\//,"")).filter(n=>/^gemini-/.test(n)&&!/(image|tts|embed|live|audio|vision|robotics|computer|exp|preview)/.test(n));
-  if(!ok.length)throw new Error("nomodel");
+  const FB="gemini-flash-latest";
+  let j;
+  try{
+    const r=await fetch(API+"models?pageSize=200",{headers:{"x-goog-api-key":KEY}});
+    if(!r.ok){
+      if([400,401,403].includes(r.status)){const e=new Error("http");e.status=r.status;throw e}
+      MODEL=FB;return MODEL;
+    }
+    j=await r.json();
+  }catch(e){if(e.status)throw e;MODEL=FB;return MODEL}
+  const all=(j.models||[]).filter(m=>(m.supportedGenerationMethods||[]).includes("generateContent")).map(m=>m.name.replace(/^models\//,"")).filter(n=>/^gemini-/.test(n)&&!/(image|tts|embed|live|audio|vision|robotics|computer|native)/.test(n));
+  if(!all.length){MODEL=FB;return MODEL}
   const ver=n=>{const m=n.match(/^gemini-(\d+(?:\.\d+)?)/);return m?parseFloat(m[1]):0};
   const tier=n=>/flash-lite/.test(n)?1:/flash/.test(n)?3:/pro/.test(n)?2:0;
-  ok.sort((a,b)=>(tier(b)-tier(a))||(ver(b)-ver(a))||a.length-b.length);
-  MODEL=ok[0];try{localStorage.setItem("zc-model",MODEL)}catch(e){}
+  const stable=n=>/(preview|exp)/.test(n)?0:1;
+  all.sort((a,b)=>(stable(b)-stable(a))||(tier(b)-tier(a))||(ver(b)-ver(a))||a.length-b.length);
+  MODEL=all[0];try{localStorage.setItem("zc-model",MODEL)}catch(e){}
   return MODEL;
 }
 function openSet(){$("kin").value=KEY;$("kerr").textContent="";$("kclose").style.display=KEY?"":"none";$("modal").classList.add("show");setTimeout(()=>$("kin").focus(),300)}
@@ -144,15 +152,17 @@ $("ksave").onclick=async()=>{const k=$("kin").value.trim();if(!k){$("kerr").text
   b.disabled=false};
 $("kclear").onclick=()=>{KEY="";MODEL="";try{localStorage.removeItem("zc-key");localStorage.removeItem("zc-model")}catch(e){}$("kin").value="";$("kclose").style.display="none"};
 if(!KEY)openSet();
-function errMsg(e){const s=e&&e.status;if(s===400||s===401||s===403)return"API key tidak valid atau belum aktif. Cek lewat tombol API Key.";if(s===404)return"Model Gemini tidak tersedia untuk key ini. Coba buat API key baru di aistudio.google.com/apikey.";if(s===429)return"Kuota atau kecepatan terlampaui. Coba lagi sebentar.";return"Tidak bisa terhubung ke Google AI. Cek koneksi internetmu."}
-async function gen(msgs,o={},retry){
+function errMsg(e){const s=e&&e.status;const d=e&&e.detail?" ("+e.detail+")":"";if(s===401||s===403||(s===400&&/api key/i.test(e.detail||"")))return"API key tidak valid atau belum aktif. Cek lewat tombol API Key.";if(s===404)return"Model Gemini tidak tersedia untuk key ini."+d;if(s===429)return"Kuota atau kecepatan terlampaui. Coba lagi sebentar.";if(s)return"Google AI error "+s+"."+d;if(e&&e.name==="TypeError")return"Tidak bisa terhubung ke Google AI. Cek koneksi internetmu.";return"Terjadi kesalahan: "+((e&&e.message)||"tidak diketahui")}
+async function gen(msgs,o={},retry,noThink){
   if(!MODEL)await detectModel();
   const url=API+"models/"+encodeURIComponent(MODEL)+(o.stream?":streamGenerateContent?alt=sse":":generateContent");
-  const body={contents:msgs.map(m=>({role:m.role==="assistant"?"model":"user",parts:[{text:m.content}]}))};
+  const body={contents:msgs.slice(-12).map(m=>({role:m.role==="assistant"?"model":"user",parts:[{text:m.content}]}))};
   if(o.sys)body.systemInstruction={parts:[{text:o.sys}]};
-  if(o.json)body.generationConfig={responseMimeType:"application/json"};
+  const gc={};if(o.json)gc.responseMimeType="application/json";
+  if(!noThink){if(/gemini-2\.5/.test(MODEL)&&!/pro/.test(MODEL))gc.thinkingConfig={thinkingBudget:0};else if(/gemini-([3-9])/.test(MODEL))gc.thinkingConfig={thinkingLevel:"low"}}
+  if(Object.keys(gc).length)body.generationConfig=gc;
   const r=await fetch(url,{method:"POST",headers:{"Content-Type":"application/json","x-goog-api-key":KEY},body:JSON.stringify(body)});
-  if(!r.ok){if(r.status===404&&!retry){MODEL="";try{localStorage.removeItem("zc-model")}catch(e){}return gen(msgs,o,true)}const e=new Error("http");e.status=r.status;throw e}
+  if(!r.ok){if(r.status===400&&!noThink&&body.generationConfig&&body.generationConfig.thinkingConfig)return gen(msgs,o,retry,true);if(r.status===404&&(retry||0)<2){try{localStorage.removeItem("zc-model")}catch(e){}MODEL=retry?"gemini-flash-latest":"";return gen(msgs,o,(retry||0)+1,noThink)}let dt="";try{dt=((await r.json()).error||{}).message||""}catch(_){}const e=new Error("http");e.status=r.status;e.detail=dt.slice(0,140);throw e}
   const pk=j=>((j.candidates&&j.candidates[0]&&j.candidates[0].content&&j.candidates[0].content.parts)||[]).map(p=>p.text||"").join("");
   if(!o.stream)return pk(await r.json());
   const rd=r.body.getReader(),dc=new TextDecoder();let buf="",all="";
@@ -167,7 +177,7 @@ async function send(){
   const m=add("a","<span class='dots'><span></span><span></span><span></span></span>");
   try{const t=await gen(hist,{stream:true,sys:SYS(),onText:t=>{m.innerHTML=md(t);$("log").scrollTop=$("log").scrollHeight}});
     if(!t)throw new Error("empty");m.innerHTML=md(t);hist.push({role:"assistant",content:t})}
-  catch(e){m.textContent=e.status?errMsg(e):(e.message==="empty"?"AI tidak memberi jawaban. Coba ulangi pertanyaannya.":errMsg(e));hist.pop()}
+  catch(e){m.textContent=e.message==="empty"?"AI tidak memberi jawaban. Coba ulangi pertanyaannya.":errMsg(e);hist.pop()}
   busy=false;$("sb").disabled=false;
 }
 $("sb").onclick=send;$("in").addEventListener("keydown",e=>{if(e.key==="Enter"){e.preventDefault();send()}});
@@ -184,7 +194,7 @@ async function quiz(){
       it.options.forEach((o,j)=>{const b=document.createElement("button");b.className="opt";b.textContent=o;b.onclick=()=>{if(c.dataset.d)return;c.dataset.d=1;n++;const bs=c.querySelectorAll(".opt");bs[it.answer].classList.add("ok");if(j===it.answer)sc++;else b.classList.add("no");const e=document.createElement("div");e.className="ex";e.textContent=it.explain||"";c.appendChild(e);sd.textContent="Skor: "+sc+"/"+tot+(n===tot?(sc===tot?" — sempurna!":" — semangat terus!"):"")};c.appendChild(b)});
       q.appendChild(c)});
     q.appendChild(sd);
-  }catch(e){q.innerHTML="<div class='note'>"+(e.status?errMsg(e):"Gagal membuat kuis. Coba topik lain.")+"</div>"}
+  }catch(e){q.innerHTML="<div class='note'>"+(e.name==="SyntaxError"?"Gagal membuat kuis. Coba topik lain.":errMsg(e))+"</div>"}
   busy=false;$("qb").disabled=false;
 }
 $("qb").onclick=quiz;$("topic").addEventListener("keydown",e=>{if(e.key==="Enter"){e.preventDefault();quiz()}});
