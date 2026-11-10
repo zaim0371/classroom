@@ -391,6 +391,13 @@ header.glass,.composer.glass,.tabbar{-webkit-backdrop-filter:blur(12px) saturate
 .msg .tw{overflow-x:auto;margin:.4em 0 .8em}.msg table{border-collapse:collapse;font-size:13.5px}
 .msg th,.msg td{padding:6px 10px;border:1px solid var(--bd);text-align:left;vertical-align:top}.msg th{font-weight:700;background:rgba(120,120,160,.16)}
 .msg li>ul,.msg li>ol{margin:.25em 0 .1em}
+/* mode AI: muncul hanya saat mengetik, ikon sistem, tanpa tepi terpotong */
+.aim{margin:0 2px;padding:0 8px;max-height:0;overflow:hidden;opacity:0;transform:translateY(8px);pointer-events:none;transition:max-height .3s cubic-bezier(.2,.9,.25,1),padding .3s,opacity .2s,transform .3s cubic-bezier(.2,.9,.25,1)}
+.aim.show{max-height:64px;padding:4px 8px 12px;margin-bottom:-4px;opacity:1;transform:none;pointer-events:auto}
+.aim button{display:inline-flex;align-items:center;gap:6px;line-height:1}
+.aim button svg{flex:none;display:block}
+#log,#quiz,#cls{-webkit-mask-image:linear-gradient(to bottom,transparent 0,#000 18px,#000 calc(100% - 22px),transparent 100%);mask-image:linear-gradient(to bottom,transparent 0,#000 18px,#000 calc(100% - 22px),transparent 100%)}
+header.glass{-webkit-backdrop-filter:none;backdrop-filter:none;background:linear-gradient(135deg,rgba(255,255,255,.16),rgba(255,255,255,.08))}
 </style>
 </head>
 <body>
@@ -401,7 +408,7 @@ header.glass,.composer.glass,.tabbar{-webkit-backdrop-filter:blur(12px) saturate
     <section class="view show" id="v0">
       <div class="scroll" id="log"></div>
       <div class="atts" id="atts"></div>
-      <div class="aim" id="aim" role="group" aria-label="Mode AI"><button type="button" data-m="fast">⚡ Cepat</button><button type="button" data-m="think">🧠 Berpikir</button></div>
+      <div class="aim" id="aim" role="group" aria-label="Mode AI"><button type="button" data-m="fast"><svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M13 3L5 13.5h6L10 21l8-10.5h-6z"/></svg><span>Cepat</span></button><button type="button" data-m="think"><svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 18h6M10 21h4M12 3a6 6 0 00-3.5 10.9c.6.5 1 1.2 1 2V16h5v-.1c0-.8.4-1.5 1-2A6 6 0 0012 3z"/></svg><span>Berpikir</span></button></div>
       <form class="composer glass" id="f" onsubmit="return false">
         <button class="attb" id="ab" type="button" aria-label="Lampirkan file"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 11.5l-8.5 8.5a5.5 5.5 0 01-7.8-7.8l8.8-8.8a3.7 3.7 0 115.2 5.2l-8.8 8.8a1.8 1.8 0 01-2.6-2.6l8-8"/></svg></button>
         <textarea id="in" rows="1" placeholder="Tanya apa saja…" autocomplete="off" enterkeyhint="send"></textarea>
@@ -1580,6 +1587,11 @@ async function send(){ttsStop();
 }
 (()=>{const w=$("aim"),paint=()=>w.querySelectorAll("button").forEach(b=>{const on=b.dataset.m===AIM;b.classList.toggle("on",on);b.setAttribute("aria-pressed",on?"true":"false")});
   w.addEventListener("click",e=>{const b=e.target.closest("button");if(!b)return;AIM=b.dataset.m==="think"?"think":"fast";try{localStorage.setItem("zc-aim",AIM)}catch(_){}paint();toast(AIM==="think"?"Mode Berpikir: lebih teliti, jawaban agak lebih lama":"Mode Cepat: jawaban langsung")});paint()})();
+(()=>{const a=$("aim"),t=$("in");if(!a||!t)return;let h=0;
+const on=()=>{clearTimeout(h);a.classList.add("show")},off=()=>{clearTimeout(h);h=setTimeout(()=>a.classList.remove("show"),160)};
+t.addEventListener("focus",on);t.addEventListener("blur",off);
+a.addEventListener("pointerdown",e=>{e.preventDefault();clearTimeout(h)});
+if(document.activeElement===t)on()})();
 $("sb").onclick=send;
 $("in").addEventListener("keydown",e=>{if(e.key==="Enter"&&!e.shiftKey&&!matchMedia("(pointer:coarse)").matches){e.preventDefault();send()}});
 
