@@ -206,6 +206,23 @@ header>div:nth-child(2){min-width:0;flex:1}
 .fv .fpg .pn.on{background:rgba(255,255,255,.4)}
 .fv .fb.fhl{background:rgba(255,214,10,.2)}
 .fv .fb.fhl.on{background:rgba(255,214,10,.9);color:#241c00}
+.csel{position:fixed;left:0;right:0;top:var(--vt,0px);height:var(--vh,100dvh);z-index:15;display:flex;flex-direction:column;background:linear-gradient(135deg,var(--bg2),var(--bg1));opacity:0;transform:translateY(18px);transition:opacity .25s,transform .3s}
+.csel.show{opacity:1;transform:none}
+.csh{flex:none;display:flex;align-items:center;gap:8px;padding:calc(env(safe-area-inset-top,0px) + 10px) calc(12px + var(--sr)) 10px calc(12px + var(--sl));border-bottom:1px solid var(--bd);background:var(--gl2)}
+.csh b{flex:1;min-width:0;font-size:17px;color:var(--tx)}
+.csh .chip:disabled{opacity:.45}
+.csl{flex:1;min-height:0;overflow-y:auto;-webkit-overflow-scrolling:touch;padding:8px 0 calc(env(safe-area-inset-bottom,0px) + 14px)}
+.csr{display:flex;align-items:flex-start;gap:12px;padding:5px calc(14px + var(--sr)) 5px calc(14px + var(--sl));cursor:pointer;transition:background .2s;-webkit-tap-highlight-color:transparent}
+.csr.on{background:rgba(94,144,240,.24)}
+.csk{flex:none;width:24px;height:24px;margin-top:11px;border-radius:50%;border:2px solid var(--tx2);display:grid;place-items:center;color:#fff;font-size:14px;font-weight:800;transition:background .2s,border-color .2s,transform .3s cubic-bezier(.3,1.8,.5,1)}
+.csr.on .csk{background:#3f73e0;border-color:#3f73e0;transform:scale(1.08)}
+.csr.on .csk::after{content:"\2713"}
+.csb{max-width:82%;min-width:0;padding:9px 13px;border-radius:16px;border:1px solid var(--bd);background:var(--gl);color:var(--tx);font-size:14.5px;line-height:1.45}
+.csr.u .csb{margin-left:auto;background:rgba(94,144,240,.3)}
+.csr.a .csb{margin-right:auto}
+.csb small{display:block;font-size:11px;font-weight:700;color:var(--tx2);margin-bottom:2px}
+.cst{display:-webkit-box;-webkit-line-clamp:7;-webkit-box-orient:vertical;overflow:hidden;white-space:pre-wrap;word-break:break-word}
+.ciq .mi svg{width:22px;height:22px}
 .fv .fbody.ci img{-webkit-user-drag:none;pointer-events:none}
 .bm.ic{display:inline-flex;align-items:center;gap:6px}.bm.ic svg{flex:none}
 .acts.out{align-self:flex-start;margin:-4px 8px 0;max-width:92%;justify-content:flex-start;gap:16px;flex-wrap:wrap}
@@ -273,6 +290,8 @@ textarea.essay:disabled{opacity:.7}
 #f{padding-left:4px}#f textarea{padding-left:2px}
 .attb{flex:none;width:44px;height:44px;border-radius:50%;border:0;background:none;color:var(--tx2);display:grid;place-items:center;cursor:pointer;padding:0;transition:transform .3s cubic-bezier(.3,1.6,.5,1)}
 .attb:active{transform:scale(.88)}
+.attb.rec{color:#fff;background:#e5484d;animation:micp 1.1s ease-out infinite}
+@keyframes micp{0%{box-shadow:0 0 0 0 rgba(229,72,77,.55)}100%{box-shadow:0 0 0 14px rgba(229,72,77,0)}}
 .atts{display:none;gap:8px;overflow-x:auto;padding:2px 4px 10px;scrollbar-width:none}
 .atts.on{display:flex}.atts::-webkit-scrollbar{display:none}
 .pa{position:relative;flex:none;height:56px;min-width:56px;max-width:170px;border-radius:14px;border:1px solid var(--bd);background:var(--gl);display:flex;align-items:center;gap:6px;padding:0 26px 0 10px;font-size:12.5px;font-weight:600;overflow:hidden;animation:pop .4s both}
@@ -444,6 +463,7 @@ header.glass{-webkit-backdrop-filter:none;backdrop-filter:none;background:linear
       <form class="composer glass" id="f" onsubmit="return false">
         <button class="attb" id="ab" type="button" aria-label="Lampirkan file"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 11.5l-8.5 8.5a5.5 5.5 0 01-7.8-7.8l8.8-8.8a3.7 3.7 0 115.2 5.2l-8.8 8.8a1.8 1.8 0 01-2.6-2.6l8-8"/></svg></button>
         <textarea id="in" rows="1" placeholder="Tanya apa saja…" autocomplete="off" enterkeyhint="send"></textarea>
+        <button class="attb" id="mic" type="button" aria-label="Bicara (suara ke teks)" aria-pressed="false"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="3" width="6" height="12" rx="3"/><path d="M5 11a7 7 0 0014 0M12 18v3"/></svg></button>
         <button class="send" id="sb" type="button" aria-label="Kirim"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M12 19V5M5 12l7-7 7 7"/></svg></button>
       </form>
       <button class="jump" id="jump" type="button" aria-label="Ke pesan terbaru"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 5v14M5 12l7 7 7-7"/></svg><span>Pesan terbaru</span></button>
@@ -1270,16 +1290,17 @@ async function chatImgOpen(content,opt){if(FV)return;opt=opt||{};
       tx=Math.min(mx,Math.max(-mx,tx));ty=Math.min(my,Math.max(-my,ty));wrap.style.transform="translate("+tx+"px,"+ty+"px) scale("+sc+")"};
     const fit=()=>{const bw=body.clientWidth,bh=body.clientHeight,w=Math.min(bw,bh*a),h=w/a;
       wrap.style.cssText="position:relative;flex:none;margin:auto;width:"+w+"px;height:"+h+"px;transform-origin:50% 50%;will-change:transform";im.style.cssText="width:100%;height:100%";apply()};
-    const stamp=Date.now();
+    const stamp=Date.now();const pdf=opt.fmt==="pdf";let pdfB=null;
+    const dlPdf=async()=>{try{toast("Membuat PDF…");if(!pdfB)pdfB=await ciMakePdf(pgs);const u=URL.createObjectURL(pdfB),x=document.createElement("a");x.href=u;x.download="jawaban-ai-"+stamp+".pdf";document.body.appendChild(x);x.click();x.remove();setTimeout(()=>URL.revokeObjectURL(u),30000)}catch(e){toast("Gagal membuat PDF")}};
     const dlOne=i=>{const x=document.createElement("a");x.href=urls[i];x.download="jawaban-ai-"+(n>1?(i+1)+"-":"")+stamp+".png";document.body.appendChild(x);x.click();x.remove()};
     let chips=[];
-    const show=i=>{cur=i;im.src=urls[i];sc=1;tx=0;ty=0;apply();if(n>1){dlt.textContent="Unduh "+(i+1);chips.forEach((c,k)=>c.classList.toggle("on",k===i))}};
+    const show=i=>{cur=i;im.src=urls[i];sc=1;tx=0;ty=0;apply();if(n>1){if(!pdf)dlt.textContent="Unduh "+(i+1);chips.forEach((c,k)=>c.classList.toggle("on",k===i))}};
     if(n>1){
       const bar=document.createElement("div");bar.className="fpg";
       const lb=document.createElement("span");lb.textContent="Halaman";bar.appendChild(lb);
       for(let i=0;i<n;i++){const c=document.createElement("button");c.type="button";c.className="pn";c.textContent=i+1;c.onclick=()=>show(i);chips.push(c);bar.appendChild(c)}
       const all=document.createElement("button");all.type="button";all.className="fb";all.style.marginLeft="auto";all.innerHTML=SV+"<span>Semua</span>";
-      all.onclick=()=>{for(let i=0;i<n;i++)setTimeout(()=>dlOne(i),i*450)};bar.appendChild(all);el.appendChild(bar)}
+      all.onclick=()=>{for(let i=0;i<n;i++)setTimeout(()=>dlOne(i),i*450)};if(pdf){all.querySelector("span").textContent="PDF";all.onclick=dlPdf}bar.appendChild(all);el.appendChild(bar)}
     fit();show(0);
     const onr=()=>{if(!FV||FV.el!==el){removeEventListener("resize",onr);return}fit()};addEventListener("resize",onr);
     // zoom cubit (dua jari), geser (satu jari saat diperbesar), ketuk dua kali, dan roda mouse
@@ -1300,11 +1321,79 @@ async function chatImgOpen(content,opt){if(FV)return;opt=opt||{};
     const up=e=>{PT.delete(e.pointerId);if(PT.size<2){pd=0;pm=null}if(sc<1.02){sc=1;tx=0;ty=0;apply()}};
     body.addEventListener("pointerup",up);body.addEventListener("pointercancel",up);
     body.addEventListener("wheel",e=>{e.preventDefault();const c=cen(e.clientX,e.clientY);zoomAt(sc*(e.deltaY<0?1.15:1/1.15),c[0],c[1])},{passive:false});
-    dl.style.display="";dl.onclick=()=>dlOne(cur);
-    const tg=el.querySelector(".fhl");if(CI_C&&CI_C.hits>0){tg.style.display="";tg.classList.toggle("on",!opt.nohl);tg.onclick=()=>{const nx=!opt.nohl;fvClose();setTimeout(()=>chatImgOpen(content,{nohl:nx}),300)}}
-    toast(qm+(n>1?"Dibagi jadi "+n+" gambar, kalimat & tabel tetap utuh. Cubit layar untuk zoom":"Cubit layar untuk zoom"))
+    dl.style.display="";if(pdf){dlt.textContent="Unduh PDF";dl.onclick=dlPdf}else dl.onclick=()=>dlOne(cur);
+    const tg=el.querySelector(".fhl");if(CI_C&&CI_C.hits>0){tg.style.display="";tg.classList.toggle("on",!opt.nohl);tg.onclick=()=>{const nx=!opt.nohl;fvClose();setTimeout(()=>chatImgOpen(content,{nohl:nx,fmt:opt.fmt}),300)}}
+    toast(qm+(pdf?"Pratinjau PDF "+n+" halaman. Ketuk Unduh PDF untuk menyimpan.":n>1?"Dibagi jadi "+n+" gambar, kalimat & tabel tetap utuh. Cubit layar untuk zoom":"Cubit layar untuk zoom"))
   }catch(e){if(FV&&FV.el===el)body.innerHTML="<span style='color:#f99;margin:auto;font-size:14px'>Gagal membuat gambar.</span>"}}
-function imgBtn(content){const b=document.createElement("button");b.className="bm ic";b.type="button";bmSet(b,"img","Jadikan gambar");b.onclick=()=>chatImgOpen(content);return b}
+// PDF dari gambar halaman (tanpa library): tiap halaman jadi JPEG yang ditanam di halaman PDF
+async function ciMakePdf(pgs){
+  const enc=new TextEncoder(),parts=[],offs=[];let len=0;
+  const push=x=>{const b=typeof x==="string"?enc.encode(x):x;parts.push(b);len+=b.length};
+  const jp=[];
+  for(const pg of pgs){const u=URL.createObjectURL(pg.blob);
+    try{const im=await new Promise((ok,no)=>{const i=new Image();i.onload=()=>ok(i);i.onerror=no;i.src=u});
+      const c=document.createElement("canvas");c.width=im.naturalWidth;c.height=im.naturalHeight;const g=c.getContext("2d");g.fillStyle="#fff";g.fillRect(0,0,c.width,c.height);g.drawImage(im,0,0);
+      const b=await new Promise(ok=>c.toBlob(ok,"image/jpeg",.92));
+      jp.push({w:c.width,h:c.height,d:new Uint8Array(await b.arrayBuffer())})}finally{URL.revokeObjectURL(u)}}
+  const n=jp.length,N=2+3*n;
+  const obj=(id,f)=>{offs[id]=len;push(id+" 0 obj\n");f();push("\nendobj\n")};
+  push("%PDF-1.4\n");
+  obj(1,()=>push("<< /Type /Catalog /Pages 2 0 R >>"));
+  obj(2,()=>push("<< /Type /Pages /Count "+n+" /Kids ["+jp.map((_,i)=>(3+3*i)+" 0 R").join(" ")+"] >>"));
+  jp.forEach((j,i)=>{const pw=842,ph=+(pw*j.h/j.w).toFixed(2),id=3+3*i;
+    obj(id,()=>push("<< /Type /Page /Parent 2 0 R /MediaBox [0 0 "+pw+" "+ph+"] /Resources << /XObject << /Im0 "+(id+2)+" 0 R >> >> /Contents "+(id+1)+" 0 R >>"));
+    const cs="q "+pw+" 0 0 "+ph+" 0 0 cm /Im0 Do Q";
+    obj(id+1,()=>push("<< /Length "+cs.length+" >>\nstream\n"+cs+"\nendstream"));
+    obj(id+2,()=>{push("<< /Type /XObject /Subtype /Image /Width "+j.w+" /Height "+j.h+" /ColorSpace /DeviceRGB /BitsPerComponent 8 /Filter /DCTDecode /Length "+j.d.length+" >>\nstream\n");push(j.d);push("\nendstream")})});
+  const xr=len;let t="xref\n0 "+(N+1)+"\n0000000000 65535 f \n";for(let i=1;i<=N;i++)t+=String(offs[i]).padStart(10,"0")+" 00000 n \n";
+  push(t+"trailer\n<< /Size "+(N+1)+" /Root 1 0 R >>\nstartxref\n"+xr+"\n%%EOF");
+  return new Blob(parts,{type:"application/pdf"})}
+// popup pilihan
+function ciChoice(o){return new Promise(res=>{
+  const m=document.createElement("div");m.className="modal ciq";m.style.zIndex=17;
+  const c=document.createElement("div");c.className="glass card";
+  const h=document.createElement("h2");h.textContent=o.title;const p=document.createElement("p");p.textContent=o.desc||"";c.appendChild(h);c.appendChild(p);
+  const done=v=>{m.classList.remove("show");setTimeout(()=>m.remove(),400);res(v)};
+  o.opts.forEach(x=>{const b=document.createElement("button");b.type="button";b.className="mi";b.innerHTML="<span><b></b><small></small></span>"+(x.ic||"");b.querySelector("b").textContent=x.t;b.querySelector("small").textContent=x.s||"";b.onclick=()=>done(x.k);c.appendChild(b)});
+  const r=document.createElement("div");r.className="row";const no=document.createElement("button");no.type="button";no.className="chip";no.textContent="Batal";no.onclick=()=>done(null);r.appendChild(no);c.appendChild(r);
+  m.appendChild(c);m.addEventListener("pointerdown",e=>{if(e.target===m)done(null)});document.body.appendChild(m);requestAnimationFrame(()=>m.classList.add("show"))})}
+// layar pilih pesan ala WhatsApp: ketuk untuk memilih banyak pesan, lalu digabung berurutan
+function chatPick(trig){return new Promise(res=>{
+  const rows=hist.map((h,i)=>({i:i,role:h.role==="user"?"user":"assistant",content:String(h.content||"").trim()})).filter(x=>x.content);
+  let ti=-1;rows.forEach((x,k)=>{if(x.role==="assistant"&&x.content===String(trig||"").trim())ti=k});
+  const sel=new Set(ti>=0?[rows[ti].i]:[]);
+  const el=document.createElement("div");el.className="csel";
+  el.innerHTML='<div class="csh"><button class="chip csx" type="button" aria-label="Batal">×</button><b class="csn"></b><button class="chip csa" type="button">Semua</button><button class="chip on csgo" type="button">Lanjut</button></div><div class="csl"></div>';
+  const list=el.querySelector(".csl"),cn=el.querySelector(".csn"),go=el.querySelector(".csgo"),all=el.querySelector(".csa");
+  const upd=()=>{cn.textContent=sel.size?sel.size+" dipilih":"Pilih pesan";go.disabled=!sel.size;all.textContent=sel.size===rows.length?"Hapus":"Semua"};
+  const prev=x=>{if(x.role==="user")return x.content.slice(0,900);const d=document.createElement("div");d.innerHTML=md(x.content);return ciPlain(d).slice(0,900)};
+  const els=[];
+  rows.forEach(x=>{const r=document.createElement("div");r.className="csr "+(x.role==="user"?"u":"a")+(sel.has(x.i)?" on":"");
+    r.innerHTML='<i class="csk"></i><div class="csb"><small></small><div class="cst"></div></div>';
+    r.querySelector("small").textContent=x.role==="user"?"Kamu":"AI";r.querySelector(".cst").textContent=prev(x);
+    r.onclick=()=>{if(sel.has(x.i))sel.delete(x.i);else sel.add(x.i);r.classList.toggle("on",sel.has(x.i));upd()};
+    list.appendChild(r);els.push(r)});
+  const close=v=>{el.classList.remove("show");setTimeout(()=>el.remove(),320);res(v)};
+  el.querySelector(".csx").onclick=()=>close(null);
+  all.onclick=()=>{if(sel.size===rows.length)sel.clear();else rows.forEach(x=>sel.add(x.i));els.forEach((r,k)=>r.classList.toggle("on",sel.has(rows[k].i)));upd()};
+  go.onclick=()=>{if(!sel.size)return;const ch=rows.filter(x=>sel.has(x.i)),hasU=ch.some(x=>x.role==="user");
+    close(ch.map(x=>hasU?"#### "+(x.role==="user"?"Pertanyaan":"Jawaban AI")+"\n\n"+x.content:x.content).join(hasU?"\n\n":"\n\n---\n\n"))};
+  upd();document.body.appendChild(el);requestAnimationFrame(()=>{el.classList.add("show");if(ti>=0)els[ti].scrollIntoView({block:"center"})})})}
+const IC_ONE='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>',
+  IC_MORE='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 11l3 3 8-8"/><path d="M20 12v7a2 2 0 01-2 2H6a2 2 0 01-2-2V7a2 2 0 012-2h9"/></svg>',
+  IC_IMG='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="3"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/></svg>',
+  IC_PDF='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 3H7a2 2 0 00-2 2v14a2 2 0 002 2h10a2 2 0 002-2V8z"/><path d="M14 3v5h5M9 13h6M9 17h4"/></svg>';
+async function imgFlow(content){
+  if(FV)return;
+  let text=content;
+  if(hist.filter(h=>String(h.content||"").trim()).length>1){
+    const c1=await ciChoice({title:"Jadikan gambar",desc:"Pakai chat ini saja, atau gabung dengan chat lain?",opts:[{k:"one",t:"Chat ini saja",s:"Hanya jawaban yang kamu pilih",ic:IC_ONE},{k:"more",t:"Dengan chat lain",s:"Pilih beberapa pesan seperti di WhatsApp",ic:IC_MORE}]});
+    if(!c1)return;
+    if(c1==="more"){const t=await chatPick(content);if(!t)return;text=t}}
+  const f=await ciChoice({title:"Simpan sebagai",desc:"Pilih format hasil.",opts:[{k:"img",t:"Gambar",s:"PNG, mudah dibagikan",ic:IC_IMG},{k:"pdf",t:"PDF",s:"Satu file berisi semua halaman",ic:IC_PDF}]});
+  if(!f)return;
+  chatImgOpen(text,{fmt:f})}
+function imgBtn(content){const b=document.createElement("button");b.className="bm ic";b.type="button";bmSet(b,"img","Jadikan gambar");b.onclick=()=>imgFlow(content);return b}
 async function copyText(t){try{if(navigator.clipboard&&window.isSecureContext){await navigator.clipboard.writeText(t);return true}}catch(e){}
   try{const a=document.createElement("textarea");a.value=t;a.setAttribute("readonly","");a.style.cssText="position:fixed;left:-9999px;top:0;opacity:0";document.body.appendChild(a);a.select();a.setSelectionRange(0,t.length);const ok=document.execCommand("copy");a.remove();return ok}catch(e){return false}}
 function copyBtn(text){const b=document.createElement("button");b.className="bm ic";b.type="button";bmSet(b,"copy","Salin");
@@ -1986,6 +2075,42 @@ $("qopt").onclick=()=>{const o=$("qopts"),sh=o.style.display==="none";o.style.di
 $("qno").onclick=()=>$("qmodal").classList.remove("show");
 const qGo=()=>{const t=$("qtopic").value.trim();if(!t&&!QF.length){$("qtopic").focus();return}$("qmodal").classList.remove("show");const fs=QF.slice();QF=[];qPaint();quiz(t,fs)};
 $("qgo").onclick=qGo;$("qtopic").addEventListener("keydown",e=>{if(e.key==="Enter"&&!e.shiftKey){const v=$("qtopic").value;if(v.length<=200&&v.indexOf("\n")<0){e.preventDefault();qGo()}}});
+
+// ---------- suara ke teks (mikrofon) ----------
+(()=>{const mic=$("mic"),ta=$("in"),SR=window.SpeechRecognition||window.webkitSpeechRecognition;
+  let on=false,rec=null,base="",mr=null,chunks=[],stream=null,ph0=ta.placeholder;
+  const join=(a,b)=>!b?a:(a&&!/\s$/.test(a)?a+" ":a)+b;
+  const ui=v=>{on=v;mic.classList.toggle("rec",v);mic.setAttribute("aria-pressed",v?"true":"false");mic.setAttribute("aria-label",v?"Berhenti merekam":"Bicara (suara ke teks)");ta.placeholder=v?"Mendengarkan… ketuk mikrofon untuk selesai":ph0};
+  const put=t=>{ta.value=join(base,t);fit();ta.scrollTop=ta.scrollHeight};
+  const msg=e=>e==="not-allowed"||e==="service-not-allowed"?"Izin mikrofon ditolak. Aktifkan di pengaturan browser.":e==="audio-capture"?"Mikrofon tidak ditemukan.":e==="network"?"Pengenalan suara butuh koneksi internet.":"Suara tidak bisa dikenali.";
+  function startSR(){
+    rec=new SR();rec.lang="id-ID";rec.continuous=true;rec.interimResults=true;rec.maxAlternatives=1;
+    base=ta.value;let stopped=false;
+    rec.onresult=ev=>{let fin="",itm="";for(let i=0;i<ev.results.length;i++){const r=ev.results[i];if(r.isFinal)fin+=r[0].transcript;else itm+=r[0].transcript}
+      put((fin+" "+itm).replace(/\s+/g," ").trim())};
+    rec.onerror=ev=>{if(ev.error==="no-speech"||ev.error==="aborted")return;stopped=true;ui(false);toast(msg(ev.error))};
+    rec.onend=()=>{if(on&&!stopped){try{base=ta.value;rec=null;startSR()}catch(e){ui(false)}}else ui(false)};
+    try{rec.start();ui(true)}catch(e){ui(false);toast("Tidak bisa memulai mikrofon.")}}
+  async function startMR(){
+    if(!KEY){openSet();return}
+    try{stream=await navigator.mediaDevices.getUserMedia({audio:true})}catch(e){toast("Izin mikrofon ditolak. Aktifkan di pengaturan browser.");return}
+    chunks=[];mr=new MediaRecorder(stream);mr.ondataavailable=e=>{if(e.data&&e.data.size)chunks.push(e.data)};
+    mr.onstop=async()=>{stream.getTracks().forEach(t=>t.stop());ui(false);const mime=(mr.mimeType||"audio/webm").split(";")[0],blob=new Blob(chunks,{type:mime});
+      if(blob.size<1500){toast("Suara tidak terdengar.");return}
+      mic.disabled=true;ta.placeholder="Mengubah suara jadi teks…";
+      try{const data=await rb64(blob);
+        const out=await gen([{role:"user",content:"Transkripsikan rekaman suara ini apa adanya dalam bahasa yang diucapkan (utamanya Bahasa Indonesia). Beri tanda baca yang wajar. Balas HANYA teks hasil transkripsi, tanpa komentar. Jika tidak ada ucapan, balas kosong.",files:[{name:"suara",mime:mime,data:data,kind:"aud"}]}],{onStatus:()=>{}});
+        const t=String(out||"").trim();if(t){base=ta.value;put(t)}else toast("Tidak ada ucapan yang terdengar.")}
+      catch(e){toast("Gagal mengubah suara jadi teks.")}
+      mic.disabled=false;ta.placeholder=ph0;ta.focus()};
+    mr.start();ui(true)}
+  function stop(){if(!on)return;if(SR&&rec){const r=rec;on=false;try{r.stop()}catch(e){}ui(false)}else if(mr&&mr.state!=="inactive"){mr.stop()}}
+  mic.onclick=()=>{if(on){stop();return}if(busy)return;
+    if(SR)startSR();else if(window.MediaRecorder&&navigator.mediaDevices)startMR();else toast("Browser ini belum mendukung input suara.")};
+  $("sb").addEventListener("click",stop,true);
+  ta.addEventListener("keydown",e=>{if(e.key==="Enter"&&!e.shiftKey)stop()},true);
+  document.addEventListener("visibilitychange",()=>{if(document.hidden)stop()});
+})();
 </script>
 <script>
 (()=>{const set=(e,on)=>{const g=e.target.closest&&e.target.closest(".glass");if(!g)return;const r=g.getBoundingClientRect();g.style.setProperty("--mx",(e.clientX-r.left)+"px");g.style.setProperty("--my",(e.clientY-r.top)+"px");if(on!==undefined)g.classList.toggle("lit",on)};
