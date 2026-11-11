@@ -892,7 +892,7 @@ async function sbSave(rows,up){try{if(up)await up;await tok();let tries=0;
     return cid};
   let cid;try{cid=await tryN(attempt,4)}catch(e){toast("Pesan belum tersimpan ("+((e.status||"")+" "+(e.detail||e.message||"")).trim().slice(0,90)+")");return}
   const c=cid&&CONVS.find(x=>x.id===cid);if(!c)return;
-  if(c.title==="Obrolan baru")autoTitle(c,rows[0].content,rows[1].content);
+  if(c.title==="Obrolan baru")autoTitle(c,rows[0].content,(rows[1]||{content:""}).content);
   else{c.updated_at=new Date().toISOString();CONVS=[c,...CONVS.filter(x=>x!==c)];paintDrawer();sbx("conversations?id=eq."+c.id,"PATCH",{updated_at:c.updated_at},"return=minimal").catch(()=>{})}}catch(e){}}
 // judul obrolan dibuat AI dari pertanyaan pertama
 async function autoTitle(c,q,a){let t="";
@@ -2186,7 +2186,7 @@ $("qgo").onclick=qGo;$("qtopic").addEventListener("keydown",e=>{if(e.key==="Ente
 (()=>{
 const el=$("call"),me=$("call-me"),st=$("call-st"),cap=$("call-cap"),tm=$("call-t"),av=$("call-av"),bt=$("c-talk");
 const SR=window.SpeechRecognition||window.webkitSpeechRecognition;
-const CALLR="\n\nMODE PANGGILAN VIDEO: Kamu sedang video call langsung dengan pengguna dan jawabanmu akan DIBACAKAN dengan suara. Karena itu: bicara natural seperti ngobrol, 1 sampai 3 kalimat pendek (maksimal sekitar 35 kata), tanpa markdown, tanpa daftar, tanpa simbol, tanpa emoji, tanpa tanda titik tiga, tanda kurung, atau tanda kutip; angka dan rumus ditulis dengan kata yang mudah diucapkan. Kadang kamu menerima foto dari kamera pengguna yang diambil saat ia bicara. Pakai foto itu hanya bila relevan dengan ucapannya (misalnya PR, buku, papan tulis, benda di depan kamera), sebut dengan kata 'aku lihat', jangan mengomentari wajah atau penampilan tanpa diminta, dan jangan menebak identitas orang dari wajah. Kalau gambarnya buram atau tidak jelas, minta ia mendekatkan atau memperjelas. Tetap ikut karakter AI yang aktif.";
+const CALLR="\n\nMODE PANGGILAN VIDEO: Kamu sedang video call langsung dengan pengguna dan jawabanmu akan DIBACAKAN dengan suara. Karena itu: bicara natural seperti ngobrol, 1 sampai 3 kalimat pendek (maksimal sekitar 35 kata), dan kalimat pertama WAJIB sangat pendek (maksimal 8 kata) supaya bisa langsung diucapkan, tanpa markdown, tanpa daftar, tanpa simbol, tanpa emoji, tanpa tanda titik tiga, tanda kurung, atau tanda kutip; angka dan rumus ditulis dengan kata yang mudah diucapkan. Kadang kamu menerima foto dari kamera pengguna yang diambil saat ia bicara. Pakai foto itu hanya bila relevan dengan ucapannya (misalnya PR, buku, papan tulis, benda di depan kamera), sebut dengan kata 'aku lihat', jangan mengomentari wajah atau penampilan tanpa diminta, dan jangan menebak identitas orang dari wajah. Kalau gambarnya buram atau tidak jelas, minta ia mendekatkan atau memperjelas. Tetap ikut karakter AI yang aktif.";
 let on=false,vs=null,rec=null,state="",muted=false,camOff=false,facing="user",t0=0,tti=0,raf=0,wl=null,H=[],silT=0,ctl=null,pend="",mr=null,mch=[],ms=null,turn=0,active=false;
 const setSt=s=>{state=s;el.classList.remove("listen","think","talk");if(s)el.classList.add(s);
   st.textContent=s==="listen"?(muted?"Mikrofon mati":(SR?"Mendengarkan…":"Ketuk tombol bicara")):s==="think"?"Berpikir… ketuk untuk batal":s==="talk"?"Berbicara… ketuk untuk menyela":""};
@@ -2211,44 +2211,73 @@ function startRec(){
   try{r.start()}catch(e){}}
 function commit(){const t=pend.trim();if(!t||state!=="listen")return;stopRec();pend="";ask(t,null)}
 function cleanSpeech(t){return String(t||"").replace(/\s*(\.{2,}|…)\s*/g,", ").replace(/\s+[-–—]\s+/g,", ").replace(/["“”()\[\]*_#`]/g,"").replace(/\s+/g," ").trim()}
-// hentikan semua proses (mikir/menyiapkan suara/bicara); proses lama tidak boleh lanjut lagi
 function interrupt(){turn++;active=false;try{if(ctl)ctl.abort()}catch(e){}ttsStop();lvOff()}
-// satu jawaban = satu permintaan suara = satu suara utuh (tidak dipotong per kalimat)
-async function speakOne(text,onStart){
-  ttsStop();const tk=++TT;const vp=voiceFor();let buf=null;
-  TAC=new AbortController();const gsig=TAC.signal;
-  if(getAC()&&Date.now()-TTSDEAD>=60000){
-    const t1=Date.now();
-    for(let a=0;a<2&&!buf;a++){
-      const ac=new AbortController(),to=setTimeout(()=>ac.abort(),a?8000:12000),fw=()=>ac.abort();
-      gsig.addEventListener("abort",fw,{once:true});
-      try{const r=await gTTS(text,vp,ac.signal);buf=r.buf}
-      catch(e){if(tk!==TT)return;if(e&&[401,403,404,429].includes(e.status)){TTSDEAD=Date.now();break}if(Date.now()-t1>6000)break}
-      finally{clearTimeout(to);gsig.removeEventListener("abort",fw)}}}
-  if(tk!==TT)return;
-  if(onStart)onStart();
-  if(buf)await playBuf(buf,tk);
-  else{if(!TNOTE){TNOTE=true;toast("Suara khas belum bisa dipakai, pakai suara bawaan dulu",2400)}await browserSpeak(text,tk)}}
-async function say(text,my){
-  const cl=cleanSpeech(text);if(!/[\p{L}\p{N}]/u.test(cl))return;
-  setSt("think");st.textContent="Menyiapkan suara…";
-  try{await speakOne(cl,()=>{if(my!==turn)return;setSt("talk");lvOn()})}catch(e){}
-  if(my===turn)lvOff()}
+// minta suara ke Gemini (maks 2 percobaan); null = pakai suara bawaan browser
+function fetchSeg(text,gs,tk){
+  if(!getAC()||Date.now()-TTSDEAD<60000)return Promise.resolve(null);
+  return (async()=>{const vp=voiceFor(),t1=Date.now();
+    for(let a=0;a<2;a++){
+      const ac=new AbortController(),to=setTimeout(()=>ac.abort(),a?7000:10000),fw=()=>ac.abort();
+      gs.addEventListener("abort",fw,{once:true});
+      try{const r=await gTTS(text,vp,ac.signal);return r.buf}
+      catch(e){if(tk!==TT)return null;if(e&&[401,403,404,429].includes(e.status)){TTSDEAD=Date.now();return null}if(Date.now()-t1>5000)return null}
+      finally{clearTimeout(to);gs.removeEventListener("abort",fw)}}
+    return null})()}
+// pemutar berantai: potongan teks masuk satu-satu, suara diminta langsung (paralel) dan diputar berurutan tanpa jeda
+function mkSpeaker(my,onStart){
+  ttsStop();const tk=++TT;TAC=new AbortController();const gs=TAC.signal;
+  const q=[],w=[];let closed=false;
+  const next=()=>q.length?Promise.resolve(q.shift()):(closed?Promise.resolve(null):new Promise(r=>w.push(r)));
+  const add=text=>{if(closed||!/[\p{L}\p{N}]/u.test(text))return;const it={text,p:fetchSeg(text,gs,tk)},r=w.shift();r?r(it):q.push(it)};
+  const end=()=>{closed=true;w.splice(0).forEach(r=>r(null))};
+  gs.addEventListener("abort",end,{once:true});
+  const done=(async()=>{let fb=false,started=false;
+    for(;;){const it=await next();if(tk!==TT||!it)return;
+      const buf=fb?null:await it.p;if(tk!==TT)return;
+      if(!started){started=true;if(onStart)onStart()}
+      if(buf)await playBuf(buf,tk);
+      else{fb=true;if(!TNOTE){TNOTE=true;toast("Suara khas belum bisa dipakai, pakai suara bawaan dulu",2400)}await browserSpeak(it.text,tk)}
+      if(tk!==TT)return}})();
+  return{add,end,done}}
 async function ask(text,aud){
   const my=++turn;active=true;
-  setSt("think");if(text)capUser(text);else capUser("…");
+  setSt("think");capUser(text||"…");
+  // obrolan video call langsung masuk ke chat
+  const chatU=text||"🎤 Pesan suara";
+  const ub=add("u",esc(chatU));attachCopy(ub,chatU);hist.push({role:"user",content:chatU,files:null,att:null});
   const img=frame(),files=[];if(img)files.push({name:"kamera",mime:"image/jpeg",data:img,kind:"img"});if(aud)files.push({name:"suara",mime:aud.mime,data:aud.data,kind:"aud"});
   const um={role:"user",content:aud?"(Pengguna berbicara lewat rekaman suara terlampir. Dengarkan lalu jawab.)":text,files:files.length?files:null};
   const drop=()=>{const i=H.lastIndexOf(um);if(i>=0)H.splice(i,1)};
   H.push(um);
-  const c=new AbortController();ctl=c;const sg=c.signal;let out="";
-  try{out=String(await gen(H.slice(-6),{sig:sg,sys:SYS()+CALLR,onStatus:()=>{},tmo:14000,maxTok:700})||"").trim();if(!out)throw new Error("empty")}
-  catch(e){if(ctl===c)ctl=null;if(!on)return;drop();if(my!==turn)return;active=false;
-    if(!sg.aborted)capAI(e.message==="empty"?"AI tidak memberi jawaban. Coba ulangi ya.":errMsg(e));
-    setSt("listen");startRec();return}
-  if(ctl===c)ctl=null;if(!on||my!==turn)return;
+  const c=new AbortController();ctl=c;const sg=c.signal;
+  const spk=mkSpeaker(my,()=>{if(my!==turn)return;setSt("talk");lvOn()});
+  let seg1="",cm=null,cpend="",craf=0,fin=false,out="";
+  const paintChat=()=>{craf=0;if(!cm||fin)return;cm.innerHTML=md(cpend);const l=$("log");l.scrollTop=l.scrollHeight};
+  const finChat=t=>{if(fin)return;fin=true;clearTimeout(craf);t=(t||"").trim();
+    if(t){if(!cm)cm=add("a","");cm.classList.add("swap");cm.innerHTML=md(t);attachBm(cm,t);hist.push({role:"assistant",content:t});sbSave([{role:"user",content:chatU},{role:"assistant",content:t}])}
+    else{if(cm)cm.remove();sbSave([{role:"user",content:chatU}])}};
+  try{
+    out=String(await gen(H.slice(-6),{sig:sg,stream:true,sys:SYS()+CALLR,onStatus:()=>{},tmo:14000,maxTok:700,
+      onText:t=>{cpend=t;if(!cm&&!fin){cm=add("a","");cm.classList.add("swap")}if(!craf)craf=setTimeout(paintChat,120);
+        if(my!==turn)return;
+        const sp=cleanSpeech(toSpeech(t));capAI(sp);
+        if(!seg1){const m=/^([\s\S]{10,}?[.!?])\s/.exec(sp);if(m){seg1=m[1];spk.add(seg1)}}
+        if(state==="think")st.textContent="Menyiapkan suara…"}})||"").trim();
+    if(!out)throw new Error("empty")}
+  catch(e){if(ctl===c)ctl=null;const pt=(cpend||"").trim();
+    if(sg.aborted||!pt){spk.end();finChat(pt);if(!on)return;if(pt)H.push({role:"assistant",content:pt});else drop();
+      if(my!==turn)return;active=false;
+      if(!sg.aborted)capAI(e.message==="empty"?"AI tidak memberi jawaban. Coba ulangi ya.":errMsg(e));
+      setSt("listen");startRec();return}
+    out=pt}
+  if(ctl===c)ctl=null;
+  finChat(out);
+  if(!on||my!==turn){spk.end();return}
   H.push({role:"assistant",content:out});
-  const sp=toSpeech(out).replace(/\s+/g," ").trim();capAI(sp||out);await say(sp||out,my);
+  const full=cleanSpeech(toSpeech(out));capAI(full||out);
+  let rest=full;if(seg1){const k=full.indexOf(seg1);rest=k>=0?full.slice(k+seg1.length).trim():""}
+  spk.add(rest);spk.end();await spk.done;
+  if(my===turn)lvOff();
   if(on&&my===turn){active=false;setSt("listen");startRec()}}
 function lvOn(){cancelAnimationFrame(raf);const an=getAN(),buf=an?new Uint8Array(an.fftSize):null;let ph=0;
   const f=()=>{if(!on||state!=="talk"){av.style.setProperty("--lv",1);return}
@@ -2271,11 +2300,13 @@ async function openCall(){
   if(!navigator.mediaDevices||!navigator.mediaDevices.getUserMedia){toast("Browser ini belum mendukung video call");return}
   ttsStop();getAC();on=true;muted=false;H=[];$("c-mic").classList.remove("off");el.hidden=false;document.body.classList.add("incall");
   av.querySelector(".core").innerHTML=$("logo").innerHTML;bt.style.display=SR?"none":"";setSt("");st.textContent="Menghubungkan…";capAI("");
+  const hi="Halo! Aku udah bisa lihat dan dengar kamu. Mau belajar apa hari ini?";capAI(hi);
+  const gmy=++turn;active=true;const gs=mkSpeaker(gmy,()=>{if(gmy!==turn)return;setSt("talk");lvOn()});gs.add(hi);gs.end();
   await cam();if(!on)return;
   t0=Date.now();tm.textContent="00:00";tti=setInterval(()=>{const s=Math.floor((Date.now()-t0)/1000);tm.textContent=String(Math.floor(s/60)).padStart(2,"0")+":"+String(s%60).padStart(2,"0")},1000);
   try{if(navigator.wakeLock)wl=await navigator.wakeLock.request("screen")}catch(e){}
-  const hi="Halo! Aku udah bisa lihat dan dengar kamu. Mau belajar apa hari ini?";capAI(hi);const my=++turn;active=true;await say(hi,my);
-  if(on&&my===turn){active=false;setSt("listen");startRec()}}
+  await gs.done;if(gmy===turn)lvOff();
+  if(on&&gmy===turn){active=false;setSt("listen");startRec()}}
 function endCall(){if(!on)return;on=false;turn++;active=false;stopRec();ttsStop();lvOff();try{if(ctl)ctl.abort()}catch(e){}ctl=null;
   try{if(mr&&mr.state==="recording"){mr.onstop=null;mr.stop()}if(ms)ms.getTracks().forEach(t=>t.stop())}catch(e){}
   if(vs)vs.getTracks().forEach(t=>t.stop());vs=null;me.srcObject=null;clearInterval(tti);try{if(wl)wl.release()}catch(e){}wl=null;
