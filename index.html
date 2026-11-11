@@ -499,8 +499,8 @@ html.fcs .orb{visibility:hidden}
 .fcs-cnt span{min-width:78px;height:30px;padding:0 14px;border-radius:99px;border:1.5px solid;display:grid;place-items:center;font-weight:700;font-size:14px;transition:background-color .15s,color .15s}
 .fcs-cnt .pl{border-color:#e8661c;color:#f59a52}.fcs-cnt .pr{border-color:#27b48c;color:#3dd6a8}
 .fcs-cnt .pl.up{background:#f59a52;color:#0a0a2e}.fcs-cnt .pr.up{background:#3dd6a8;color:#0a0a2e}
-.fcs-stage{flex:1;position:relative;margin:0 16px;min-height:0;touch-action:pan-y}
-.fck{position:absolute;inset:0;border-radius:34px;background:#1e1e3f;border:1.5px solid rgba(255,255,255,.09);will-change:transform;cursor:grab;-webkit-tap-highlight-color:transparent;touch-action:pan-y}
+.fcs-stage{flex:1;position:relative;margin:0 16px;min-height:0;touch-action:manipulation}
+.fck{position:absolute;inset:0;border-radius:34px;background:#1e1e3f;border:1.5px solid rgba(255,255,255,.09);will-change:transform;cursor:pointer;-webkit-tap-highlight-color:transparent;touch-action:manipulation}
 .fckin{position:absolute;inset:0;transform-style:preserve-3d;transition:transform .5s cubic-bezier(.3,1.15,.4,1)}
 .fck.flip .fckin{transform:rotateY(180deg)}.fck.nt .fckin{transition:none}
 .fkf{position:absolute;inset:0;display:flex;padding:72px 24px 28px;-webkit-backface-visibility:hidden;backface-visibility:hidden;border-radius:inherit}
@@ -524,6 +524,25 @@ html.fcs .orb{visibility:hidden}
 .fsrw{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:13px 0;border-top:1px solid rgba(255,255,255,.08);font-size:15px}
 .sw{width:50px;height:30px;border-radius:99px;border:0;background:rgba(255,255,255,.2);position:relative;cursor:pointer;flex:none;transition:background-color .2s}.sw::after{content:"";position:absolute;top:3px;left:3px;width:24px;height:24px;border-radius:50%;background:#fff;transition:transform .2s}.sw.on{background:#4255ff}.sw.on::after{transform:translateX(20px)}
 .fsch{display:flex;gap:8px}.fsch button{border:1.5px solid rgba(255,255,255,.25);background:none;color:#fff;border-radius:99px;padding:7px 14px;font:600 13px inherit;font-family:inherit;cursor:pointer}.fsch button.on{background:#4255ff;border-color:#4255ff}
+.fka{position:absolute;left:16px;right:16px;bottom:16px;z-index:3;display:flex;gap:10px;opacity:0;pointer-events:none;transform:translateY(8px);transition:opacity .18s,transform .18s}
+.fck.flip .fka{opacity:1;pointer-events:auto;transform:none;transition-delay:.2s}
+.fck.nt .fka{transition:none}
+.fab{flex:1;height:50px;border-radius:99px;border:1.5px solid;font:700 15px inherit;font-family:inherit;cursor:pointer;-webkit-tap-highlight-color:transparent;transition:transform .15s}
+.fab:active{transform:scale(.96)}
+.fab.no{background:rgba(245,154,82,.1);color:#f59a52;border-color:#e8661c}
+.fab.ok{background:#3dd6a8;color:#0a0a2e;border-color:#3dd6a8}
+.fkr{padding-bottom:88px}
+.fcs-bot #fcsp{display:flex;align-items:center;justify-content:center;width:auto;min-width:44px;padding:0 14px 0 18px;gap:2px;border-radius:99px;background:rgba(255,255,255,.12);color:#fff;font:650 14px inherit;font-family:inherit}
+.fcs-bot #fcsp span{flex:none}
+.fcs-bot #fcsp:disabled{opacity:.35}
+</style>
+<style id="perf-2">
+/* performa v2: latar tidak lagi beranimasi di bawah kaca blur (blur dihitung ulang tiap frame), blur diperkecil */
+.orb{animation:none!important;will-change:auto}
+h1{animation:none!important;background-position:0 0}
+.glass,header.glass,.composer.glass,.tabbar{-webkit-backdrop-filter:blur(10px);backdrop-filter:blur(10px)}
+.scroll .glass,.opt,.srow,.pill{-webkit-backdrop-filter:none!important;backdrop-filter:none!important}
+@media (hover:none){.glass::before{display:none}}
 </style>
 </head>
 <body>
@@ -587,7 +606,7 @@ html.fcs .orb{visibility:hidden}
 <div class="fcs-bar"><i id="fcsb"></i></div>
 <div class="fcs-cnt"><span class="pl" id="fcsl">0</span><span class="pr" id="fcsr">0</span></div>
 <div class="fcs-stage" id="fcst"></div>
-<div class="fcs-bot"><button id="fcsu" type="button" aria-label="Batalkan kartu terakhir"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 14L4 9l5-5"/><path d="M4 9h10a6 6 0 010 12h-3"/></svg></button><span id="fcsh"></span><button id="fcsp" type="button" aria-label="Putar otomatis"></button></div>
+<div class="fcs-bot"><button id="fcsu" type="button" aria-label="Batalkan kartu terakhir"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 14L4 9l5-5"/><path d="M4 9h10a6 6 0 010 12h-3"/></svg></button><span id="fcsh"></span><button id="fcsp" type="button" aria-label="Kartu berikutnya"></button></div>
 <div class="fcs-sum" id="fcssum" hidden></div>
 <div class="fcs-set" id="fcsset" hidden></div>
 </div>
@@ -2246,7 +2265,7 @@ function fcRDeck(box){const d=fcDeck(XFV.id);if(!d){XFV={m:"list"};return fcRend
   $("fct").textContent=d.title;
   if(d.cards.length){const b=fcE("button","chip on fcmain");b.type="button";b.textContent="Belajar · "+d.cards.length+" kartu";b.onclick=()=>fcStart(d,"all");box.appendChild(b);
     const ns=d.cards.filter(c=>c.k===0).length,nr=d.cards.filter(c=>c.star).length;
-    if(ns||nr){const lr=fcE("div","fcnav");[[ns,"Masih belajar","still"],[nr,"Bintang","star"]].forEach(([n,t,m])=>{if(!n)return;const x=fcE("button","fclk");x.type="button";x.textContent=t+" ("+n+")";x.onclick=()=>fcStart(d,m);lr.appendChild(x)});box.appendChild(lr)}
+    if(ns||nr){const lr=fcE("div","fcnav");[[ns,"Belum paham","still"],[nr,"Bintang","star"]].forEach(([n,t,m])=>{if(!n)return;const x=fcE("button","fclk");x.type="button";x.textContent=t+" ("+n+")";x.onclick=()=>fcStart(d,m);lr.appendChild(x)});box.appendChild(lr)}
     
     d.cards.forEach(c=>{const r=fcE("div","fci glass","<div class='fcih'><div class='fcix'><b></b><span></span></div><button class='fcmo' type='button' aria-label='Menu kartu'><svg viewBox='0 0 24 24' width='20' height='20' fill='currentColor'><circle cx='12' cy='5' r='1.8'/><circle cx='12' cy='12' r='1.8'/><circle cx='12' cy='19' r='1.8'/></svg></button></div><div class='fcib'><div><div class='fcbk'></div></div></div><div class='fcmn' hidden><button type='button' class='me'>Edit</button><button type='button' class='md'>Hapus</button></div>");
       r.querySelector("b").textContent=c.f;r.querySelector(".fcix span").textContent=c.b;r.querySelector(".fcbk").textContent=c.b;
@@ -2263,25 +2282,26 @@ function fcRDeck(box){const d=fcDeck(XFV.id);if(!d){XFV={m:"list"};return fcRend
   lk("Hapus deck",async()=>{if(!(await confirmX("Hapus deck?","\""+d.title+"\" dan semua kartunya akan dihapus.","Hapus",true)))return;d.del=true;d.cards=[];fcTouch(d);XFV={m:"list"};fcRender()});
   box.appendChild(nv)}
 document.addEventListener("click",()=>document.querySelectorAll(".fcmn:not([hidden])").forEach(m=>m.hidden=true));
-// ----- belajar geser kartu (gaya Quizlet): ringan, hanya transform dan opacity -----
-const XFS={sh:true,rv:false,sp:5};try{Object.assign(XFS,JSON.parse(localStorage.getItem("zc-fcs")||"{}"))}catch(e){}
+// ----- belajar kartu: ketuk untuk balik, tombol Paham / Belum paham di sisi jawaban (tanpa geser, ringan) -----
+const XFS={sh:true,rv:false,tts:false};try{Object.assign(XFS,JSON.parse(localStorage.getItem("zc-fcs")||"{}"))}catch(e){}
 let XS=null;
 const fcSz=t=>String(t||"").length>200?" s":String(t||"").length>70?" m":"";
 const FIC_SPK='<svg viewBox="0 0 24 24"><path d="M4 9v6h4l5 4V5L8 9H4z"/><path d="M16.5 9a4 4 0 010 6M19 6.5a8 8 0 010 11"/></svg>';
 const FIC_STR='<svg viewBox="0 0 24 24"><path d="M12 3.5l2.6 5.3 5.9.9-4.2 4.1 1 5.8L12 17l-5.3 2.6 1-5.8L3.5 9.7l5.9-.9z"/></svg>';
-const FIC_PLAY='<svg viewBox="0 0 24 24" width="22" height="22" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>',FIC_PAUSE='<svg viewBox="0 0 24 24" width="22" height="22" fill="currentColor"><rect x="6" y="5" width="4" height="14" rx="1"/><rect x="14" y="5" width="4" height="14" rx="1"/></svg>';
+const FIC_NEXT='<svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6l6 6-6 6"/></svg>';
 const fcSaveS=()=>{try{localStorage.setItem("zc-fcs",JSON.stringify(XFS))}catch(e){}};
 function fcSpeak(tx){const sp=toSpeech(String(tx||"")).replace(/\s+/g," ").trim();if(!sp)return;ttsStop();const ch=ttsChunks(sp,380);if(!ch.length)return;const my=++TT;getAC();speakChunks(ch,my).catch(()=>{})}
 function fcDirty(){const S=XS;if(!S)return;S.dirty=1;clearTimeout(S.sv);S.sv=setTimeout(fcFlush,900)}
 function fcFlush(){const S=XS;if(S&&S.dirty){S.dirty=0;fcTouch(S.d)}}
 function fcMk(){const e=fcE("div","fck");
-  e.innerHTML='<div class="fckb bk"></div><div class="fckb bs"></div><div class="fckin"><div class="fkf"><div class="fkt"></div></div><div class="fkf fkr"><div class="fkt"></div></div></div><div class="fkl lk">Tahu</div><div class="fkl ls">Masih belajar</div><button class="fki sp" type="button" aria-label="Dengar">'+FIC_SPK+'</button><button class="fki st" type="button" aria-label="Bintang">'+FIC_STR+'</button>';
+  e.innerHTML='<div class="fckb bk"></div><div class="fckb bs"></div><div class="fckin"><div class="fkf"><div class="fkt"></div></div><div class="fkf fkr"><div class="fkt"></div></div></div><div class="fkl lk">Paham</div><div class="fkl ls">Belum paham</div><button class="fki sp" type="button" aria-label="Dengar">'+FIC_SPK+'</button><button class="fki st" type="button" aria-label="Bintang">'+FIC_STR+'</button><div class="fka"><button class="fab no" type="button">Belum paham</button><button class="fab ok" type="button">Paham</button></div>';
   const q=x=>e.querySelector(x),fs=e.querySelectorAll(".fkt");
   e._k={bk:q(".bk"),bs:q(".bs"),lk:q(".lk"),ls:q(".ls"),inn:q(".fckin"),f:fs[0],b:fs[1],sp:q(".sp"),st:q(".st")};
   const k=e._k;
   k.sp.onclick=ev=>{ev.stopPropagation();const c=e._c;if(c)fcSpeak(e.classList.contains("flip")?(XFS.rv?c.f:c.b):(XFS.rv?c.b:c.f))};
   k.st.onclick=ev=>{ev.stopPropagation();const c=e._c;if(!c)return;c.star=!c.star;k.st.classList.toggle("on",!!c.star);fcDirty()};
-  [k.sp,k.st].forEach(b=>["pointerdown","pointerup"].forEach(t=>b.addEventListener(t,ev=>ev.stopPropagation())));
+  q(".fab.no").onclick=ev=>{ev.stopPropagation();if(XS&&XS.cur===e)fcCommit(-1)};
+  q(".fab.ok").onclick=ev=>{ev.stopPropagation();if(XS&&XS.cur===e)fcCommit(1)};
   return e}
 function fcFill(e,c){e._c=c;const k=e._k,fr=XFS.rv?c.b:c.f,bk=XFS.rv?c.f:c.b;
   k.f.className="fkt"+fcSz(fr);k.f.innerHTML=fcTx(fr);k.b.className="fkt"+fcSz(bk);k.b.innerHTML=fcTx(bk);
@@ -2291,88 +2311,82 @@ function fcReset(e){const k=e._k;e.style.transition="none";e.style.transform="";
   if(e.classList.contains("flip")){e.classList.add("nt");e.classList.remove("flip");requestAnimationFrame(()=>e.classList.remove("nt"))}}
 function fcFillAll(){const S=XS,r=S.round;fcReset(S.cur);fcReset(S.nxt);S.cur.style.zIndex=2;S.nxt.style.zIndex=1;S.cur.style.visibility="";
   fcFill(S.cur,r[S.i]);if(r[S.i+1]){fcFill(S.nxt,r[S.i+1]);S.nxt.style.visibility=""}else S.nxt.style.visibility="hidden"}
-function fcHint(dir){const S=XS;if(!S)return;let t;
-  if(dir>0)t="Geser kanan untuk tandai <b>Tahu</b>";else if(dir<0)t="Geser kiri untuk tandai <b>Masih belajar</b>";
-  else if(S.auto)t="▶ Putar otomatis aktif";else if(!S.hist.length)t="Geser kiri untuk tandai <b>Masih belajar</b>";
-  else if(S.hist.length<3)t="Ketuk <b>↺</b> untuk batalkan kartu terakhir";else t="Ketuk <b>⚙</b> untuk mengatur kartu";
+function fcHint(){const S=XS;if(!S)return;
+  const fl=S.cur&&S.cur.classList.contains("flip");
+  const t=!S.round[S.i]?"":fl?"Sudah <b>paham</b> jawabannya?":"Ketuk kartu untuk lihat jawaban";
   if(S.ht!==t){S.ht=t;$("fcsh").innerHTML=t}}
 function fcPill(dir){const S=XS,l=$("fcsl"),r=$("fcsr");l.textContent=S.still;r.textContent=S.know;l.classList.remove("up");r.classList.remove("up");
-  if(dir<0){l.textContent="+1";l.classList.add("up")}else if(dir>0){r.textContent="+1";r.classList.add("up")}}
-function fcPaint(){const S=XS,n=S.round.length;$("fcsn").textContent=Math.min(S.i+1,n)+" / "+n;$("fcsb").style.transform="scaleX("+(S.i/n)+")";fcPill(0);$("fcsu").disabled=!S.hist.length;fcHint()}
-function fcAutoIcon(){const S=XS,b=$("fcsp");b.innerHTML=S&&S.auto?FIC_PAUSE:FIC_PLAY;b.classList.toggle("on",!!(S&&S.auto))}
-function fcAutoStop(){const S=XS;if(!S)return;clearTimeout(S.tm);if(S.auto){S.auto=false;fcAutoIcon();fcHint()}}
-function fcAutoStep(){const S=XS;if(!S||!S.auto||S.busy)return;clearTimeout(S.tm);const T=XFS.sp*1000;
-  S.tm=setTimeout(()=>{if(!XS||!S.auto||S.busy)return;S.cur.classList.add("flip");S.tm=setTimeout(()=>{if(XS&&S.auto&&!S.busy){S.dy=0;fcCommit(1)}},T)},T)}
-function fcFlip(){const S=XS;if(!S||S.busy||!S.round[S.i])return;S.cur.classList.toggle("flip")}
-function fcRound(list){const S=XS;clearTimeout(S.tm);S.auto=false;fcAutoIcon();
-  S.round=XFS.sh?fcShuf(list):list.slice();S.i=0;S.know=0;S.still=0;S.hist=[];S.busy=false;S.dy=0;
+  if(dir<0){l.classList.add("up")}else if(dir>0){r.classList.add("up")}}
+function fcPaint(){const S=XS,n=S.round.length;$("fcsn").textContent=Math.min(S.i+1,n)+" / "+n;$("fcsb").style.transform="scaleX("+(S.i/n)+")";fcPill(0);$("fcsu").disabled=!S.hist.length;$("fcsp").disabled=!S.round[S.i];fcHint()}
+function fcFlip(){const S=XS;if(!S||S.busy||!S.round[S.i])return;const e=S.cur;e.classList.toggle("flip");fcHint();
+  if(XFS.tts&&e.classList.contains("flip")){const c=e._c;if(c)fcSpeak(XFS.rv?c.f:c.b)}}
+function fcNext(){const S=XS;if(!S||S.busy||!S.round[S.i])return;fcCommit(0)}
+function fcRound(list){const S=XS;clearTimeout(S.tm);
+  S.round=XFS.sh?fcShuf(list):list.slice();S.i=0;S.know=0;S.still=0;S.hist=[];S.rs=new Map();S.rq=new Set();S.busy=false;S.dy=0;S.ht="";
   $("fcssum").hidden=true;fcFillAll();fcPaint()}
 function fcStart(d,mode){let pool=d.cards;if(mode==="still")pool=pool.filter(c=>c.k===0);else if(mode==="star")pool=pool.filter(c=>c.star);if(!pool.length)return;
   const st=$("fcst");st.innerHTML="";const a=fcMk(),b=fcMk();st.appendChild(b);st.appendChild(a);
-  XS={d,all:pool.slice(),cur:a,nxt:b,round:[],i:0,know:0,still:0,hist:[],auto:false,tm:0,drag:null,busy:false,dy:0,dirty:0,sv:0,ht:""};
+  XS={d,all:pool.slice(),cur:a,nxt:b,round:[],i:0,know:0,still:0,hist:[],rs:new Map(),rq:new Set(),tm:0,busy:false,dy:0,dirty:0,sv:0,ht:""};
   document.documentElement.classList.add("fcs");$("fcs").classList.add("on");fcRound(pool)}
+// dir: 1 = paham, -1 = belum paham (kartu muncul lagi beberapa kartu kemudian), 0 = lanjut tanpa menandai
 function fcCommit(dir){const S=XS;if(!S||S.busy)return;const c=S.round[S.i];if(!c)return;S.busy=true;clearTimeout(S.tm);
-  const e=S.cur,k=e._k;e.style.transition="transform .28s cubic-bezier(.2,.7,.3,1)";
-  e.style.transform="translate3d("+dir*innerWidth*1.25+"px,"+(S.dy||0)*.35+"px,0) rotate("+dir*24+"deg)";
-  (dir>0?k.bk:k.bs).style.opacity=1;(dir>0?k.lk:k.ls).style.opacity=1;k.inn.style.opacity=".25";
-  S.hist.push({c,dir,pk:c.k});c.k=dir>0?1:0;dir>0?S.know++:S.still++;S.i++;fcPill(dir);fcDirty();
+  const e=S.cur,k=e._k;e.style.transition="transform .26s cubic-bezier(.2,.7,.3,1)";
+  e.style.transform="translate3d("+(dir?dir*innerWidth*1.25:-innerWidth*1.1)+"px,0,0)"+(dir?" rotate("+dir*16+"deg)":"");
+  if(dir){(dir>0?k.bk:k.bs).style.opacity=1;(dir>0?k.lk:k.ls).style.opacity=1}
+  k.inn.style.opacity=".25";
+  const h={c,dir,pk:c.k,ps:S.rs.get(c),ins:-1};
+  if(dir){
+    if(h.ps===0)S.still--;else if(h.ps===1)S.know--;
+    S.rs.set(c,dir>0?1:0);c.k=dir>0?1:0;dir>0?S.know++:S.still++}
+  S.hist.push(h);S.i++;
+  if(dir<0&&!S.rq.has(c)){S.rq.add(c);const at=Math.min(S.round.length,S.i+4);S.round.splice(at,0,c);h.ins=at}
+  fcPill(dir);fcDirty();
   if(navigator.vibrate)try{navigator.vibrate(8)}catch(x){}
-  setTimeout(()=>fcAdvance(e),270)}
+  setTimeout(()=>fcAdvance(e),250)}
 function fcAdvance(e){const S=XS;if(!S||S.cur!==e)return;const r=S.round;
   if(S.i>=r.length){S.busy=false;fcFlush();fcPaint();fcSummary();return}
   const nx=S.nxt;S.cur=nx;S.nxt=e;nx.style.zIndex=2;e.style.zIndex=1;fcReset(e);
   if(r[S.i+1]){fcFill(e,r[S.i+1]);e.style.visibility=""}else e.style.visibility="hidden";
-  S.busy=false;fcPaint();fcAutoStep()}
-function fcUndo(){const S=XS;if(!S||S.busy||!S.hist.length)return;fcAutoStop();$("fcssum").hidden=true;
-  const h=S.hist.pop();h.dir>0?S.know--:S.still--;if(h.pk===undefined)delete h.c.k;else h.c.k=h.pk;S.i--;S.busy=true;fcDirty();
-  const b=S.nxt,old=S.cur;fcReset(b);fcFill(b,h.c);b.style.visibility="";b.style.zIndex=3;
-  b.style.transition="none";b.style.transform="translate3d("+h.dir*innerWidth*1.1+"px,0,0) rotate("+h.dir*22+"deg)";
-  void b.offsetWidth;b.style.transition="transform .32s cubic-bezier(.2,.8,.3,1)";b.style.transform="";fcPaint();
+  S.busy=false;fcPaint()}
+function fcUndo(){const S=XS;if(!S||S.busy||!S.hist.length)return;$("fcssum").hidden=true;
+  const h=S.hist.pop();
+  if(h.ins>=0){S.round.splice(h.ins,1);S.rq.delete(h.c)}
+  if(h.dir){
+    const now=S.rs.get(h.c);if(now===1)S.know--;else if(now===0)S.still--;
+    if(h.ps===undefined)S.rs.delete(h.c);else{S.rs.set(h.c,h.ps);h.ps===1?S.know++:S.still++}
+    if(h.pk===undefined)delete h.c.k;else h.c.k=h.pk}
+  S.i--;S.busy=true;fcDirty();
+  const fd=h.dir||-1,b=S.nxt,old=S.cur;fcReset(b);fcFill(b,h.c);b.style.visibility="";b.style.zIndex=3;
+  b.style.transition="none";b.style.transform="translate3d("+fd*innerWidth*1.1+"px,0,0) rotate("+fd*16+"deg)";
+  void b.offsetWidth;b.style.transition="transform .3s cubic-bezier(.2,.8,.3,1)";b.style.transform="";fcPaint();
   setTimeout(()=>{if(XS!==S)return;S.cur=b;S.nxt=old;b.style.zIndex=2;old.style.zIndex=1;b.style.transition="none";
-    fcReset(old);const nx=S.round[S.i+1];if(nx){fcFill(old,nx);old.style.visibility=""}else old.style.visibility="hidden";S.busy=false},330)}
-function fcSummary(){const S=XS;clearTimeout(S.tm);S.auto=false;fcAutoIcon();
-  const still=S.hist.filter(h=>h.dir<0).map(h=>h.c),m=$("fcssum");m.hidden=false;m.innerHTML="";
+    fcReset(old);const nx=S.round[S.i+1];if(nx){fcFill(old,nx);old.style.visibility=""}else old.style.visibility="hidden";S.busy=false;S.ht="";fcHint()},310)}
+function fcSummary(){const S=XS;clearTimeout(S.tm);
+  const u=[...new Set(S.round)],know=u.filter(c=>S.rs.get(c)===1).length,still=u.filter(c=>S.rs.get(c)!==1),m=$("fcssum");m.hidden=false;m.innerHTML="";
   m.appendChild(fcE("div","fsh","Ronde selesai"));
-  m.appendChild(fcE("div","fsr","<div><b style='color:#3dd6a8'>"+S.know+"</b><small>Tahu</small></div><div><b style='color:#f59a52'>"+S.still+"</b><small>Masih belajar</small></div>"));
+  m.appendChild(fcE("div","fsr","<div><b style='color:#3dd6a8'>"+know+"</b><small>Paham</small></div><div><b style='color:#f59a52'>"+still.length+"</b><small>Belum paham</small></div>"));
   const bt=(t,cls,fn)=>{const b=fcE("button","fsb"+(cls?" "+cls:""));b.type="button";b.textContent=t;b.onclick=fn;m.appendChild(b)};
   if(still.length)bt("Lanjut belajar ("+still.length+")","pri",()=>fcRound(still));
   bt("Ulangi semua",still.length?"":"pri",()=>fcRound(S.all));bt("Selesai","gh",fcClose);
-  if(!still.length&&S.know>=5)confetti()}
+  if(!still.length&&know>=5)confetti()}
 function fcClose(){const S=XS;if(S){clearTimeout(S.tm);clearTimeout(S.sv);fcFlush()}XS=null;ttsStop();
   $("fcs").classList.remove("on");document.documentElement.classList.remove("fcs");$("fcsset").hidden=true;$("fcssum").hidden=true;$("fcst").innerHTML="";fcRender()}
 function fcSetClose(){$("fcsset").hidden=true}
-function fcSetOpen(){const S=XS;if(!S)return;fcAutoStop();const w=$("fcsset");w.hidden=false;w.innerHTML="";
+function fcSetOpen(){const S=XS;if(!S)return;const w=$("fcsset");w.hidden=false;w.innerHTML="";
   const sh=fcE("div","fss","<h3>Pengaturan</h3>");
   const sw=(label,key,fn)=>{const r=fcE("div","fsrw","<span></span><button type='button' class='sw' role='switch'></button>");r.firstChild.textContent=label;const b=r.lastChild;
     const paint=()=>{b.classList.toggle("on",!!XFS[key]);b.setAttribute("aria-checked",String(!!XFS[key]))};paint();b.onclick=()=>{XFS[key]=!XFS[key];fcSaveS();paint();fn()};sh.appendChild(r)};
-  sw("Acak kartu","sh",()=>fcRound(S.all));sw("Mulai dari jawaban","rv",()=>{if(S.round[S.i])fcFillAll()});
-  const r=fcE("div","fsrw","<span>Jeda putar otomatis</span><div class='fsch'></div>"),ch=r.lastChild;
-  [3,5,8].forEach(n=>{const b=fcE("button",XFS.sp===n?"on":"");b.type="button";b.textContent=n+" dtk";b.onclick=()=>{XFS.sp=n;fcSaveS();ch.querySelectorAll("button").forEach(x=>x.classList.toggle("on",x===b))};ch.appendChild(b)});
-  sh.appendChild(r);w.appendChild(sh);w.onclick=e=>{if(e.target===w)fcSetClose()}}
-// gestur geser: satu pointer handler, update per frame lewat requestAnimationFrame
+  sw("Acak kartu","sh",()=>fcRound(S.all));sw("Mulai dari jawaban","rv",()=>{if(S.round[S.i])fcFillAll();S.ht="";fcHint()});sw("Bacakan jawaban otomatis","tts",()=>{});
+  w.appendChild(sh);w.onclick=e=>{if(e.target===w)fcSetClose()}}
+// ketuk kartu = balik. tanpa gestur geser, jadi tidak ada pemrosesan per frame
 (()=>{const st=$("fcst");
-  const frame=()=>{const S=XS,D=S&&S.drag;if(!D)return;D.raf=0;const e=S.cur,k=e._k,dx=D.dx,dy=D.dy,p=Math.min(1,Math.abs(dx)/(innerWidth*.3));
-    e.style.transform="translate3d("+dx+"px,"+dy*.35+"px,0) rotate("+dx*.045+"deg)";
-    k.bk.style.opacity=dx>0?p:0;k.lk.style.opacity=dx>0?p:0;k.bs.style.opacity=dx<0?p:0;k.ls.style.opacity=dx<0?p:0;k.inn.style.opacity=1-p*.75;
-    const dir=Math.abs(dx)>24?(dx>0?1:-1):0;if(dir!==D.dir){D.dir=dir;fcPill(dir);fcHint(dir)}};
-  const snap=()=>{const S=XS;if(!S)return;const e=S.cur,k=e._k;e.style.transition="transform .25s cubic-bezier(.2,.8,.3,1)";e.style.transform="";k.bk.style.opacity=0;k.bs.style.opacity=0;k.lk.style.opacity=0;k.ls.style.opacity=0;k.inn.style.opacity="";fcPill(0);fcHint()};
-  st.addEventListener("pointerdown",ev=>{const S=XS;if(!S||S.busy||!S.round[S.i]||ev.target.closest(".fki")||!S.cur.contains(ev.target))return;fcAutoStop();
-    S.drag={x:ev.clientX,y:ev.clientY,t:performance.now(),dx:0,dy:0,id:ev.pointerId,dir:0,raf:0};try{st.setPointerCapture(ev.pointerId)}catch(x){}S.cur.style.transition="none"});
-  st.addEventListener("pointermove",ev=>{const S=XS,D=S&&S.drag;if(!D||ev.pointerId!==D.id)return;D.dx=ev.clientX-D.x;D.dy=ev.clientY-D.y;if(!D.raf)D.raf=requestAnimationFrame(frame)});
-  const up=ev=>{const S=XS,D=S&&S.drag;if(!D||ev.pointerId!==D.id)return;S.drag=null;cancelAnimationFrame(D.raf);try{st.releasePointerCapture(D.id)}catch(x){}
-    const dx=D.dx,dt=performance.now()-D.t,vx=dx/Math.max(dt,1);
-    if(ev.type==="pointercancel"){snap();return}
-    if(Math.abs(dx)<8&&Math.abs(D.dy)<8&&dt<600){snap();fcFlip();return}
-    if(Math.abs(dx)>innerWidth*.28||(Math.abs(vx)>.6&&Math.abs(dx)>30)){S.dy=D.dy;fcCommit(dx>0?1:-1);return}
-    snap()};
-  st.addEventListener("pointerup",up);st.addEventListener("pointercancel",up);
-  $("fcsx").onclick=fcClose;$("fcsg").onclick=fcSetOpen;$("fcsu").onclick=fcUndo;
-  $("fcsp").onclick=()=>{const S=XS;if(!S||S.busy||!S.round[S.i])return;if(S.auto){fcAutoStop()}else{S.auto=true;fcAutoIcon();fcHint();fcAutoStep()}};
-  document.addEventListener("visibilitychange",()=>{if(document.hidden)fcAutoStop()});
+  st.addEventListener("click",ev=>{const S=XS;if(!S||S.busy||!S.round[S.i])return;if(ev.target.closest(".fki,.fka")||!S.cur.contains(ev.target))return;fcFlip()});
+  $("fcsp").innerHTML=FIC_NEXT+"<span>Lanjut</span>";
+  $("fcsx").onclick=fcClose;$("fcsg").onclick=fcSetOpen;$("fcsu").onclick=fcUndo;$("fcsp").onclick=fcNext;
   document.addEventListener("keydown",ev=>{const S=XS;if(!S||!$("fcs").classList.contains("on"))return;
     if(ev.key==="Escape"){if(!$("fcsset").hidden)fcSetClose();else fcClose();return}if(!$("fcsset").hidden)return;
-    if(ev.key==="ArrowRight")fcCommit(1);else if(ev.key==="ArrowLeft")fcCommit(-1);else if(ev.key===" "||ev.key==="ArrowUp"||ev.key==="ArrowDown"){ev.preventDefault();fcFlip()}else if(ev.key==="Backspace")fcUndo()});
-  fcAutoIcon()})();
+    const fl=S.cur&&S.cur.classList.contains("flip");
+    if(ev.key==="ArrowRight"){fl?fcCommit(1):fcNext()}else if(ev.key==="ArrowLeft"){if(fl)fcCommit(-1)}else if(ev.key===" "||ev.key==="ArrowUp"||ev.key==="ArrowDown"){ev.preventDefault();fcFlip()}else if(ev.key==="Backspace")fcUndo()})})();
 // ----- edit kartu -----
 function fcEdit(d,c){XFEC={d,c};$("fcemt").textContent=c?"Ubah kartu":"Kartu baru";$("fcef").value=c?c.f:"";$("fceb").value=c?c.b:"";$("fcedel").style.display=c?"":"none";$("fcem").classList.add("show");setTimeout(()=>$("fcef").focus(),250)}
 $("fcen").onclick=()=>$("fcem").classList.remove("show");
