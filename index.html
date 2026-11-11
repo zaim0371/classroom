@@ -156,7 +156,7 @@ main{flex:1;min-height:0;position:relative;animation:fade 1s .15s both}
 .tabbar{max-height:80px;transition:max-height .25s cubic-bezier(.2,.9,.25,1),margin .25s,padding .25s,opacity .18s,border-width .25s}
 html.kb .tabbar{max-height:0!important;margin-top:0!important;margin-bottom:0!important;padding-top:0!important;padding-bottom:0!important;border-width:0!important;opacity:0!important;overflow:hidden;pointer-events:none;box-shadow:none!important}
 html.kb .app{padding-bottom:0}
-.pill{position:absolute;z-index:0;top:6px;bottom:6px;left:6px;width:calc((100% - 12px)/4);border-radius:99px;background:var(--gl2);border:1px solid var(--bd);box-shadow:0 4px 12px var(--sh),inset 0 1.5px 0 rgba(255,255,255,.8);transition:transform .55s cubic-bezier(.3,1.35,.5,1)}
+.pill{position:absolute;z-index:0;top:6px;bottom:6px;left:6px;width:calc((100% - 12px)/3);border-radius:99px;background:var(--gl2);border:1px solid var(--bd);box-shadow:0 4px 12px var(--sh),inset 0 1.5px 0 rgba(255,255,255,.8);transition:transform .55s cubic-bezier(.3,1.35,.5,1)}
 .pill.st{animation:stretch .55s ease-in-out}
 @keyframes stretch{50%{scale:1.16 .9}}
 .note{font-size:12.5px;color:var(--tx2);text-align:center;padding:6px}
@@ -524,6 +524,7 @@ html.fcs .orb{visibility:hidden}
 .fsrw{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:13px 0;border-top:1px solid rgba(255,255,255,.08);font-size:15px}
 .sw{width:50px;height:30px;border-radius:99px;border:0;background:rgba(255,255,255,.2);position:relative;cursor:pointer;flex:none;transition:background-color .2s}.sw::after{content:"";position:absolute;top:3px;left:3px;width:24px;height:24px;border-radius:50%;background:#fff;transition:transform .2s}.sw.on{background:#4255ff}.sw.on::after{transform:translateX(20px)}
 .fsch{display:flex;gap:8px}.fsch button{border:1.5px solid rgba(255,255,255,.25);background:none;color:#fff;border-radius:99px;padding:7px 14px;font:600 13px inherit;font-family:inherit;cursor:pointer}.fsch button.on{background:#4255ff;border-color:#4255ff}
+.fcopt b{font-size:17px}
 .fcmodes{gap:8px;margin:8px 0 10px}.fcdot{display:inline-block;width:8px;height:8px;border-radius:50%;margin-right:8px;vertical-align:1px}.fcdot.k1{background:#3dd6a8}.fcdot.k0{background:#f59a52}
 .fka{position:absolute;left:16px;right:16px;bottom:16px;z-index:3;display:flex;gap:10px;opacity:0;pointer-events:none;transform:translateY(8px);transition:opacity .18s,transform .18s}
 .fck.flip .fka{opacity:1;pointer-events:auto;transform:none;transition-delay:.2s}
@@ -564,7 +565,7 @@ h1{animation:none!important;background-position:0 0}
       <button class="jump" id="jump" type="button" aria-label="Ke pesan terbaru"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 5v14M5 12l7 7 7-7"/></svg><span>Pesan terbaru</span></button>
     </section>
     <section class="view" id="v1">
-      <div class="qtop glass"><b>Kuis</b><button class="send qplus" id="qplus" type="button" aria-label="Kuis baru"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2.8" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg></button></div>
+      <div class="qtop glass"><button class="ib fcback" id="qback" type="button" aria-label="Kembali"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 6l-6 6 6 6"/></svg></button><b style="flex:1;min-width:0">Kuis</b><button class="send qplus" id="qplus" type="button" aria-label="Kuis baru"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2.8" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg></button></div>
       <div class="scroll" id="quiz"><div class="hero glass"><i class="hic"></i><b>Kuis</b><span>Ketik topik di atas, lalu tekan tombol panah.</span></div></div>
     </section>
     <section class="view" id="v2"><div class="scroll" id="cls">
@@ -572,11 +573,11 @@ h1{animation:none!important;background-position:0 0}
       <div id="clist" style="display:flex;flex-direction:column;gap:10px"></div>
     </div></section>
     <section class="view" id="v3">
-      <div class="qtop glass"><button class="ib fcback" id="fcback" type="button" aria-label="Kembali" style="display:none"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 6l-6 6 6 6"/></svg></button><b id="fct" style="flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">Kartu</b><button class="send qplus" id="fcplus" type="button" aria-label="Deck baru"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2.8" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg></button></div>
+      <div class="qtop glass"><button class="ib fcback" id="fcback" type="button" aria-label="Kembali" style="display:none"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 6l-6 6 6 6"/></svg></button><b id="fct" style="flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">Belajar</b><button class="send qplus" id="fcplus" type="button" aria-label="Deck baru"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2.8" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg></button></div>
       <div class="scroll" id="fc"></div>
     </section>
   </main>
-  <nav class="tabbar glass"><i class="pill" id="pill"></i><button class="on" data-t="0">Belajar</button><button data-t="1">Kuis</button><button data-t="2">Kelas</button><button data-t="3">Kartu</button></nav>
+  <nav class="tabbar glass"><i class="pill" id="pill"></i><button class="on" data-t="0">Chat</button><button data-t="2">Kelas</button><button data-t="3">Belajar</button></nav>
 </div>
 <div class="modal" id="modal"><div class="glass card"><div class="shd"><button class="ib" id="sback" type="button" aria-label="Kembali" style="display:none"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 6l-6 6 6 6"/></svg></button><h2 id="stitle">Pengaturan</h2></div>
 <div id="smenu"><button class="mi" type="button" data-s="char"><span><b>Karakter AI</b><small id="mi-char"></small></span><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6l6 6-6 6"/></svg></button><button class="mi" type="button" data-s="key"><span><b>API key Gemini</b><small id="mi-key"></small></span><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6l6 6-6 6"/></svg></button><button class="mi" type="button" data-s="chat"><span><b>Obrolan</b><small id="mi-chat"></small></span><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6l6 6-6 6"/></svg></button><button class="mi" type="button" data-s="more"><span><b>Lainnya</b><small id="mi-more"></small></span><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6l6 6-6 6"/></svg></button></div>
@@ -1676,9 +1677,10 @@ document.addEventListener("pointerdown",e=>{const t=e.target.closest&&e.target.c
   s.style.cssText="width:"+d+"px;height:"+d+"px;left:"+(e.clientX-r.left-d/2)+"px;top:"+(e.clientY-r.top-d/2)+"px";t.appendChild(s);setTimeout(()=>s.remove(),700)});
 $("logo").onclick=()=>{const l=$("logo");l.classList.remove("tap");void l.offsetWidth;l.classList.add("tap");setTimeout(()=>l.classList.remove("tap"),700)};
 
-document.querySelectorAll(".tabbar button").forEach(b=>b.onclick=()=>{const t=+b.dataset.t;document.querySelectorAll(".tabbar button").forEach(x=>x.classList.toggle("on",x===b));
-  const p=$("pill");p.style.transform="translateX("+(t*100)+"%)";p.classList.remove("st");void p.offsetWidth;p.classList.add("st");
-  $("v0").classList.toggle("show",t===0);$("v1").classList.toggle("show",t===1);$("v2").classList.toggle("show",t===2);$("v3").classList.toggle("show",t===3);if(t===2)clsShow();if(t===3)fcShow()});
+function showV(t){[0,1,2,3].forEach(i=>$("v"+i).classList.toggle("show",i===t))}
+document.querySelectorAll(".tabbar button").forEach(b=>b.onclick=()=>{const t=+b.dataset.t,bs=[...document.querySelectorAll(".tabbar button")];bs.forEach(x=>x.classList.toggle("on",x===b));
+  const p=$("pill");p.style.transform="translateX("+(bs.indexOf(b)*100)+"%)";p.classList.remove("st");void p.offsetWidth;p.classList.add("st");
+  showV(t);if(t===2)clsShow();if(t===3)fcShow()});
 
 // ---------- render teks AI (paragraf, daftar, tebal, kode) ----------
 function esc(s){return s.replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;")}
@@ -2145,17 +2147,18 @@ async function gradeEssay(topic,it,ans){
   const g=JSON.parse(raw.replace(/```json|```/g,"").trim());if(!["benar","sebagian","salah"].includes(g.v))throw new SyntaxError("bad");return{v:g.v,fb:String(g.fb||"")}}
 const QRULES=" Aturan mutu soal: (1) uji pemahaman isi materi, bukan hal sepele; (2) JANGAN membuat soal tentang sapaan, perkenalan, ucapan selamat datang, nama situs/aplikasi/penulis, ajakan subscribe, tanggal posting, iklan, atau instruksi administratif; (3) tiap soal harus bisa dijawab berdiri sendiri (jangan menulis 'menurut teks di atas' atau 'pada materi'); (4) tidak ambigu, tidak ada dua jawaban yang sama-sama benar, dan jangan ada soal yang kembar; (5) sebar soal merata ke bagian materi yang berbeda; (6) untuk pilihan ganda, pengecoh harus masuk akal dan sejenis dengan jawaban benar, jangan memakai 'semua benar' atau 'semua salah'; (7) bagian explain/kunci harus menjelaskan alasannya dengan singkat dan akurat.";
 const QEXTRACT="Kamu membantu menyiapkan bahan kuis. Di bawah ini ada teks salinan dan/atau file yang diunggah pengguna. Isinya sering bercampur dengan hal yang TIDAK perlu dipelajari: sapaan, perkenalan, ucapan selamat datang, basa-basi, nama situs/menu/navigasi, iklan, ajakan subscribe atau follow, tombol, tanggal posting, nama penulis, disclaimer, daftar isi, instruksi umum, komentar, dan kontak. Tugasmu: temukan HANYA materi pelajaran yang penting untuk dipelajari (konsep, definisi, fakta, rumus, langkah, contoh kunci, sebab-akibat, angka penting, istilah penting) lalu tulis ulang sebagai catatan materi yang padat dan terstruktur dalam Bahasa Indonesia. Jangan menambah informasi yang tidak ada di sumber, jangan mengubah angka atau rumus. Jika sumber berupa gambar atau PDF hasil pindai, baca isinya. Balas HANYA JSON: {\"ok\":true,\"topic\":\"judul topik 3 sampai 8 kata\",\"notes\":\"catatan materi, maksimal 9000 karakter\",\"skipped\":\"satu kalimat singkat tentang bagian yang dibuang, mis. sapaan dan pengenalan situs\"}. Jika sama sekali tidak ada materi yang layak dipelajari, balas {\"ok\":false,\"reason\":\"alasan singkat\"}.";
-async function quiz(topic,files){
-  files=files||[];
+let QLAST=null;
+async function quiz(topic,files,pre){
+  files=files||[];QLAST=[topic,files,pre];
   let t=String(topic||"").trim();if((!t&&!files.length)||busy)return;
-  const isMat=files.length>0||t.length>200||(t.length>80&&t.split("\n").length>2);
+  const isMat=!(pre&&pre.mat)&&(files.length>0||t.length>200||(t.length>80&&t.split("\n").length>2));
   if(!KEY){openSet();return}
   const N=QO.n,es=QO.t==="es";
   const q=$("quiz");busy=true;setBusy($("qplus"),true);
   q.innerHTML="";const box=document.createElement("div");box.className="q glass";q.appendChild(box);
   const st=mkStatus(box,"Menyusun soal…");
   try{
-    let mat="";
+    let mat=pre&&pre.mat?String(pre.mat).slice(0,12000):"";
     if(isMat){
       st.set({p:1,t:"Membaca dan memilah materi penting…"});
       const hint=files.length&&t.length<=200?t:"";
@@ -2182,8 +2185,8 @@ async function quiz(topic,files){
     const finish=()=>{sbQuiz(t,sc,tot,d);if(sc===tot)confetti();
       setTimeout(()=>{const r=document.createElement("div");r.className="q glass";
         r.innerHTML="<h3>Kuis selesai!</h3><div style='color:var(--tx2);font-size:14px;line-height:1.5'>Skor akhirmu <b style='color:var(--tx)'>"+sc+"/"+tot+"</b>. "+(sc===tot?"Sempurna!":sc>=tot/2?"Lumayan, terus berlatih.":"Coba lagi, pasti bisa.")+"</div><div class='row'></div>";
-        const rw=r.querySelector(".row"),b1=document.createElement("button");b1.type="button";b1.className="chip";b1.textContent="Ke Belajar";b1.onclick=()=>{quizHome();document.querySelector(".tabbar button").click()};
-        const b2=document.createElement("button");b2.type="button";b2.className="chip on";b2.textContent="Halaman kuis";b2.onclick=()=>quizHome();
+        const rw=r.querySelector(".row"),b1=document.createElement("button");b1.type="button";b1.className="chip";b1.textContent="Kembali ke materi";b1.onclick=()=>{quizHome();showV(3)};
+        const b2=document.createElement("button");b2.type="button";b2.className="chip on";b2.textContent="Soal baru";b2.onclick=()=>{if(QLAST&&!busy)quiz.apply(null,QLAST)};
         rw.appendChild(b1);rw.appendChild(b2);q.appendChild(r);setTimeout(()=>q.scrollTo({top:q.scrollHeight,behavior:"smooth"}),80)},650)};
     d.forEach((it,i)=>{const c=document.createElement("div");c.className="q glass";c.style.animationDelay=(i*100+120)+"ms";c.innerHTML="<h3>"+(i+1)+". "+mx(it.q)+"</h3>";
       if(es){
@@ -2220,6 +2223,7 @@ function openQ(){QF=[];qPaint();$("qtopic").value="";qFit();$("qopts").style.dis
 function quizHome(focus){const q=$("quiz");q.innerHTML='<div class="hero glass"><i class="hic"></i><b>Kuis</b><span>Tekan tombol + untuk membuat kuis baru.</span></div>';q.scrollTop=0;if(focus)openQ()}
 quizHome();
 $("qplus").onclick=()=>{if(busy)return;openQ()};
+$("qback").onclick=()=>showV(3);
 $("qopt").onclick=()=>{const o=$("qopts"),sh=o.style.display==="none";o.style.display=sh?"":"none";$("qchev").style.transform=sh?"rotate(180deg)":""};
 $("qno").onclick=()=>$("qmodal").classList.remove("show");
 const qGo=()=>{const t=$("qtopic").value.trim();if(!t&&!QF.length){$("qtopic").focus();return}$("qmodal").classList.remove("show");const fs=QF.slice();QF=[];qPaint();quiz(t,fs)};
@@ -2255,18 +2259,26 @@ function fcShow(){fcRender();if(Date.now()-XFSY>60000){XFSY=Date.now();fcSync()}
 // ----- tampilan -----
 function fcRender(){const box=$("fc"),m=XFV.m;box.innerHTML="";box.scrollTop=0;
   $("fcback").style.display=(m==="list"||m==="gen")?"none":"";$("fcplus").style.display=m==="list"?"":"none";
-  if(m==="list"){$("fct").textContent="Kartu";fcRList(box)}else if(m==="deck")fcRDeck(box);
+  if(m==="list"){$("fct").textContent="Belajar";fcRList(box)}else if(m==="deck")fcRDeck(box);
   else if(m==="gen"){$("fct").textContent="Membuat kartu";if(XFV.box)box.appendChild(XFV.box)}}
 function fcRList(box){const ds=fcLive().sort((a,b)=>(b.updated||0)-(a.updated||0));
-  if(!ds.length){box.innerHTML='<div class="hero glass"><i class="hic"></i><b>Flashcard</b><span>Tekan tombol + untuk membuat kartu hafalan dari topik, teks, atau file materi.</span></div>';return}
+  if(!ds.length){box.innerHTML='<div class="hero glass"><i class="hic"></i><b>Belajar</b><span>Tekan tombol + untuk membuat materi dari topik, teks, atau file. Lalu belajar pakai flashcard atau kuis.</span></div>';return}
   ds.forEach((d,i)=>{const c=fcE("div","q glass fcd","<b></b><span></span>");c.style.animationDelay=(i*70)+"ms";
     c.firstChild.textContent=d.title;c.lastChild.textContent=d.cards.length+" kartu";
     c.onclick=()=>{XFV={m:"deck",id:d.id};fcRender()};box.appendChild(c)})}
+function fcQuiz(d){if(busy)return;if(!d.cards.length)return;if(!KEY){openSet();return}
+  const mat=d.cards.map(c=>"Istilah/pertanyaan: "+c.f+"\nJawaban/penjelasan: "+c.b).join("\n\n");
+  showV(1);quiz(d.title,[],{mat})}
 function fcRDeck(box){const d=fcDeck(XFV.id);if(!d){XFV={m:"list"};return fcRender()}
   $("fct").textContent=d.title;
-  if(d.cards.length){const b=fcE("button","chip on fcmain");b.type="button";b.textContent="Belajar · "+d.cards.length+" kartu";b.onclick=()=>fcStart(d,"all");box.appendChild(b);
-    const ns=d.cards.filter(c=>c.k===0).length,nk=d.cards.filter(c=>c.k===1).length,nr=d.cards.filter(c=>c.star).length;
-    if(ns||nk||nr){const lr=fcE("div","fcnav fcmodes");[[ns,"Belajar yang belum paham","still"],[nk,"Ulangi yang sudah paham","know"],[nr,"Bintang","star"]].forEach(([n,t,m])=>{if(!n)return;const x=fcE("button","chip");x.type="button";x.textContent=t+" ("+n+")";x.onclick=()=>fcStart(d,m);lr.appendChild(x)});box.appendChild(lr)}
+  if(d.cards.length){const ns=d.cards.filter(c=>c.k===0).length,nk=d.cards.filter(c=>c.k===1).length,nr=d.cards.filter(c=>c.star).length;
+    const opt=(ti,su,fn)=>{const c=fcE("div","q glass fcd fcopt","<b></b><span></span>");c.firstChild.textContent=ti;c.lastChild.textContent=su;c.onclick=fn;box.appendChild(c);return c};
+    opt("Flashcard",d.cards.length+" kartu"+(nk?" · "+nk+" paham":""),()=>fcStart(d,"all"));
+    if(ns||nk||nr){const lr=fcE("div","fcnav fcmodes");[[ns,"Belajar yang belum paham","still"],[nk,"Ulangi yang sudah paham","know"],[nr,"Bintang","star"]].forEach(([n,tt,m])=>{if(!n)return;const x=fcE("button","chip");x.type="button";x.textContent=tt+" ("+n+")";x.onclick=()=>fcStart(d,m);lr.appendChild(x)});box.appendChild(lr)}
+    const qc=opt("Kuis",qsum(),()=>fcQuiz(d));
+    const qn=fcE("div","fcnav"),ql=fcE("button","fclk");ql.type="button";ql.textContent="Atur kuis";qn.appendChild(ql);box.appendChild(qn);
+    let qp=null;ql.onclick=()=>{if(qp){qp.remove();qp=null;return}qp=fcE("div","q glass");qp.appendChild(qoPanel(()=>{qc.lastChild.textContent=qsum()}));qn.after(qp)};
+    box.appendChild(fcE("div","fcinfo","Semua kartu ("+d.cards.length+")"));
     
     d.cards.forEach(c=>{const r=fcE("div","fci glass","<div class='fcih'><div class='fcix'><b></b><span></span></div><button class='fcmo' type='button' aria-label='Menu kartu'><svg viewBox='0 0 24 24' width='20' height='20' fill='currentColor'><circle cx='12' cy='5' r='1.8'/><circle cx='12' cy='12' r='1.8'/><circle cx='12' cy='19' r='1.8'/></svg></button></div><div class='fcib'><div><div class='fcbk'></div></div></div><div class='fcmn' hidden><button type='button' class='me'>Edit</button><button type='button' class='md'>Hapus</button></div>");
       r.querySelector("b").textContent=c.f;if(c.k===0||c.k===1){const dt=document.createElement("i");dt.className="fcdot k"+c.k;dt.setAttribute("aria-label",c.k?"Paham":"Belum paham");r.querySelector("b").insertBefore(dt,r.querySelector("b").firstChild)}r.querySelector(".fcix span").textContent=c.b;r.querySelector(".fcbk").textContent=c.b;
