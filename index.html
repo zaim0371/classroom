@@ -606,6 +606,7 @@ h1{animation:none!important;background-position:0 0}
 <aside class="drawer" id="drw" aria-label="Riwayat obrolan"><h2>Obrolan</h2><button class="chip on dnew" id="dnew" type="button">+ Obrolan baru</button><div class="dl" id="dl"></div>
 <button class="srow" id="gear" type="button"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"><path d="M4 7h9M17 7h3M4 17h3M11 17h9"/><circle cx="15" cy="7" r="2"/><circle cx="9" cy="17" r="2"/></svg><span>Pengaturan</span><svg class="sch" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6l6 6-6 6"/></svg></button>
 <div class="dfoot"><button class="acct" id="acct" type="button"><i class="av" id="av">?</i><span class="at"><b id="acn">Belum masuk</b><small id="acs">Ketuk untuk masuk atau daftar</small></span></button><button class="abtn in" id="abtn" type="button" aria-label="Masuk"></button></div></aside>
+<div class="modal" id="qsm" style="z-index:19"><div class="glass card"><h2>Pengaturan kuis</h2><div id="qsmo"></div><div class="row"><button class="chip" id="qsmn" type="button">Batal</button><button class="chip on ic" id="qsmg" type="button"><svg viewBox="0 0 24 24" width="14" height="14" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>Mulai kuis</button></div></div></div>
 <div class="modal" id="qmodal"><div class="glass card"><h2>Kuis baru</h2><textarea id="qtopic" rows="2" maxlength="60000" placeholder="Ketik topik, atau tempel teks materi di sini…" autocomplete="off" enterkeyhint="go"></textarea>
 <div class="qf"><button class="chip" id="qfile" type="button">📎 Upload materi</button><span class="qfh">PDF, foto, atau file teks. AI memilih bagian yang penting dipelajari.</span></div><div id="qatts"></div><input type="file" id="qfi" multiple hidden accept="image/*,application/pdf,text/*,.txt,.md,.csv,.json,.html,.xml">
 <button class="mi" id="qopt" type="button" style="margin-top:10px"><span><b>Opsi kuis</b><small id="qsum"></small></span><svg id="qchev" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" style="transition:transform .3s"><path d="M6 9l6 6 6-6"/></svg></button>
@@ -2275,25 +2276,32 @@ function fcShow(){fcRender();if(Date.now()-XFSY>60000){XFSY=Date.now();fcSync()}
 // ----- tampilan -----
 function fcRender(){const box=$("fc"),m=XFV.m;box.innerHTML="";box.scrollTop=0;
   $("fcback").style.display=(m==="list"||m==="gen")?"none":"";$("fcplus").style.display=m==="list"?"":"none";
-  if(m==="list"){$("fct").textContent="Belajar";fcRList(box)}else if(m==="deck")fcRDeck(box);
+  if(m==="list"){$("fct").textContent="Belajar";fcRList(box)}else if(m==="deck")fcRDeck(box);else if(m==="cards")fcRCards(box);
   else if(m==="gen"){$("fct").textContent="Membuat kartu";if(XFV.box)box.appendChild(XFV.box)}}
 function fcRList(box){const ds=fcLive().sort((a,b)=>(b.updated||0)-(a.updated||0));
   if(!ds.length){box.innerHTML='<div class="hero glass"><i class="hic"></i><b>Belajar</b><span>Tekan tombol + untuk membuat materi dari topik, teks, atau file. Lalu belajar pakai flashcard atau kuis.</span></div>';return}
   ds.forEach((d,i)=>{const c=fcE("div","q glass fcd fcopt","<i class=\"fcoi dk\">"+ic("book",22)+"</i><div class=\"fcot\"><b></b><span></span></div>");c.style.animationDelay=(i*70)+"ms";
     c.querySelector("b").textContent=d.title;c.querySelector("span").textContent=d.cards.length+" kartu";
     c.onclick=()=>{XFV={m:"deck",id:d.id};fcRender()};box.appendChild(c)})}
+function fcRDeck(box){const d=fcDeck(XFV.id);if(!d){XFV={m:"list"};return fcRender()}
+  $("fct").textContent=d.title;
+  const opt=(ti,su,fn,k,tone)=>{const c=fcE("div","q glass fcd fcopt","<i class=\""+"fcoi "+tone+"\">"+ic(k,22)+"</i><div class=\"fcot\"><b></b><span></span></div>");c.querySelector("b").textContent=ti;c.querySelector("span").textContent=su;c.onclick=fn;box.appendChild(c);return c};
+  const nk=d.cards.filter(c=>c.k===1).length;
+  opt("Flashcard",d.cards.length+" kartu"+(nk?" · "+nk+" paham":""),()=>{XFV={m:"cards",id:d.id};fcRender()},"deck","fl");
+  opt("Kuis",d.cards.length?"Soal dari "+d.cards.length+" kartu":"Belum ada kartu",()=>fcQuizSet(d),"quiz","qz")}
+let QSD=null;
+function fcQuizSet(d){if(busy){toast("Tunggu proses yang sedang berjalan",2000);return}if(!d.cards.length){toast("Tambah kartu dulu untuk membuat kuis",2200);return}
+  QSD=d;const o=$("qsmo");o.innerHTML="";o.appendChild(qoPanel(()=>{}));$("qsm").classList.add("show")}
+$("qsmn").onclick=()=>$("qsm").classList.remove("show");
+$("qsmg").onclick=()=>{const d=QSD;$("qsm").classList.remove("show");if(d)fcQuiz(d)};
 function fcQuiz(d){if(busy)return;if(!d.cards.length)return;if(!KEY){openSet();return}
   const mat=d.cards.map(c=>"Istilah/pertanyaan: "+c.f+"\nJawaban/penjelasan: "+c.b).join("\n\n");
   showV(1);quiz(d.title,[],{mat})}
-function fcRDeck(box){const d=fcDeck(XFV.id);if(!d){XFV={m:"list"};return fcRender()}
+function fcRCards(box){const d=fcDeck(XFV.id);if(!d){XFV={m:"list"};return fcRender()}
   $("fct").textContent=d.title;
   if(d.cards.length){const ns=d.cards.filter(c=>c.k===0).length,nk=d.cards.filter(c=>c.k===1).length,nr=d.cards.filter(c=>c.star).length;
-    const opt=(ti,su,fn,k,tone)=>{const c=fcE("div","q glass fcd fcopt","<i class=\"fcoi "+tone+"\">"+ic(k,22)+"</i><div class=\"fcot\"><b></b><span></span></div>");c.querySelector("b").textContent=ti;c.querySelector("span").textContent=su;c.onclick=fn;box.appendChild(c);return c};
-    opt("Flashcard",d.cards.length+" kartu"+(nk?" · "+nk+" paham":""),()=>fcStart(d,"all"),"deck","fl");
+    const mb=fcE("button","chip on ic fcmain");mb.type="button";mb.innerHTML=ic("deck",18)+"<span></span>";mb.querySelector("span").textContent="Mulai belajar · "+d.cards.length+" kartu";mb.onclick=()=>fcStart(d,"all");box.appendChild(mb);
     if(ns||nk||nr){const lr=fcE("div","fcnav fcmodes");[[ns,"Belajar yang belum paham","still"],[nk,"Ulangi yang sudah paham","know"],[nr,"Bintang","star"]].forEach(([n,tt,m])=>{if(!n)return;const x=fcE("button","chip ic");x.type="button";const ik={still:["again","#e8863a"],know:["ok","#27b48c"],star:["star","#d9a21b"]}[m];x.innerHTML=ic(ik[0],16);x.firstChild.style.color=ik[1];x.appendChild(document.createTextNode(tt+" ("+n+")"));x.onclick=()=>fcStart(d,m);lr.appendChild(x)});box.appendChild(lr)}
-    const qc=opt("Kuis",qsum(),()=>fcQuiz(d),"quiz","qz");
-    const qn=fcE("div","fcnav"),ql=fcE("button","fclk ic");ql.type="button";ql.innerHTML=ic("sliders",15)+"Atur kuis";qn.appendChild(ql);box.appendChild(qn);
-    let qp=null;ql.onclick=()=>{if(qp){qp.remove();qp=null;return}qp=fcE("div","q glass");qp.appendChild(qoPanel(()=>{qc.querySelector("span").textContent=qsum()}));qn.after(qp)};
     box.appendChild(fcE("div","fcinfo","Semua kartu ("+d.cards.length+")"));
     
     d.cards.forEach(c=>{const r=fcE("div","fci glass","<div class='fcih'><div class='fcix'><b></b><span></span></div><button class='fcmo' type='button' aria-label='Menu kartu'><svg viewBox='0 0 24 24' width='20' height='20' fill='currentColor'><circle cx='12' cy='5' r='1.8'/><circle cx='12' cy='12' r='1.8'/><circle cx='12' cy='19' r='1.8'/></svg></button></div><div class='fcib'><div><div class='fcbk'></div></div></div><div class='fcmn' hidden><button type='button' class='me'>Edit</button><button type='button' class='md'>Hapus</button></div>");
@@ -2440,7 +2448,7 @@ $("fcno").onclick=()=>$("fcm").classList.remove("show");
 $("fcman").onclick=()=>{const d=XFAT?fcDeck(XFAT):null;$("fcm").classList.remove("show");if(d)fcEdit(d,null)};
 $("fcgo").onclick=()=>{const t=$("fctopic").value.trim();if(!t&&!XFQF.length){$("fctopic").focus();return}$("fcm").classList.remove("show");const fs=XFQF.slice();XFQF=[];fcqPaint();
   fcGen(t,fs,{deck:XFAT?fcDeck(XFAT):null,n:15})};
-$("fcback").onclick=()=>{const m=XFV.m;if(m==="study"||m==="done")XFV={m:"deck",id:XFV.id};else XFV={m:"list"};fcRender()};
+$("fcback").onclick=()=>{const m=XFV.m;if(m==="cards")XFV={m:"deck",id:XFV.id};else if(m==="study"||m==="done")XFV={m:"cards",id:XFV.id};else XFV={m:"list"};fcRender()};
 async function fcGen(topic,files,o){
   if(XFGEN)return;if(!KEY){openSet();return}
   files=files||[];let t=String(topic||"").trim();if(!t&&!files.length)return;o=o||{};
@@ -2469,7 +2477,7 @@ async function fcGen(topic,files,o){
     if(!cards.length)throw new SyntaxError("bad");
     let d=ex;if(d)d.cards=d.cards.concat(cards);
     else{const nm=String((j&&j.title)||title||"Deck baru").replace(/\s+/g," ").trim().slice(0,60)||"Deck baru";d={id:fcId(),title:nm,created:Date.now(),updated:Date.now(),cards};XFD.push(d)}
-    fcTouch(d);st.stop();XFGEN=false;XFV={m:"deck",id:d.id};fcRender();toast(cards.length+" kartu ditambahkan",2200)}
+    fcTouch(d);st.stop();XFGEN=false;XFV={m:ex?"cards":"deck",id:d.id};fcRender();toast(cards.length+" kartu ditambahkan",2200)}
   catch(e){st.stop();XFGEN=false;XFV=ex?{m:"deck",id:ex.id}:{m:"list"};fcRender();
     toast(e&&e.userMsg?e.userMsg:isNet(e)?errMsg(e):"Gagal membuat kartu. Coba topik lain.",4200)}}
 fcLoad();fcRender();setTimeout(fcSync,1200);
