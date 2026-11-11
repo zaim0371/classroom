@@ -197,6 +197,8 @@ header>div:nth-child(2){min-width:0;flex:1}
 .fv .fpg{display:flex;align-items:center;gap:8px;flex:none;padding:8px 12px calc(env(safe-area-inset-bottom,0px) + 10px);color:#fff;font-size:13px}
 .fv .fpg .pn{min-width:38px;height:38px;border:0;border-radius:999px;background:rgba(255,255,255,.14);color:#fff;font-weight:600;font-size:14px;font-family:inherit;cursor:pointer}
 .fv .fpg .pn.on{background:rgba(255,255,255,.4)}
+.fv .fb.fhl{background:rgba(255,214,10,.2)}
+.fv .fb.fhl.on{background:rgba(255,214,10,.9);color:#241c00}
 .fv .fbody.ci img{-webkit-user-drag:none;pointer-events:none}
 .bm.ic{display:inline-flex;align-items:center;gap:6px}.bm.ic svg{flex:none}
 .acts.out{align-self:flex-start;margin:-4px 8px 0;max-width:92%;justify-content:flex-start;gap:16px;flex-wrap:wrap}
@@ -902,22 +904,73 @@ function ciAuto(t){const n=t.length;
 function ciSpec(o,t){const d=ciAuto(t);o=(o&&typeof o==="object"&&!Array.isArray(o))?o:{};
   return{aspect:CI_CL(o.aspect,1.3,2.3,d.aspect),cols:Math.round(CI_CL(o.cols,1,3,d.cols)),font:CI_CL(o.font,19,48,d.font),lh:CI_CL(o.lh,1.3,1.85,d.lh),pad:CI_CL(o.pad,24,80,d.pad),gap:CI_CL(o.gap,.25,1.1,d.gap),
     family:["sans","serif","mono"].indexOf(o.family)>=0?o.family:d.family,align:o.align==="center"?"center":(o.align==="left"?"left":d.align),valign:o.valign==="middle"?"middle":(o.valign==="top"?"top":d.valign),
-    title:String(o.title||"").replace(/\s+/g," ").trim().slice(0,48)||"Jawaban AI",ai:!!o.__ai}}
+    title:String(o.title||"").replace(/\s+/g," ").trim().slice(0,48)||"Jawaban AI",ai:!!o.__ai,hl:(Array.isArray(o.hl)?o.hl:[]).map(s=>String(s==null?"":s).replace(/\s+/g," ").trim()).filter(s=>s.length>=3&&s.length<=240).slice(0,12)}}
+// teks polos (tabel jadi baris "sel | sel") untuk dibaca AI
+function ciPlain(root){const o=[];
+  const tx=n=>{const r=[];ciRuns(n,{},r);return r.map(x=>x.br?"\n":(x.math!=null?x.math:(x.t||""))).join("").replace(/[ \t]+/g," ").trim()};
+  const one=el=>{if(el.nodeType!==1)return;const tg=el.tagName;
+    if(tg==="DIV"&&el.classList.contains("tw")){if(el.firstElementChild)one(el.firstElementChild);return}
+    if(tg==="TABLE"){[...el.querySelectorAll("tr")].forEach(tr=>o.push([...tr.children].map(tx).join(" | ")));return}
+    if(tg==="UL"||tg==="OL"){[...el.children].forEach(li=>o.push("- "+tx(li)));return}
+    if(tg==="PRE"){o.push(el.textContent);return}
+    o.push(tx(el))};
+  root.childNodes.forEach(one);return o.join("\n")}
+// tandai frasa penting (stabilo) pada runs satu blok; tiap frasa hanya sekali di seluruh teks
+function ciHl(runs,E){
+  const hl=E.hl;if(!hl||!hl.length||!runs.length)return runs;
+  const norm=runs.map(r=>r.t!=null?String(r.t).replace(/\s+/g," "):null);
+  let s="";const st=[];
+  runs.forEach((r,i)=>{st.push(s.length);s+=norm[i]!=null?norm[i]:"\n"});
+  if(!s.trim())return runs;
+  const lw=x=>x.replace(/[\s\S]/g,c=>{const l=c.toLowerCase();return l.length===1?l:c});
+  const L=lw(s),mark=new Uint8Array(s.length);let any=0;
+  for(const ph of hl){
+    if(E.used.has(ph))continue;
+    for(const c0 of [ph,ph.replace(/[\s.,;:!?]+$/,"")]){
+      const q=lw(c0.replace(/\s+/g," ").trim());if(q.length<3)continue;
+      let at=L.indexOf(q);while(at>=0&&mark[at])at=L.indexOf(q,at+1);
+      if(at>=0){for(let k=at;k<at+q.length;k++)mark[k]=1;E.used.add(ph);any=1;break}}}
+  if(!any)return runs;
+  const out=[];
+  runs.forEach((r,i)=>{
+    const a=st[i];
+    if(norm[i]==null){out.push(mark[a]&&r.math!=null?Object.assign({},r,{h:1}):r);return}
+    const t=norm[i];if(!t){out.push(r);return}
+    let k=0;
+    while(k<t.length){let e=k;const v=mark[a+k];while(e<t.length&&mark[a+e]===v)e++;
+      out.push(Object.assign({},r,{t:t.slice(k,e),h:v?1:0}));k=e}});
+  return out}
 async function ciAskAI(t){
-  const paras=t.split(/\n\s*\n/).length,lists=(t.match(/^\s*([-*•]|\d+[.)])\s/gm)||[]).length;
-  const sys="Kamu adalah desainer tata letak. Tugasmu merancang gambar LANDSCAPE (lebar lebih besar dari tinggi) yang memuat SELURUH teks jawaban supaya jelas dan enak dibaca. Teks selalu disusun dalam SATU kolom yang mengalir ke bawah, paragraf demi paragraf, tanpa dipecah ke samping. Kanvas selalu selebar 1280 px, tingginya 1280/aspect. Balas HANYA satu objek JSON tanpa teks lain, dengan kunci: title (judul pendek maksimal 6 kata yang merangkum isi), aspect (1.3 sampai 2.2; makin rendah makin tinggi kanvasnya), font (19 sampai 44, ukuran teks isi dalam px; aplikasi akan otomatis memperbesar huruf bila masih ada ruang kosong, dan tidak pernah menampilkan huruf lebih kecil dari 19), lh (1.35 sampai 1.8), pad (28 sampai 72), gap (0.3 sampai 1.0, jarak antar paragraf dalam kelipatan ukuran font), family (\"sans\", \"serif\", atau \"mono\"), align (\"left\" atau \"center\"), valign (\"top\" atau \"middle\"). Panduan: teks pendek pakai font besar (32 sampai 44), aspect sekitar 1.78, align center, valign middle; teks sedang pakai font 22 sampai 28 dan aspect 1.5 sampai 1.7; teks panjang pakai aspect rendah (1.3 sampai 1.5) supaya ada cukup tinggi, font 19 sampai 22. Jika teks terlalu panjang, aplikasi otomatis membaginya ke beberapa gambar. Pakai mono hanya jika isi didominasi kode, serif untuk teks naratif atau puitis. Jangan mengubah isi teks.";
-  const usr="Statistik teks: "+t.length+" karakter, "+paras+" paragraf, "+lists+" butir daftar, "+(/```/.test(t)?"ada":"tanpa")+" blok kode, "+(/\$|\\\(|\\\[/.test(t)?"ada":"tanpa")+" rumus.\n\nTeks:\n"+t.slice(0,5000);
+  const root=document.createElement("div");root.innerHTML=md(t);const plain=ciPlain(root);
+  const paras=t.split(/\n\s*\n/).length,lists=(t.match(/^\s*([-*•]|\d+[.)])\s/gm)||[]).length,tabs=root.querySelectorAll("table").length;
+  const sys="Kamu adalah desainer tata letak. Tugasmu merancang gambar LANDSCAPE (lebar lebih besar dari tinggi) yang memuat SELURUH teks jawaban supaya jelas dan enak dibaca. Teks selalu disusun dalam SATU kolom yang mengalir ke bawah, paragraf demi paragraf, tanpa dipecah ke samping. Kanvas selalu selebar 1280 px, tingginya 1280/aspect. Balas HANYA satu objek JSON tanpa teks lain, dengan kunci: title (judul pendek maksimal 6 kata yang merangkum isi), aspect (1.3 sampai 2.2; makin rendah makin tinggi kanvasnya), font (19 sampai 44, ukuran teks isi dalam px; aplikasi akan otomatis memperbesar huruf bila masih ada ruang kosong, dan tidak pernah menampilkan huruf lebih kecil dari 19), lh (1.35 sampai 1.8), pad (28 sampai 72), gap (0.3 sampai 1.0, jarak antar paragraf dalam kelipatan ukuran font), family (\"sans\", \"serif\", atau \"mono\"), align (\"left\" atau \"center\"), valign (\"top\" atau \"middle\"). Panduan: teks pendek pakai font besar (32 sampai 44), aspect sekitar 1.78, align center, valign middle; teks sedang pakai font 22 sampai 28 dan aspect 1.5 sampai 1.7; teks panjang pakai aspect rendah (1.3 sampai 1.5) supaya ada cukup tinggi, font 19 sampai 22. Jika teks terlalu panjang, aplikasi otomatis membaginya ke beberapa gambar. Pakai mono hanya jika isi didominasi kode, serif untuk teks naratif atau puitis. Jangan mengubah isi teks."+" Tambahkan juga kunci hl, yaitu daftar 3 sampai 10 frasa PENTING yang akan diberi stabilo kuning (untuk teks yang sangat pendek cukup 1 sampai 2 frasa). Setiap frasa HARUS disalin persis huruf demi huruf dari teks yang diberikan dan utuh berada di dalam SATU paragraf, butir daftar, atau sel tabel (jangan melintasi baris baru atau tanda |). Panjang tiap frasa 2 sampai 14 kata. Pilih inti jawaban: istilah kunci, definisi, angka atau hasil akhir, rumus penting, kesimpulan, peringatan. Jangan menandai seluruh paragraf, jangan menandai judul, jangan menandai hal sepele, dan sebarkan merata ke seluruh teks. Tabel akan selalu ditampilkan sebagai tabel utuh bergaris, jadi anggap tabel sebagai bagian dari teks.";
+  const usr="Statistik teks: "+t.length+" karakter, "+paras+" paragraf, "+lists+" butir daftar, "+tabs+" tabel, "+(/```/.test(t)?"ada":"tanpa")+" blok kode, "+(/\$|\\\(|\\\[/.test(t)?"ada":"tanpa")+" rumus.\n\nTeks (baris tabel ditulis sebagai sel | sel):\n"+plain.slice(0,6000);
   try{
     const out=await Promise.race([gen([{role:"user",content:usr}],{sys:sys,json:true,onStatus:()=>{}}),new Promise((_,no)=>setTimeout(()=>no(new Error("timeout")),14000))]);
     const j=JSON.parse(String(out).replace(/^\s*```(?:json)?/i,"").replace(/```\s*$/,"").trim());
     if(j&&typeof j==="object")j.__ai=1;
     return ciSpec(j,t)}
   catch(e){return ciSpec(null,t)}}
+// AI menentukan di blok mana halaman baru dimulai, supaya konteks kalimat tidak terpisah
+async function ciAskBreaks(gs,L){
+  if(!gs||gs.length<2)return null;
+  const TN={p:"paragraf",li:"butir daftar",h:"judul",tbl:"tabel",code:"kode",math:"rumus",bq:"kutipan",hr:"garis"};
+  const sn=g=>{const s=g.tx||"";return s.length>150?s.slice(0,90)+" … "+s.slice(-45):s};
+  const list=gs.map((g,i)=>"["+i+"] "+(TN[g.ty]||"teks")+" | ukuran "+Math.max(1,Math.round((g.h+g.m)/L*100))+" | "+sn(g)).join("\n");
+  const sys="Kamu adalah editor tata letak. Sebuah jawaban dipecah menjadi beberapa gambar (halaman) dan kamu menentukan di blok mana setiap halaman baru dimulai. Teks sudah dibagi menjadi blok bernomor (paragraf, butir daftar, judul, tabel, kode, rumus). Sebuah blok tidak pernah dipotong, jadi tidak ada kalimat yang terbelah di tengah. Tugasmu menjaga KONTEKS antar blok: (1) kalimat pengantar (yang berakhir titik dua, atau berbunyi seperti 'berikut', 'perhatikan tabel', 'contoh:') harus satu halaman dengan tabel, daftar, atau rumus yang diperkenalkannya; (2) judul atau subjudul harus satu halaman dengan isi di bawahnya; (3) kalimat yang bergantung pada kalimat sebelumnya atau sesudahnya (diawali 'Jadi', 'Karena itu', 'Sebaliknya', 'Misalnya', 'Selain itu', 'Namun', dan sejenisnya) tetap satu halaman dengan kalimat yang dirujuknya; (4) pertanyaan dengan jawabannya, serta langkah-langkah yang berurutan, jangan dipisah; (5) tabel harus utuh pada satu halaman bersama kalimat pengantarnya dan, bila ada, kalimat penjelas tepat di bawahnya; (6) pisahkan halaman di pergantian topik. Setiap blok punya ukuran; kapasitas satu halaman adalah 100 dan jumlah ukuran semua blok dalam satu halaman TIDAK boleh melebihi 100. Pakai halaman sesedikit mungkin dan usahakan isinya cukup seimbang. Balas HANYA satu objek JSON {\"starts\":[...]} berisi nomor blok pertama dari setiap halaman KECUALI halaman pertama (jadi tanpa angka 0), berurutan naik.";
+  const usr="Kapasitas satu halaman = 100. Daftar blok (nomor | jenis | ukuran | awal dan akhir teks):\n"+list.slice(0,9000);
+  try{
+    const out=await Promise.race([gen([{role:"user",content:usr}],{sys:sys,json:true,onStatus:()=>{}}),new Promise((_,no)=>setTimeout(()=>no(new Error("timeout")),14000))]);
+    const j=JSON.parse(String(out).replace(/^\s*```(?:json)?/i,"").replace(/```\s*$/,"").trim());
+    let a=Array.isArray(j)?j:(j&&j.starts);if(!Array.isArray(a))return null;
+    a=[...new Set(a.map(x=>parseInt(x,10)).filter(x=>isFinite(x)&&x>0&&x<gs.length))].sort((p,q)=>p-q);
+    return a}catch(e){return null}}
 function ciItems(root,cw,F,sp,E){
-  const mc=E.mc,items=[];
+  const mc=E.mc,items=[];E.used=new Set();
   const FAM=sp.family==="serif"?E.SERIF:sp.family==="mono"?E.MONO:E.FF;
   const LH=F*sp.lh,GAP=F*sp.gap;
   const fontOf=(p,sz)=>p.m?"italic 400 "+(sz*1.04).toFixed(1)+"px "+E.SERIF:(p.i?"italic ":"")+(p.b?"700":"400")+" "+(p.c?(sz*.88).toFixed(1):sz.toFixed(1))+"px "+(p.c?E.MONO:FAM);
+  const colon=runs=>{for(let i=runs.length-1;i>=0;i--){const r=runs[i];if(r.t!=null){const s=String(r.t).trim();if(s)return /[:\uFF1A]$/.test(s)}else if(r.math!=null)return false}return false};
   const flow=(runs,x0,w,size,lh,base,o)=>{
     o=o||{};
     const mw=p=>{mc.font=fontOf(p,size);return mc.measureText(p.t).width};
@@ -934,9 +987,9 @@ function ciItems(root,cw,F,sp,E){
     for(const r of runs){
       if(r.br){place();fin();nl();continue}
       if(r.disp){place();if(line.length){fin();nl()}lines.push({d:r.math});continue}
-      if(r.math!=null){const p={t:r.math,m:1};p.w=mw(p);word.push(p);continue}
+      if(r.math!=null){const p={t:r.math,m:1,h:r.h};p.w=mw(p);word.push(p);continue}
       const toks=String(r.t||"").replace(/\s+/g," ").match(/\S+ ?| /g)||[];
-      for(const tk of toks){const p={t:tk,b:(r.b||(base&&base.b))?1:0,i:r.i,u:r.u,s:r.s,c:r.c};p.w=mw(p);word.push(p);if(/\s$/.test(tk))place()}}
+      for(const tk of toks){const p={t:tk,b:(r.b||(base&&base.b))?1:0,i:r.i,u:r.u,s:r.s,c:r.c,h:r.h};p.w=mw(p);word.push(p);if(/\s$/.test(tk))place()}}
     place();fin();if(line.length)nl();
     const start=items.length;
     for(const l of lines){
@@ -945,23 +998,70 @@ function ciItems(root,cw,F,sp,E){
         const rows=[];let r="";for(const wd of l.d.split(" ")){const t=r?r+" "+wd:wd;if(mc.measureText(t).width>w-28&&r){rows.push(r);r=wd}else r=t}if(r)rows.push(r);
         const bh=rows.length*lh+14,cm=[{k:"r",x:x0,y:0,w:w,h:bh,r:12,f:"rgba(120,120,160,.16)"}];
         rows.forEach((t,k)=>cm.push({k:"t",x:x0+w/2,y:7+k*lh+lh/2,s:t,f:f,c:E.TX,al:"center"}));
-        items.push({h:bh,m:size*.3,cmds:cm});continue}
+        items.push({h:bh,m:size*.3,cmds:cm,se:1});continue}
       const cy=lh/2,rs=[],ts=[];let lw=0;l.p.forEach(p=>{lw+=p.w});
-      let x=x0+(o.align==="center"?Math.max(0,(w-lw)/2):0),cs0=null,ce=0;
+      let x=x0+(o.align==="center"?Math.max(0,(w-lw)/2):0),cs0=null,ce=0,hs0=null,he=0;
       const flush=()=>{if(cs0!=null){rs.push({k:"r",x:cs0-3,y:cy-size*.72,w:ce-cs0+6,h:size*1.44,r:6,f:"rgba(120,120,160,.26)"});cs0=null}};
+      const fh=()=>{if(hs0!=null){rs.push({k:"r",x:hs0-3,y:cy-size*.64,w:he-hs0+6,h:size*1.3,r:5,f:E.HL,hl:1});hs0=null}};
       for(const p of l.p){
         if(p.c){if(cs0==null)cs0=x;ce=x+p.w}else flush();
+        if(p.h){if(hs0==null)hs0=x;he=x+p.w}else fh();
         if(p.t)ts.push({k:"t",x:x,y:cy,s:p.t,f:fontOf(p,size),c:E.TX,u:p.u,st:p.s,w:p.w,z:size});
         x+=p.w}
-      flush();items.push({h:lh,m:0,cmds:rs.concat(ts)})}
-    if(items.length>start){if(o.pre)items[start].cmds.push(...o.pre);const last=items[items.length-1];last.m=o.mEnd==null?0:o.mEnd;if(o.kn)last.kn=1}};
-  let bi=0;const proc=el=>{
+      flush();fh();
+      const lp=l.p[l.p.length-1];
+      items.push({h:lh,m:0,cmds:rs.concat(ts),se:(lp&&/[.!?\u2026\u3002]["'\u201D\u2019)\]]*$/.test(String(lp.t).trim()))?1:0})}
+    if(items.length>start){if(o.pre)items[start].cmds.push(...o.pre);const last=items[items.length-1];last.m=o.mEnd==null?0:o.mEnd;if(o.kn)last.kn=1;
+      if(o.ty)for(let k=start;k<items.length;k++)items[k].ty=o.ty}
+    if(o.ret)return items.splice(start)};
+  // ukuran alami / minimum sebuah sel tabel
+  const metr=(runs,size)=>{let nat=0,mn=0,cur=0;
+    for(const r of runs){
+      if(r.br){nat=Math.max(nat,cur);cur=0;continue}
+      if(r.disp||r.math!=null){const p={t:String(r.math||""),m:1};mc.font=fontOf(p,size);const w=mc.measureText(p.t).width;cur+=w;mn=Math.max(mn,Math.min(w,size*10));continue}
+      const t=String(r.t||"").replace(/\s+/g," ");if(!t)continue;
+      mc.font=fontOf({b:r.b,i:r.i,c:r.c},size);cur+=mc.measureText(t).width;
+      t.split(" ").forEach(wd=>{if(wd)mn=Math.max(mn,mc.measureText(wd).width)})}
+    return{nat:Math.max(nat,cur),mn:mn}};
+  const table=el=>{
+    const trs=[...el.querySelectorAll("tr")];if(!trs.length)return;
+    const sz=F*.92,tl=LH*.92,px=sz*.6,py=sz*.42;
+    const rowsR=trs.map(tr=>{const hd=!!(tr.parentNode&&tr.parentNode.tagName==="THEAD");
+      return{hd:hd,cells:[...tr.children].map(c=>{const runs=[];ciRuns(c,{b:hd?1:0},runs);return ciHl(runs,E)})}});
+    const nc=Math.max(1,...rowsR.map(r=>r.cells.length));
+    const nat=new Array(nc).fill(0),mn=new Array(nc).fill(0);
+    rowsR.forEach(r=>r.cells.forEach((runs,ci)=>{const m=metr(runs,sz);nat[ci]=Math.max(nat[ci],m.nat+2*px);mn[ci]=Math.max(mn[ci],m.mn+2*px)}));
+    for(let i=0;i<nc;i++){mn[i]=Math.min(mn[i],nat[i]);if(nat[i]<44)nat[i]=44;if(mn[i]<44)mn[i]=Math.min(44,nat[i])}
+    const sumN=nat.reduce((a,b)=>a+b,0),sumM=mn.reduce((a,b)=>a+b,0);
+    let wd;
+    if(sumN<=cw){const k=Math.min(cw/sumN,1.6);wd=nat.map(n=>n*k)}
+    else if(sumM>=cw){wd=mn.map(m=>m*cw/sumM)}
+    else{const rem=cw-sumM,df=nat.map((n,i)=>n-mn[i]),sd=df.reduce((a,b)=>a+b,0)||1;wd=mn.map((m,i)=>m+rem*df[i]/sd)}
+    const tw=wd.reduce((a,b)=>a+b,0),LN=E.LN;
+    rowsR.forEach((row,ri)=>{
+      const fl=[];let rh=0;
+      for(let ci=0;ci<nc;ci++){
+        const runs=row.cells[ci]||[];
+        const arr=runs.length?flow(runs,0,Math.max(10,wd[ci]-2*px),sz,tl,null,{ret:1,mEnd:0}):[];
+        let yy=0;arr.forEach(it=>{yy+=it.h+it.m});fl.push({arr:arr,h:yy});rh=Math.max(rh,yy)}
+      const H=Math.max(rh,tl)+2*py,cm=[];
+      if(row.hd)cm.push({k:"r",x:0,y:0,w:tw,h:H,r:0,f:E.THB});else if(ri%2===0)cm.push({k:"r",x:0,y:0,w:tw,h:H,r:0,f:E.ZB});
+      let xx=0;
+      for(let ci=0;ci<nc;ci++){
+        let yy=py+(row.hd?(H-2*py-fl[ci].h)/2:0);
+        fl[ci].arr.forEach(it=>{it.cmds.forEach(d=>cm.push(Object.assign({},d,{x:d.x+xx+px,y:d.y+yy})));yy+=it.h+it.m});
+        xx+=wd[ci]}
+      xx=0;for(let ci=0;ci<=nc;ci++){cm.push({k:"r",x:Math.min(xx,tw-1.4),y:0,w:1.4,h:H,r:0,f:LN});xx+=wd[ci]||0}
+      cm.push({k:"r",x:0,y:H-(row.hd?2.4:1.4),w:tw,h:row.hd?2.4:1.4,r:0,f:LN});
+      if(ri===0)cm.push({k:"r",x:0,y:0,w:tw,h:1.4,r:0,f:LN});
+      items.push({h:H,m:ri===rowsR.length-1?GAP:0,cmds:cm,ty:"tbl",hdr:row.hd&&ri===0?1:0,se:1})})};
+  const proc=el=>{
     if(el.nodeType!==1)return;const tg=el.tagName;
     if(tg==="PRE"){
       const sz=F*.88,f="400 "+sz.toFixed(1)+"px "+E.MONO,lh=sz*1.45;mc.font=f;const rows=[];
       el.textContent.replace(/\n$/,"").split("\n").forEach(ln=>{let cur="";for(const ch of Array.from(ln)){if(mc.measureText(cur+ch).width>cw-24&&cur){rows.push(cur);cur=ch}else cur+=ch}rows.push(cur)});
       rows.forEach((t,k)=>{const top=k===0?9:0,bot=k===rows.length-1?9:0,h=top+lh+bot;
-        items.push({h:h,m:k===rows.length-1?GAP*.7:0,cmds:[{k:"r",x:0,y:0,w:cw,h:h,r:0,f:"rgba(120,120,160,.22)"},{k:"t",x:12,y:top+lh/2,s:t,f:f,c:E.TX}]})});
+        items.push({h:h,m:k===rows.length-1?GAP*.7:0,cmds:[{k:"r",x:0,y:0,w:cw,h:h,r:0,f:"rgba(120,120,160,.22)"},{k:"t",x:12,y:top+lh/2,s:t,f:f,c:E.TX}],ty:"code",se:1})});
       return}
     if(tg==="UL"||tg==="OL"){
       const ind=F*1.7;
@@ -969,47 +1069,71 @@ function ciItems(root,cw,F,sp,E){
         [...ul.children].forEach((li,k)=>{
           const runs=[],subs=[];
           li.childNodes.forEach(n=>{if(n.nodeType===1&&(n.tagName==="UL"||n.tagName==="OL")){subs.push(n);return}ciRuns({childNodes:[n]},{},runs)});
-          const pre=[{k:"t",x:bx+(od?0:F*.3),y:LH/2,s:od?(st+k)+".":(lv?"◦":"•"),f:"700 "+F.toFixed(1)+"px "+FAM,c:od?E.TX2:E.AC}];
+          const pre=[{k:"t",x:bx+(od?0:F*.3),y:LH/2,s:od?(st+k)+".":(lv?"\u25E6":"\u2022"),f:"700 "+F.toFixed(1)+"px "+FAM,c:od?E.TX2:E.AC}];
           const before=items.length;
-          flow(runs,bx+ind,cw-bx-ind,F,LH,null,{pre:pre,mEnd:F*.28});
-          if(items.length===before)items.push({h:LH,m:F*.28,cmds:pre});
+          flow(ciHl(runs,E),bx+ind,cw-bx-ind,F,LH,null,{pre:pre,mEnd:F*.28,ty:"li",kn:colon(runs)&&!subs.length});
+          if(items.length===before)items.push({h:LH,m:F*.28,cmds:pre,ty:"li"});
+          if(lv===0)items[before].nbk=1;
           subs.forEach(x=>lst(x,lv+1))})};
       lst(el,0);
       if(items.length)items[items.length-1].m=GAP*.8;return}
     if(tg==="DIV"&&el.classList.contains("tw")){if(el.firstElementChild)proc(el.firstElementChild);return}
-    if(tg==="HR"){items.push({h:16,m:GAP*.5,cmds:[{k:"r",x:0,y:7,w:cw,h:1.6,r:0,f:"rgba(120,120,160,.35)"}]});return}
-    if(tg==="TABLE"){
-      [...el.querySelectorAll("tr")].forEach((tr,ri)=>{const runs=[];
-        [...tr.children].forEach((c,ci)=>{if(ci)runs.push({t:"   |   "});ciRuns(c,{b:c.tagName==="TH"?1:0},runs)});
-        flow(runs,0,cw,F*.94,LH*.95,null,{mEnd:F*.2})});
-      if(items.length)items[items.length-1].m=GAP;return}
-    if(tg==="BLOCKQUOTE"){const rq=[];ciRuns(el,{i:1},rq);flow(rq,18,cw-18,F,LH,null,{mEnd:GAP});return}
+    if(tg==="HR"){items.push({h:16,m:GAP*.5,cmds:[{k:"r",x:0,y:7,w:cw,h:1.6,r:0,f:"rgba(120,120,160,.35)"}],ty:"hr",se:1});return}
+    if(tg==="TABLE"){table(el);return}
+    if(tg==="BLOCKQUOTE"){const rq=[];ciRuns(el,{i:1},rq);flow(ciHl(rq,E),18,cw-18,F,LH,null,{mEnd:GAP,ty:"bq"});return}
     const runs=[];ciRuns(el,{},runs);
-    if(tg==="H4")flow(runs,0,cw,F*1.12,LH*1.08,{b:1},{mEnd:GAP*.6,kn:1,align:sp.align});
-    else flow(runs,0,cw,F,LH,null,{mEnd:GAP,align:sp.align})};
-  root.childNodes.forEach(el=>{const s0=items.length;proc(el);for(let k=s0;k<items.length;k++)items[k].blk=bi;bi++});
+    if(tg==="H4")flow(runs,0,cw,F*1.12,LH*1.08,{b:1},{mEnd:GAP*.6,kn:1,align:sp.align,ty:"h"});
+    else flow(ciHl(runs,E),0,cw,F,LH,null,{mEnd:GAP,align:sp.align,kn:colon(runs),ty:"p"})};
+  let bi=0;
+  root.childNodes.forEach(el=>{const s0=items.length;proc(el);if(items.length===s0)return;bi++;
+    for(let k=s0;k<items.length;k++){if(items[k].nbk&&k>s0)bi++;items[k].blk=bi}});
   return items}
-function ciPages(items,L){
-  const groups=[];items.forEach(it=>{const g=groups[groups.length-1];if(g&&g.b===it.blk)g.a.push(it);else groups.push({b:it.blk,a:[it]})});
-  const pages=[[]];let y=0;
+// kelompokkan item per blok (paragraf / butir daftar / tabel / kode) beserta ukuran dan cuplikan teksnya
+function ciGroups(items){
+  const gs=[];items.forEach(it=>{const g=gs[gs.length-1];if(g&&g.b===it.blk)g.a.push(it);else gs.push({b:it.blk,a:[it]})});
+  gs.forEach(g=>{let h=0;g.a.forEach((it,k)=>{h+=it.h+(k<g.a.length-1?it.m:0)});g.h=h;g.m=g.a[g.a.length-1].m;g.ty=g.a[0].ty||"p";
+    const s=[];let n=0;for(const it of g.a){for(const d of it.cmds){if(d.k==="t"&&d.s){s.push(d.s);n+=d.s.length}}if(n>1500)break}
+    g.tx=s.join(" ").replace(/\s+/g," ").trim()});
+  return gs}
+// bagi ke halaman: satu blok (kalimat/paragraf/tabel) tidak pernah dipotong kecuali lebih tinggi dari satu halaman.
+// starts = nomor blok yang diminta AI sebagai awal halaman baru (opsional)
+function ciPages(items,L,starts){
+  const gs=ciGroups(items),pages=[[]];let y=0;
   const put=it=>{pages[pages.length-1].push({it:it,y:y});y+=it.h+it.m};
-  const gh=g=>{let h=0;g.a.forEach((it,k)=>{h+=it.h+(k<g.a.length-1?it.m:0)});return h};
-  groups.forEach((g,gi)=>{
-    const h=gh(g),lastIt=g.a[g.a.length-1],nx=groups[gi+1];
-    let need=h;if(lastIt.kn&&nx)need+=lastIt.m+nx.a[0].h;
-    if(y>0&&y+need>L&&h<=L){pages.push([]);y=0}
-    if(y+h<=L||h<=L){g.a.forEach(put);return}
-    g.a.forEach(it=>{if(y>0&&y+it.h>L){pages.push([]);y=0}put(it)})});
-  return pages}
-function ciRender(content,sp){return new Promise((ok,no)=>{try{
+  const brk=()=>{pages.push([]);y=0};
+  gs.forEach((g,gi)=>{
+    if(starts&&starts.has(gi)&&y>0)brk();
+    const last=g.a[g.a.length-1],nx=gs[gi+1];
+    let need=g.h;if(last.kn&&nx)need+=last.m+(nx.h<=L?nx.h:nx.a[0].h);
+    if(y>0&&y+need>L&&g.h<=L)brk();
+    if(g.h<=L){g.a.forEach(put);return}
+    // blok lebih tinggi dari satu halaman: potong di akhir kalimat / antar baris tabel, ulangi header tabel
+    const hdr=g.a[0].hdr?g.a[0]:null;
+    if(y>L*.75)brk();
+    g.a.forEach(it=>{
+      if(y>0&&y+it.h>L){
+        const pg=pages[pages.length-1];let first=pg.length;while(first>0&&pg[first-1].it.blk===g.b)first--;
+        let cut=-1,mv=0;
+        for(let c=pg.length;c>first;c--){
+          if(c<pg.length)mv+=pg[c].it.h+pg[c].it.m;
+          if(mv>L*.5)break;
+          const p=pg[c-1].it;if(p.se||p.ty==="tbl"){cut=c;break}}
+        if(cut<0)cut=pg.length;
+        const moved=pg.splice(cut);
+        brk();if(hdr&&!it.hdr)put(hdr);
+        moved.forEach(e=>put(e.it))}
+      put(it)})});
+  return pages.filter(p=>p.length)}
+async function ciRender(content,sp,askBrk){try{
   const root=document.createElement("div");root.innerHTML=md(content);
   const cs=getComputedStyle(document.documentElement),V=n=>cs.getPropertyValue(n).trim();
   const mc=document.createElement("canvas").getContext("2d");
   const E={mc:mc,FF:getComputedStyle(document.body).fontFamily||"system-ui,sans-serif",MONO:"ui-monospace,Menlo,Consolas,monospace",SERIF:'Georgia,"Times New Roman",serif',
-    TX:V("--tx")||"#10162b",TX2:V("--tx2")||"rgba(16,22,43,.6)",AC:V("--ac")||"#7c6cf6"};
+    TX:V("--tx")||"#10162b",TX2:V("--tx2")||"rgba(16,22,43,.6)",AC:V("--ac")||"#7c6cf6",hl:sp.hl||[],used:new Set()};
   const dark=document.documentElement.dataset.theme==="dark"||(document.documentElement.dataset.theme!=="light"&&matchMedia("(prefers-color-scheme: dark)").matches);
+  E.HL=dark?"rgba(255,196,0,.36)":"rgba(255,214,10,.62)";E.THB="rgba(120,120,160,.30)";E.ZB="rgba(120,120,160,.10)";E.LN="rgba(120,120,160,.5)";
   const W=1280,M=28,P=Math.round(sp.pad),BT=79,FH=30,MINF=19,FMAX=56,aw=W-2*M-2*P;
-  const plan=(H,F,k)=>{const ah=H-2*M-2*P-BT-FH;if(ah<80)return null;return{H:H,F:F,ah:ah,pg:ciPages(ciItems(root,aw,F,sp,E),ah*k)}};
+  const plan=(H,F,k)=>{const ah=H-2*M-2*P-BT-FH;if(ah<80)return null;const it=ciItems(root,aw,F,sp,E);return{H:H,F:F,ah:ah,items:it,pg:ciPages(it,ah*k)}};
   let r=null;
   const asps=[...new Set([sp.aspect,1.7,1.55,1.4,1.3].filter(a=>a<=sp.aspect+1e-6&&a>=1.3))].sort((a,b)=>b-a);
   for(const asp of asps){const H=Math.round(W/asp),q=plan(H,MINF,1);
@@ -1018,6 +1142,8 @@ function ciRender(content,sp){return new Promise((ok,no)=>{try{
       for(let i=0;i<11;i++){const mid=(lo+hi)/2,t=plan(H,mid,.94);if(t&&t.pg.length===1)lo=mid;else hi=mid}
       r=plan(H,lo,1);if(!r||r.pg.length!==1)r=q;break}}
   if(!r){const H=Math.round(W/1.35);r=plan(H,Math.min(24,Math.max(MINF,sp.font)),1)}
+  if(r.pg.length>1&&askBrk){const st=await askBrk(ciGroups(r.items),r.ah);if(st&&st.length){const p2=ciPages(r.items,r.ah,new Set(st));if(p2.length<=r.pg.length+2)r.pg=p2}}
+  let hits=0;r.items.forEach(it=>it.cmds.forEach(d=>{if(d.hl)hits++}));
   const H=r.H,total=r.pg.length;
   let sc=Math.min(2,Math.sqrt(14e6/(W*H)));
   const g1=V("--g1")||"#6f8cff",g2=V("--g2")||"#9b6bff",g3=V("--g3")||"#ff7ac6";
@@ -1050,22 +1176,25 @@ function ciRender(content,sp){return new Promise((ok,no)=>{try{
     drawCmd({k:"t",x:aw2/2,y:chh-10,s:"Dibuat dari Zaim’s Classroom",f:"400 13px "+E.FF,c:E.TX2,al:"center"},ox,oy);
     c.toBlob(b=>b?ok2({blob:b,w:W,h:H}):no2(new Error("toBlob")),"image/png")
   }catch(e){no2(e)}});
-  Promise.all(r.pg.map(paint)).then(pages=>ok({pages:pages})).catch(no)
-}catch(e){no(e)}})}
-async function chatImgOpen(content){if(FV)return;
+  const pgs=await Promise.all(r.pg.map(paint));return{pages:pgs,hits:hits}
+}catch(e){throw e}}
+let CI_C=null;
+async function chatImgOpen(content,opt){if(FV)return;opt=opt||{};
   const SV="<svg viewBox=\'0 0 24 24\' width=\'18\' height=\'18\' fill=\'none\' stroke=\'currentColor\' stroke-width=\'2\' stroke-linecap=\'round\' stroke-linejoin=\'round\'><path d=\'M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M7 10l5 5 5-5M12 15V3\'/></svg>";
   const el=document.createElement("div");el.className="fv";
-  el.innerHTML="<div class='fh'><button class='fb fx' type='button' aria-label='Tutup'><svg viewBox='0 0 24 24' width='20' height='20' fill='none' stroke='currentColor' stroke-width='2.4' stroke-linecap='round'><path d='M6 6l12 12M18 6L6 18'/></svg></button><b>Jawaban AI</b><button class='fb fd' type='button' style='display:none'>"+SV+"<span class='dlt'>Unduh</span></button></div><div class='fbody ci'><span style='color:#aab;margin:auto;font-size:14px;text-align:center;padding:0 24px'>AI sedang menata gambar…</span></div>";
+  el.innerHTML="<div class='fh'><button class='fb fx' type='button' aria-label='Tutup'><svg viewBox='0 0 24 24' width='20' height='20' fill='none' stroke='currentColor' stroke-width='2.4' stroke-linecap='round'><path d='M6 6l12 12M18 6L6 18'/></svg></button><b>Jawaban AI</b><button class='fb fhl' type='button' style='display:none'>✨ Sorot</button><button class='fb fd' type='button' style='display:none'>"+SV+"<span class='dlt'>Unduh</span></button></div><div class='fbody ci'><span style='color:#aab;margin:auto;font-size:14px;text-align:center;padding:0 24px'>AI sedang menata gambar…</span></div>";
   document.body.appendChild(el);FV={el,url:null,urls:[],a:{name:"jawaban-ai.png"}};
   requestAnimationFrame(()=>el.classList.add("show"));
   el.querySelector(".fx").onclick=fvClose;
   const body=el.querySelector(".fbody"),dl=el.querySelector(".fd"),dlt=el.querySelector(".dlt"),hd=el.querySelector(".fh b");
   try{
-    const sp=await ciAskAI(content);
+    let sp0=(CI_C&&CI_C.k===content)?CI_C.sp:null;if(!sp0){sp0=await ciAskAI(content);CI_C={k:content,sp:sp0,hits:0,bk:null,bkk:""}}
+    const sp=opt.nohl?Object.assign({},sp0,{hl:[]}):sp0;
     if(!FV||FV.el!==el)return;
     hd.textContent=sp.title;body.firstChild.textContent="Menggambar…";
     await new Promise(z=>setTimeout(z,30));
-    const R=await ciRender(content,sp);
+    const askB=async(gs,Lh)=>{const kk=gs.length+"|"+Math.round(Lh)+"|"+Math.round(gs.reduce((s,g)=>s+g.h+g.m,0));if(CI_C.bkk===kk)return CI_C.bk;if(body.firstChild&&body.firstChild.nodeType===1)body.firstChild.textContent="AI mengatur batas halaman…";const a=await ciAskBreaks(gs,Lh);CI_C.bk=a;CI_C.bkk=kk;return a};
+    const R=await ciRender(content,sp,askB);if(!opt.nohl)CI_C.hits=R.hits;
     if(!FV||FV.el!==el)return;
     const pgs=R.pages,n=pgs.length,urls=pgs.map(x=>URL.createObjectURL(x.blob));FV.urls=urls;body.innerHTML="";
     const wrap=document.createElement("div"),im=document.createElement("img");im.className="ci";im.alt=sp.title;im.draggable=false;wrap.appendChild(im);body.appendChild(wrap);
@@ -1105,7 +1234,8 @@ async function chatImgOpen(content){if(FV)return;
     body.addEventListener("pointerup",up);body.addEventListener("pointercancel",up);
     body.addEventListener("wheel",e=>{e.preventDefault();const c=cen(e.clientX,e.clientY);zoomAt(sc*(e.deltaY<0?1.15:1/1.15),c[0],c[1])},{passive:false});
     dl.style.display="";dl.onclick=()=>dlOne(cur);
-    toast(n>1?"Teks dibagi jadi "+n+" gambar. Cubit layar untuk zoom":"Cubit layar untuk zoom")
+    const tg=el.querySelector(".fhl");if(CI_C&&CI_C.hits>0){tg.style.display="";tg.classList.toggle("on",!opt.nohl);tg.onclick=()=>{const nx=!opt.nohl;fvClose();setTimeout(()=>chatImgOpen(content,{nohl:nx}),300)}}
+    toast(n>1?"Dibagi jadi "+n+" gambar, kalimat & tabel tetap utuh. Cubit layar untuk zoom":"Cubit layar untuk zoom")
   }catch(e){if(FV&&FV.el===el)body.innerHTML="<span style='color:#f99;margin:auto;font-size:14px'>Gagal membuat gambar.</span>"}}
 function imgBtn(content){const b=document.createElement("button");b.className="bm ic";b.type="button";bmSet(b,"img","Jadikan gambar");b.onclick=()=>chatImgOpen(content);return b}
 async function copyText(t){try{if(navigator.clipboard&&window.isSecureContext){await navigator.clipboard.writeText(t);return true}}catch(e){}
