@@ -156,7 +156,7 @@ main{flex:1;min-height:0;position:relative;animation:fade 1s .15s both}
 .tabbar{max-height:80px;transition:max-height .25s cubic-bezier(.2,.9,.25,1),margin .25s,padding .25s,opacity .18s,border-width .25s}
 html.kb .tabbar{max-height:0!important;margin-top:0!important;margin-bottom:0!important;padding-top:0!important;padding-bottom:0!important;border-width:0!important;opacity:0!important;overflow:hidden;pointer-events:none;box-shadow:none!important}
 html.kb .app{padding-bottom:0}
-.pill{position:absolute;z-index:0;top:6px;bottom:6px;left:6px;width:calc((100% - 12px)/3);border-radius:99px;background:var(--gl2);border:1px solid var(--bd);box-shadow:0 4px 12px var(--sh),inset 0 1.5px 0 rgba(255,255,255,.8);transition:transform .55s cubic-bezier(.3,1.35,.5,1)}
+.pill{position:absolute;z-index:0;top:6px;bottom:6px;left:6px;width:calc((100% - 12px)/4);border-radius:99px;background:var(--gl2);border:1px solid var(--bd);box-shadow:0 4px 12px var(--sh),inset 0 1.5px 0 rgba(255,255,255,.8);transition:transform .55s cubic-bezier(.3,1.35,.5,1)}
 .pill.st{animation:stretch .55s ease-in-out}
 @keyframes stretch{50%{scale:1.16 .9}}
 .note{font-size:12.5px;color:var(--tx2);text-align:center;padding:6px}
@@ -458,6 +458,42 @@ header.glass{-webkit-backdrop-filter:none;backdrop-filter:none;background:linear
 .acts.out{gap:12px;max-width:100%;margin:-4px 4px 0}
 .acts.out .bm{font-size:12px;font-weight:600;white-space:nowrap}
 .composer textarea::placeholder{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+
+/* flashcard */
+#v3:not(.show){transform:translateX(40px) scale(.98)}
+.fcback{flex:none;margin-right:6px}
+#fcatts{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:8px}#fcatts:empty{display:none}
+#fcatts .qa{display:flex;align-items:center;gap:6px;max-width:100%;padding:5px 5px 5px 12px;border-radius:99px;border:1px solid var(--bd);background:var(--gl);font-size:13px}
+#fcatts .qa span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:46vw}
+#fcatts .qa button{border:0;background:rgba(120,120,160,.3);color:var(--tx);width:22px;height:22px;border-radius:50%;cursor:pointer;font-size:14px;line-height:1}
+.fcsum{display:flex;align-items:baseline;gap:12px;padding:14px 18px;border-radius:22px}.fcsum b{font-size:32px;line-height:1;background:var(--grad);-webkit-background-clip:text;background-clip:text;color:transparent}.fcsum span{color:var(--tx2);font-size:14px;line-height:1.35}
+.fcd{cursor:pointer;display:flex;flex-direction:column;gap:10px}
+.fcdh{display:flex;justify-content:space-between;align-items:baseline;gap:10px}.fcdh b{font-size:16px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.fcdh small{color:var(--tx2);white-space:nowrap;font-size:12.5px}
+.fcbar{display:flex;height:7px;border-radius:9px;overflow:hidden;background:rgba(128,128,160,.22)}.fcbar i{display:block;height:100%;transition:width .4s}
+.fcdm{display:flex;justify-content:space-between;align-items:center;gap:8px;font-size:12.5px;color:var(--tx2)}
+.fcst{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin-top:12px;text-align:center}.fcst b{display:block;font-size:20px}.fcst small{color:var(--tx2);font-size:11.5px}
+.fcbtns{display:flex;flex-wrap:wrap;gap:8px}.fcbtns .chip{flex:1 1 auto;justify-content:center}.fcbtns .fcbig{flex-basis:100%;padding:14px;font-size:15px}
+.fcsec{display:flex;justify-content:space-between;align-items:center;margin:6px 4px 0;font-weight:700;font-size:13px;color:var(--tx2);letter-spacing:.04em;text-transform:uppercase}
+.fcsrch{width:100%;box-sizing:border-box}
+.fcprog{display:flex;align-items:center;gap:10px;font-size:13px;color:var(--tx2);font-weight:600}.fcprog .fcbar{flex:1}.fcprog em{font-style:normal;font-size:11.5px;padding:3px 9px;border-radius:99px;border:1px solid var(--bd);background:var(--gl)}
+.fcstage{perspective:1200px;display:flex;justify-content:center;padding:4px 2px}
+.fcc{position:relative;width:100%;max-width:460px;height:min(48vh,400px);min-height:230px;transform-style:preserve-3d;transition:transform .6s cubic-bezier(.3,1.15,.4,1);cursor:pointer;-webkit-tap-highlight-color:transparent}
+.fcc.flip{transform:rotateY(180deg)}
+.fcf,.fcb{position:absolute;inset:0;-webkit-backface-visibility:hidden;backface-visibility:hidden;border-radius:26px;padding:40px 20px 20px;display:flex;border:1px solid var(--bd);background:linear-gradient(160deg,var(--gl2),var(--gl));box-shadow:0 14px 36px var(--sh),inset 0 1px 0 rgba(255,255,255,.4)}
+.fcb{transform:rotateY(180deg)}
+.fcl{position:absolute;top:16px;left:0;right:0;text-align:center;font-style:normal;font-size:11px;font-weight:700;letter-spacing:.12em;color:var(--tx2)}
+.fcbody{margin:auto;max-height:100%;overflow-y:auto;width:100%;text-align:center;scrollbar-width:none}.fcbody::-webkit-scrollbar{display:none}
+.fct{font-size:clamp(19px,5.2vw,26px);line-height:1.45;font-weight:650;word-break:break-word}.fct.m{font-size:clamp(17px,4.4vw,21px)}.fct.s{font-size:15.5px;font-weight:600;line-height:1.5}
+.fch{margin-top:14px;padding:10px 12px;border-radius:14px;background:rgba(124,108,246,.14);color:var(--tx2);font-size:13.5px;line-height:1.45;text-align:left}
+.fcact{display:flex;flex-wrap:wrap;justify-content:center;gap:8px}.fcact .chip{font-size:12.5px;padding:7px 12px}
+.fcgr{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}
+.fcg{border:1px solid var(--bd);background:var(--gl);color:var(--tx);border-radius:16px;padding:10px 2px;font:700 13.5px inherit;font-family:inherit;cursor:pointer;display:flex;flex-direction:column;gap:2px;align-items:center;transition:transform .15s}.fcg:active{transform:scale(.94)}.fcg small{font-size:11px;font-weight:600;opacity:.75}
+.fcg.g0{box-shadow:inset 0 -3px 0 #ff7b80}.fcg.g1{box-shadow:inset 0 -3px 0 #f0a24a}.fcg.g2{box-shadow:inset 0 -3px 0 #7c9cff}.fcg.g3{box-shadow:inset 0 -3px 0 #3ddc97}
+.fcshow{width:100%;padding:15px;font-size:15px;justify-content:center}
+.fci{display:flex;align-items:center;gap:8px;padding:10px 6px 10px 14px;border-radius:18px}.fcix{flex:1;min-width:0;display:flex;flex-direction:column;gap:2px}.fcix b{font-size:14px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.fcix span{font-size:12.5px;color:var(--tx2);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.fcdot{flex:none;width:9px;height:9px;border-radius:50%;background:rgba(128,128,160,.5)}.fcdot.belajar{background:#f0a24a}.fcdot.hafal{background:#3ddc97}
+.fcres{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;text-align:center;margin:12px 0}.fcres b{display:block;font-size:22px}.fcres small{font-size:11.5px;color:var(--tx2)}
+@media (prefers-reduced-motion:reduce){.fcc{transition:none}}
 </style>
 </head>
 <body>
@@ -485,8 +521,12 @@ header.glass{-webkit-backdrop-filter:none;backdrop-filter:none;background:linear
       <div class="q glass" id="cform"><h3>Jadwalkan kelas</h3><input id="cm" placeholder="Topik (mis. Dasar-dasar investasi)" maxlength="80" autocomplete="off"><div class="lb">Tanggal dan jam</div><div class="two"><input id="cdt" placeholder="besok, 12/11, 12 nov" autocomplete="off" maxlength="30"><input id="ctm" inputmode="numeric" placeholder="19.30" autocomplete="off" maxlength="5"></div><div class="lb">Durasi</div><input id="cdu" placeholder="30 (mis. 45, 1 jam, 1.5 jam)" autocomplete="off" maxlength="24"><div class="csum" id="csum"></div><div class="row"><button class="chip on" id="cadd" type="button">Jadwalkan</button></div><div class="note" id="cerr"></div></div>
       <div id="clist" style="display:flex;flex-direction:column;gap:10px"></div>
     </div></section>
+    <section class="view" id="v3">
+      <div class="qtop glass"><button class="ib fcback" id="fcback" type="button" aria-label="Kembali" style="display:none"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 6l-6 6 6 6"/></svg></button><b id="fct" style="flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">Kartu</b><button class="send qplus" id="fcplus" type="button" aria-label="Deck baru"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2.8" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg></button></div>
+      <div class="scroll" id="fc"></div>
+    </section>
   </main>
-  <nav class="tabbar glass"><i class="pill" id="pill"></i><button class="on" data-t="0">Belajar</button><button data-t="1">Kuis</button><button data-t="2">Kelas</button></nav>
+  <nav class="tabbar glass"><i class="pill" id="pill"></i><button class="on" data-t="0">Belajar</button><button data-t="1">Kuis</button><button data-t="2">Kelas</button><button data-t="3">Kartu</button></nav>
 </div>
 <div class="modal" id="modal"><div class="glass card"><div class="shd"><button class="ib" id="sback" type="button" aria-label="Kembali" style="display:none"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 6l-6 6 6 6"/></svg></button><h2 id="stitle">Pengaturan</h2></div>
 <div id="smenu"><button class="mi" type="button" data-s="char"><span><b>Karakter AI</b><small id="mi-char"></small></span><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6l6 6-6 6"/></svg></button><button class="mi" type="button" data-s="key"><span><b>API key Gemini</b><small id="mi-key"></small></span><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6l6 6-6 6"/></svg></button><button class="mi" type="button" data-s="chat"><span><b>Obrolan</b><small id="mi-chat"></small></span><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6l6 6-6 6"/></svg></button><button class="mi" type="button" data-s="more"><span><b>Lainnya</b><small id="mi-more"></small></span><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6l6 6-6 6"/></svg></button></div>
@@ -507,6 +547,12 @@ header.glass{-webkit-backdrop-filter:none;backdrop-filter:none;background:linear
 <div id="qopts" style="display:none"></div>
 <div class="row"><button class="chip" id="qno" type="button">Batal</button><button class="chip on" id="qgo" type="button">Mulai kuis</button></div></div></div>
 <div class="modal" id="dmodal" style="z-index:20"><div class="glass card"><h2 id="dt"></h2><p id="dx"></p><input id="di" autocomplete="off" maxlength="200"><div class="row"><button class="chip" id="dno" type="button">Batal</button><button class="chip on" id="dok" type="button">OK</button></div></div></div>
+<div class="modal" id="fcm"><div class="glass card"><h2 id="fcmt">Deck flashcard baru</h2><textarea id="fctopic" rows="2" maxlength="60000" placeholder="Ketik topik, atau tempel teks materi di sini…" autocomplete="off"></textarea>
+<div class="qf"><button class="chip" id="fcfile" type="button">📎 Upload materi</button><span class="qfh">PDF, foto, atau file teks. AI memilih bagian yang penting dihafal.</span></div><div id="fcatts"></div><input type="file" id="fcfi" multiple hidden accept="image/*,application/pdf,text/*,.txt,.md,.csv,.json,.html,.xml">
+<div id="fcopts"></div>
+<div class="row"><button class="chip" id="fcno" type="button">Batal</button><button class="chip on" id="fcgo" type="button">Buat kartu</button></div></div></div>
+<div class="modal" id="fcem" style="z-index:19"><div class="glass card"><h2 id="fcemt">Kartu</h2><div class="lb">Depan (pertanyaan atau istilah)</div><textarea id="fcef" rows="2" maxlength="300" autocomplete="off"></textarea><div class="lb" style="margin-top:8px">Belakang (jawaban)</div><textarea id="fceb" rows="3" maxlength="600" autocomplete="off"></textarea><div class="lb" style="margin-top:8px">Jembatan ingatan (opsional)</div><textarea id="fceh" rows="2" maxlength="200" autocomplete="off"></textarea>
+<div class="row"><button class="chip" id="fcen" type="button">Batal</button><button class="chip on" id="fceo" type="button">Simpan</button></div></div></div>
 <div id="pv"></div>
 <div class="modal" id="amodal"><div class="glass card"><h2 id="atitle">Masuk</h2><p id="adesc">Masuk agar riwayat, jadwal kelas, dan hasil kuis tersimpan di akunmu dan bisa dibuka dari perangkat mana pun.</p><div id="aform"><input id="aem" type="email" placeholder="Email" autocomplete="email" inputmode="email"><input id="apw" type="password" placeholder="Password (min. 6 karakter)" autocomplete="current-password"></div><div class="note" id="aerr"></div><div class="row"><button class="chip" id="aclose" type="button">Tutup</button><button class="chip" id="asign" type="button">Daftar</button><button class="chip g" id="alogin" type="button"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 3h4a2 2 0 012 2v14a2 2 0 01-2 2h-4M10 17l5-5-5-5M15 12H3"/></svg>Masuk</button><button class="chip r" id="aout" type="button" style="display:none"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4M16 17l5-5-5-5M21 12H9"/></svg>Keluar</button></div></div></div>
 <script>
@@ -1447,7 +1493,7 @@ function attachCopy(el,text){const w=document.createElement("div");w.className="
 function retryBtn(){const b=document.createElement("button");b.className="bm ic rt";b.type="button";bmSet(b,"retry","Ulangi");
   b.onclick=()=>{if(busy)return;const n=hist.length;if(n<2||hist[n-1].role!=="assistant"||hist[n-2].role!=="user")return;
     const w=b.closest(".acts"),a=w&&w.previousElementSibling;ttsStop();hist.pop();if(a)a.remove();if(w)w.remove();send(true)};return b}
-function attachBm(el,content){const w=document.createElement("div");w.className="acts out a";w.appendChild(copyBtn(content));w.appendChild(imgBtn(content));if(TTS||window.AudioContext||window.webkitAudioContext)w.appendChild(ttsBtn(content));w.appendChild(retryBtn());el.after(w);
+function attachBm(el,content){const w=document.createElement("div");w.className="acts out a";w.appendChild(copyBtn(content));w.appendChild(imgBtn(content));if(TTS||window.AudioContext||window.webkitAudioContext)w.appendChild(ttsBtn(content));w.appendChild(retryBtn());if(String(content||"").length>60)w.appendChild(fcBtn(content));el.after(w);
   const all=document.querySelectorAll("#log .acts.out.a");all.forEach((x,i)=>{if(i<all.length-1){const r=x.querySelector(".rt");if(r)r.remove()}})}
 
 // ---------- kelas: jadwal belajar, kehadiran, keterlambatan ----------
@@ -1574,7 +1620,7 @@ $("logo").onclick=()=>{const l=$("logo");l.classList.remove("tap");void l.offset
 
 document.querySelectorAll(".tabbar button").forEach(b=>b.onclick=()=>{const t=+b.dataset.t;document.querySelectorAll(".tabbar button").forEach(x=>x.classList.toggle("on",x===b));
   const p=$("pill");p.style.transform="translateX("+(t*100)+"%)";p.classList.remove("st");void p.offsetWidth;p.classList.add("st");
-  $("v0").classList.toggle("show",t===0);$("v1").classList.toggle("show",t===1);$("v2").classList.toggle("show",t===2);if(t===2)clsShow()});
+  $("v0").classList.toggle("show",t===0);$("v1").classList.toggle("show",t===1);$("v2").classList.toggle("show",t===2);$("v3").classList.toggle("show",t===3);if(t===2)clsShow();if(t===3)fcShow()});
 
 // ---------- render teks AI (paragraf, daftar, tebal, kode) ----------
 function esc(s){return s.replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;")}
@@ -2120,6 +2166,207 @@ $("qopt").onclick=()=>{const o=$("qopts"),sh=o.style.display==="none";o.style.di
 $("qno").onclick=()=>$("qmodal").classList.remove("show");
 const qGo=()=>{const t=$("qtopic").value.trim();if(!t&&!QF.length){$("qtopic").focus();return}$("qmodal").classList.remove("show");const fs=QF.slice();QF=[];qPaint();quiz(t,fs)};
 $("qgo").onclick=qGo;$("qtopic").addEventListener("keydown",e=>{if(e.key==="Enter"&&!e.shiftKey){const v=$("qtopic").value;if(v.length<=200&&v.indexOf("\n")<0){e.preventDefault();qGo()}}});
+
+
+// ---------- flashcard: kartu hafalan dengan pengulangan berjarak ----------
+BI.cards='<rect x="3" y="7" width="14" height="12" rx="2.5"/><path d="M7 4h11a3 3 0 013 3v9"/>';
+const XFCI=[0,1,3,7,14,30,60],XFDAY=864e5;
+const XFCK=()=>"zc-fc-"+(UID()||"dev");
+let XFD=[],XFV={m:"list"},XFPT=0,XFGEN=false,XFQ="",XFAT=null,XFQF=[],XFRV=false,XFSY=0;
+const XFCO={n:15,s:"mix"};try{const v=JSON.parse(localStorage.getItem("zc-fco")||"{}");if([10,15,20,30].includes(v.n))XFCO.n=v.n;if(["tj","id","mix"].includes(v.s))XFCO.s=v.s}catch(e){}
+const XFCSTY={tj:"pertanyaan di depan dan jawaban singkat di belakang",id:"istilah atau konsep di depan dan definisi singkat di belakang",mix:"campuran: istilah dan definisi, pertanyaan dan jawaban, serta kalimat rumpang (bagian penting diganti ______ di depan, jawabannya di belakang)"};
+const XFCR=" Aturan kartu: (1) satu kartu = satu fakta atau konsep (atomik), jangan menumpuk banyak hal; (2) sisi depan pendek dan jelas (maksimal 140 karakter), sisi belakang ringkas (maksimal 260 karakter) dan mudah diingat; (3) JANGAN membuat kartu tentang sapaan, perkenalan, nama situs atau penulis, ajakan subscribe, tanggal posting, iklan, atau instruksi administratif; (4) kartu harus bisa dipahami berdiri sendiri (jangan menulis 'menurut teks di atas'); (5) tidak boleh ada kartu kembar, dan sisi depan tidak boleh membocorkan jawabannya; (6) sebar kartu merata ke seluruh materi, urut dari konsep dasar ke lanjutan; (7) rumus ditulis dengan LaTeX di antara tanda dolar, misalnya $\\frac{1}{4}$; (8) field h berisi jembatan ingatan atau contoh singkat (maksimal 100 karakter), atau string kosong jika tidak perlu. Bahasa Indonesia.";
+const fcE=(t,c,x)=>{const e=document.createElement(t);if(c)e.className=c;if(x!=null)e.innerHTML=x;return e};
+const fcId=()=>crypto.randomUUID?crypto.randomUUID():"f"+Date.now().toString(36)+Math.random().toString(36).slice(2,9);
+const fcLive=()=>XFD.filter(d=>!d.del);
+const fcDeck=id=>XFD.find(d=>d.id===id&&!d.del);
+const fcShuf=a=>{a=a.slice();for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a};
+const fcTx=t=>mx(t).replace(/\n/g,"<br>");
+const fcSz=t=>String(t||"").length>200?" s":String(t||"").length>70?" m":"";
+function fcLoad(){XFD=[];try{const a=JSON.parse(localStorage.getItem(XFCK())||"[]");if(Array.isArray(a))XFD=a.filter(d=>d&&d.id&&Array.isArray(d.cards))}catch(e){}}
+function fcPrune(){const lim=Date.now()-30*XFDAY;XFD=XFD.filter(d=>!d.del||(d.updated||0)>lim)}
+function fcSave(){fcPrune();try{localStorage.setItem(XFCK(),JSON.stringify(XFD))}catch(e){}clearTimeout(XFPT);XFPT=setTimeout(()=>setPut("fc_decks",JSON.stringify(XFD)),1500)}
+function fcTouch(d){d.updated=Date.now();fcSave()}
+async function fcSync(){try{
+  const flt=UID()?"&user_id=eq."+UID():"&device_id=eq."+DEV;
+  const rows=await sbx("app_settings?select=value&key=eq.fc_decks"+flt)||[];
+  let v=rows[0]&&rows[0].value;if(typeof v==="string"){try{v=JSON.parse(v)}catch(e){v=null}}if(!Array.isArray(v))v=[];
+  const m=new Map();XFD.concat(v).forEach(d=>{if(!d||!d.id||!Array.isArray(d.cards))return;const o=m.get(d.id);if(!o||(d.updated||0)>(o.updated||0))m.set(d.id,d)});
+  const before=JSON.stringify(XFD);XFD=[...m.values()];fcPrune();const after=JSON.stringify(XFD);
+  try{localStorage.setItem(XFCK(),after)}catch(e){}
+  if(after!==JSON.stringify(v))setPut("fc_decks",after);
+  if(after!==before&&XFV.m==="list"&&$("v3").classList.contains("show"))fcRender()}catch(e){}}
+function fcShow(){fcRender();if(Date.now()-XFSY>60000){XFSY=Date.now();fcSync()}}
+// status kartu & jadwal ulang
+const fcSt=c=>c.reps?(c.box>=3?"hafal":"belajar"):"baru";
+function fcStats(d){const s={baru:0,belajar:0,hafal:0,due:0,n:d.cards.length},t=Date.now();d.cards.forEach(c=>{s[fcSt(c)]++;if(!c.reps||c.due<=t)s.due++});return s}
+function fcCalc(c,g){let box=c.box||0,ms;
+  if(g===0){box=0;ms=6e4}
+  else if(g===1){ms=box===0?6e5:Math.max(36e5,XFCI[box]*XFDAY*.6)}
+  else{box=Math.min(6,box+(g===3?2:1));ms=XFCI[box]*XFDAY}
+  return{box,ms}}
+const fcLbl=ms=>ms<36e5?Math.max(1,Math.round(ms/6e4))+" mnt":ms<XFDAY?Math.round(ms/36e5)+" jam":Math.round(ms/XFDAY)+" hari";
+function fcApply(c,g){const r=fcCalc(c,g);c.box=r.box;c.due=Date.now()+r.ms;c.reps=(c.reps||0)+1;if(g===0)c.lapses=(c.lapses||0)+1;c.last=Date.now()}
+function fcBar(s){const n=s.n||1,p=x=>(x/n*100).toFixed(1)+"%";return'<div class="fcbar"><i style="width:'+p(s.hafal)+';background:#3ddc97"></i><i style="width:'+p(s.belajar)+';background:#f0a24a"></i></div>'}
+// ----- tampilan -----
+function fcRender(){const box=$("fc"),m=XFV.m;box.innerHTML="";box.scrollTop=0;
+  $("fcback").style.display=(m==="list"||m==="gen")?"none":"";$("fcplus").style.display=m==="list"?"":"none";
+  if(m==="list"){$("fct").textContent="Kartu";fcRList(box)}else if(m==="deck")fcRDeck(box);else if(m==="study")fcRStudy(box);else if(m==="done")fcRDone(box);
+  else if(m==="gen"){$("fct").textContent="Membuat kartu";if(XFV.box)box.appendChild(XFV.box)}}
+function fcRList(box){const ds=fcLive().sort((a,b)=>(b.updated||0)-(a.updated||0));
+  if(!ds.length){box.innerHTML='<div class="hero glass"><i class="hic"></i><b>Flashcard</b><span>Tekan tombol + untuk membuat deck dari topik, teks, atau file materi. Kartu dijadwalkan ulang otomatis supaya kamu cepat hafal.</span></div>';return}
+  const tot=ds.reduce((a,d)=>a+fcStats(d).due,0);
+  box.appendChild(fcE("div","fcsum glass",tot?"<b>"+tot+"</b><span>kartu menunggu untuk diulang hari ini</span>":"<b>✓</b><span>Semua kartu sudah diulang. Mantap!</span>"));
+  ds.forEach((d,i)=>{const s=fcStats(d),c=fcE("div","q glass fcd");c.style.animationDelay=(i*70)+"ms";
+    const h=fcE("div","fcdh","<b></b><small></small>");h.firstChild.textContent=d.title;h.lastChild.textContent=s.n+" kartu";
+    const m=fcE("div","fcdm");const lg=fcE("span","",null);lg.textContent="Hafal "+s.hafal+" · Belajar "+s.belajar+" · Baru "+s.baru;
+    const b=fcE("button","chip on");b.type="button";b.textContent=s.due?"Belajar ("+s.due+")":"Buka";b.onclick=e=>{e.stopPropagation();if(s.due)fcStart(d,"due");else{XFV={m:"deck",id:d.id};fcRender()}};
+    m.appendChild(lg);m.appendChild(b);c.appendChild(h);c.insertAdjacentHTML("beforeend",fcBar(s));c.appendChild(m);
+    c.onclick=()=>{XFV={m:"deck",id:d.id};XFQ="";fcRender()};box.appendChild(c)})}
+function fcRDeck(box){const d=fcDeck(XFV.id);if(!d){XFV={m:"list"};return fcRender()}
+  $("fct").textContent=d.title;const s=fcStats(d);
+  const c1=fcE("div","q glass",fcBar(s)+'<div class="fcst"><div><b>'+s.baru+'</b><small>Baru</small></div><div><b>'+s.belajar+'</b><small>Belajar</small></div><div><b>'+s.hafal+'</b><small>Hafal</small></div><div><b>'+s.due+'</b><small>Jatuh tempo</small></div></div>');box.appendChild(c1);
+  const bt=(t,cls,fn,w)=>{const b=fcE("button","chip"+(cls?" "+cls:""));b.type="button";b.textContent=t;b.onclick=fn;w.appendChild(b);return b};
+  const r1=fcE("div","fcbtns");box.appendChild(r1);
+  if(s.n){bt(s.due?"Belajar sekarang · "+s.due+" kartu":"Belajar semua kartu","on fcbig",()=>fcStart(d,s.due?"due":"all"),r1);
+    bt("Semua kartu","",()=>fcStart(d,"all"),r1);bt("Belum hafal ("+(s.n-s.hafal)+")","",()=>fcStart(d,"weak"),r1)}
+  const r2=fcE("div","fcbtns");box.appendChild(r2);
+  bt("✨ Tambah dengan AI","",()=>fcOpenM(d.id),r2);bt("+ Kartu manual","",()=>fcEdit(d,null),r2);
+  if(s.n){const sec=fcE("div","fcsec","<span>Kartu ("+s.n+")</span>");box.appendChild(sec);
+    let sr=null;if(s.n>6){sr=fcE("input","fcsrch");sr.placeholder="Cari kartu…";sr.value=XFQ;box.appendChild(sr)}
+    const L=fcE("div","");L.style.cssText="display:flex;flex-direction:column;gap:8px";box.appendChild(L);
+    const paint=()=>{L.innerHTML="";const q=XFQ.trim().toLowerCase();
+      d.cards.filter(c=>!q||(c.f+" "+c.b).toLowerCase().includes(q)).forEach(c=>{const r=fcE("div","fci glass","<i class='fcdot "+fcSt(c)+"'></i><div class='fcix'><b></b><span></span></div><button class='ib' type='button' aria-label='Ubah kartu'>"+IC_ED+"</button><button class='ib del' type='button' aria-label='Hapus kartu'>"+IC_DEL+"</button>");
+        r.querySelector("b").textContent=c.f;r.querySelector("span").textContent=c.b;
+        const bs=r.querySelectorAll(".ib");bs[0].onclick=()=>fcEdit(d,c);
+        bs[1].onclick=async()=>{if(!(await confirmX("Hapus kartu?","Kartu ini akan dihapus dari deck.","Hapus",true)))return;d.cards=d.cards.filter(x=>x!==c);fcTouch(d);fcRender()};
+        L.appendChild(r)});
+      if(!L.children.length)L.innerHTML="<div class='note'>Tidak ada kartu yang cocok.</div>"};
+    paint();if(sr)sr.oninput=()=>{XFQ=sr.value;paint()}}
+  else box.appendChild(fcE("div","note","Deck ini masih kosong. Tambahkan kartu dengan AI atau manual."));
+  const r3=fcE("div","fcbtns");r3.style.marginTop="6px";box.appendChild(r3);
+  bt("Ubah nama","",async()=>{const t=await dlg({title:"Ubah nama deck",input:d.title,ok:"Simpan"});if(t===null)return;const n=t.trim().slice(0,60);if(!n)return;d.title=n;fcTouch(d);fcRender()},r3);
+  bt("Salin (TSV)","",()=>fcCopy(d),r3);
+  if(s.n)bt("Reset kemajuan","",async()=>{if(!(await confirmX("Reset kemajuan?","Semua kartu kembali jadi baru. Isi kartu tidak berubah.","Reset",true)))return;d.cards.forEach(c=>{c.box=0;c.due=0;c.reps=0;c.lapses=0});fcTouch(d);fcRender()},r3);
+  bt("Hapus deck","r",async()=>{if(!(await confirmX("Hapus deck?","\""+d.title+"\" dan semua kartunya akan dihapus.","Hapus",true)))return;d.del=true;d.cards=[];fcTouch(d);XFV={m:"list"};fcRender()},r3)}
+async function fcCopy(d){const tx=d.cards.map(c=>[c.f,c.b,c.h||""].map(x=>String(x).replace(/[\t\r\n]+/g," ")).join("\t")).join("\n");
+  try{await navigator.clipboard.writeText(tx)}catch(e){const a=document.createElement("textarea");a.value=tx;a.style.cssText="position:fixed;opacity:0";document.body.appendChild(a);a.select();try{document.execCommand("copy")}catch(x){}a.remove()}
+  toast("Deck disalin ("+d.cards.length+" kartu, format TSV untuk Anki)",2600)}
+// ----- sesi belajar -----
+function fcStart(d,mode){const t=Date.now();let q;
+  if(mode==="all")q=d.cards.slice();else if(mode==="weak")q=d.cards.filter(c=>c.box<3);
+  else q=d.cards.filter(c=>c.reps&&c.due<=t).sort((a,b)=>a.due-b.due).concat(d.cards.filter(c=>!c.reps).slice(0,15));
+  if(!q.length){toast(mode==="due"?"Belum ada kartu yang jatuh tempo. Coba 'Semua kartu'.":"Tidak ada kartu untuk dipelajari.",2400);return}
+  if(mode!=="due")q=fcShuf(q);
+  XFV={m:"study",id:d.id,q,total:q.length,fin:0,flip:false,res:[0,0,0,0],lap:new Set(),mode};fcRender()}
+function fcFlip(){const S=XFV;if(S.m!=="study"||!S.card)return;S.flip=!S.flip;S.card.classList.toggle("flip",S.flip);S.paint()}
+function fcGrade(g){const S=XFV,d=fcDeck(S.id),c=S.q[0];if(S.m!=="study"||!d||!c)return;
+  S.res[g]++;fcApply(c,g);fcTouch(d);sfx(g>=2?"ok":"no");S.q.shift();
+  if(g===0){S.lap.add(c.id);S.q.splice(Math.min(2,S.q.length),0,c)}else S.fin++;
+  S.flip=false;fcRender()}
+function fcSpeak(tx){const sp=toSpeech(String(tx||"")).replace(/\s+/g," ").trim();if(!sp)return;ttsStop();const ch=ttsChunks(sp,380);if(!ch.length)return;const my=++TT;getAC();speakChunks(ch,my).catch(()=>{})}
+async function fcHint(c,btn){if(!KEY){openSet();return}if(btn.dataset.b)return;btn.dataset.b=1;const t0=btn.textContent;btn.textContent="Mencari…";
+  try{const r=String(await gen([{role:"user",content:"Buat SATU jembatan ingatan (analogi, singkatan, atau contoh nyata) yang singkat, maksimal 2 kalimat, Bahasa Indonesia, tanpa markdown, untuk membantu mengingat kartu ini.\nDepan: "+c.f+"\nBelakang: "+c.b+"\nBalas hanya jembatan ingatannya."}],{maxTok:300})||"").replace(/\s+/g," ").trim().slice(0,220);
+    if(!r)throw new Error("empty");c.h=r;const d=fcDeck(XFV.id);if(d)fcTouch(d);
+    if(XFV.m==="study"&&XFV.q[0]===c){XFV.flip=true;fcRender()}}
+  catch(e){toast(isNet(e)?errMsg(e):"Gagal membuat jembatan ingatan. Coba lagi.")}
+  finally{btn.dataset.b="";btn.textContent=t0}}
+function fcRStudy(box){const d=fcDeck(XFV.id);if(!d){XFV={m:"list"};return fcRender()}
+  const S=XFV,c=S.q[0];$("fct").textContent=d.title;if(!c){XFV.m="done";return fcRender()}
+  const stl={baru:"Baru",belajar:"Belajar",hafal:"Hafal"}[fcSt(c)];
+  const pr=fcE("div","fcprog","<span>"+Math.min(S.fin+1,S.total)+" / "+S.total+"</span><div class='fcbar'><i style='width:"+(S.fin/S.total*100)+"%;background:var(--ac)'></i></div><em>"+stl+"</em>");box.appendChild(pr);
+  const front=XFRV?c.b:c.f,back=XFRV?c.f:c.b;
+  const stg=fcE("div","fcstage"),card=fcE("div","fcc"+(S.flip?" flip":""));
+  const fa=fcE("div","fcf","<i class='fcl'>"+(XFRV?"JAWABAN":"PERTANYAAN")+"</i><div class='fcbody'><div class='fct"+fcSz(front)+"'>"+fcTx(front)+"</div></div>");
+  const fb=fcE("div","fcb","<i class='fcl'>"+(XFRV?"PERTANYAAN":"JAWABAN")+"</i><div class='fcbody'><div class='fct"+fcSz(back)+"'>"+fcTx(back)+"</div></div>");
+  if(c.h){const h=fcE("div","fch");h.textContent="💡 "+c.h;fb.querySelector(".fcbody").appendChild(h)}
+  card.appendChild(fa);card.appendChild(fb);stg.appendChild(card);box.appendChild(stg);
+  const act=fcE("div","fcact");box.appendChild(act);
+  const ab=(t,fn)=>{const b=fcE("button","chip");b.type="button";b.textContent=t;b.onclick=e=>{e.stopPropagation();fn(b)};act.appendChild(b)};
+  ab("🔊 Dengar",()=>fcSpeak(S.flip?back:front));ab("💡 Bantu ingat",b=>fcHint(c,b));ab(XFRV?"⇄ Arah: jawaban dulu":"⇄ Balik arah",()=>{XFRV=!XFRV;fcRender()});ab("✎ Edit",()=>fcEdit(d,c));
+  const ctl=fcE("div","");box.appendChild(ctl);
+  const paint=()=>{ctl.innerHTML="";
+    if(!S.flip){const b=fcE("button","chip on fcshow");b.type="button";b.textContent="Tampilkan jawaban";b.onclick=fcFlip;ctl.appendChild(b)}
+    else{const g=fcE("div","fcgr");[["Lagi",0],["Sulit",1],["Bagus",2],["Mudah",3]].forEach(([t,k])=>{const b=fcE("button","fcg g"+k);b.type="button";b.innerHTML="<span>"+t+"</span><small>"+fcLbl(fcCalc(c,k).ms)+"</small>";b.onclick=()=>fcGrade(k);g.appendChild(b)});ctl.appendChild(g)}};
+  S.card=card;S.paint=paint;paint();card.onclick=fcFlip}
+function fcRDone(box){const d=fcDeck(XFV.id);if(!d){XFV={m:"list"};return fcRender()}
+  const S=XFV,r=S.res,all=r[0]+r[1]+r[2]+r[3],acc=all?Math.round((r[2]+r[3])/all*100):0;$("fct").textContent=d.title;
+  if(S.total>=5&&acc>=80&&!S.cf){S.cf=1;confetti()}
+  const c=fcE("div","q glass","<h3>Sesi selesai!</h3><div style='color:var(--tx2);font-size:14px;line-height:1.5'>"+S.total+" kartu dipelajari, tingkat ingat <b style='color:var(--tx)'>"+acc+"%</b>. "+(acc>=80?"Mantap, ingatanmu kuat.":acc>=50?"Lumayan, ulangi lagi besok.":"Tenang, kartu sulit akan muncul lebih sering.")+"</div><div class='fcres'><div><b>"+r[0]+"</b><small>Lagi</small></div><div><b>"+r[1]+"</b><small>Sulit</small></div><div><b>"+r[2]+"</b><small>Bagus</small></div><div><b>"+r[3]+"</b><small>Mudah</small></div></div><div class='fcbtns'></div>");
+  const rw=c.querySelector(".fcbtns"),bt=(t,cls,fn)=>{const b=fcE("button","chip"+(cls?" "+cls:""));b.type="button";b.textContent=t;b.onclick=fn;rw.appendChild(b)};
+  const miss=d.cards.filter(x=>S.lap.has(x.id));
+  if(miss.length)bt("Ulangi yang sulit ("+miss.length+")","on",()=>{XFV={m:"study",id:d.id,q:fcShuf(miss),total:miss.length,fin:0,flip:false,res:[0,0,0,0],lap:new Set(),mode:"weak"};fcRender()});
+  bt("Kembali ke deck",miss.length?"":"on",()=>{XFV={m:"deck",id:d.id};fcRender()});box.appendChild(c)}
+// ----- edit kartu -----
+let XFEC=null;
+function fcEdit(d,c){XFEC={d,c};$("fcemt").textContent=c?"Ubah kartu":"Kartu baru";$("fcef").value=c?c.f:"";$("fceb").value=c?c.b:"";$("fceh").value=c?(c.h||""):"";$("fcem").classList.add("show");setTimeout(()=>$("fcef").focus(),250)}
+$("fcen").onclick=()=>$("fcem").classList.remove("show");
+$("fceo").onclick=()=>{const f=$("fcef").value.trim(),b=$("fceb").value.trim(),h=$("fceh").value.trim();if(!f){$("fcef").focus();return}if(!b){$("fceb").focus();return}
+  const{d,c}=XFEC;if(c){c.f=f;c.b=b;c.h=h}else d.cards.push({id:fcId(),f,b,h,box:0,due:0,reps:0,lapses:0,last:0});
+  fcTouch(d);$("fcem").classList.remove("show");fcRender()};
+// ----- buat kartu dengan AI -----
+function fcoPanel(){const w=document.createElement("div");w.className="qo";
+  [["Jumlah kartu","n",[[10,"10"],[15,"15"],[20,"20"],[30,"30"]]],["Gaya kartu","s",[["tj","Tanya-jawab"],["id","Istilah"],["mix","Campur"]]]].forEach(([lb,k,os])=>{
+    const g=document.createElement("div");g.className="qg";g.innerHTML="<div class='lb'></div><div class='row wrap'></div>";g.querySelector(".lb").textContent=lb;const r=g.querySelector(".row");
+    os.forEach(([v,t])=>{const b=document.createElement("button");b.type="button";b.className="chip"+(XFCO[k]===v?" on":"");b.textContent=t;
+      b.onclick=()=>{XFCO[k]=v;try{localStorage.setItem("zc-fco",JSON.stringify(XFCO))}catch(e){}r.querySelectorAll(".chip").forEach(x=>x.classList.toggle("on",x===b))};r.appendChild(b)});w.appendChild(g)});return w}
+function fcqPaint(){const w=$("fcatts");w.innerHTML="";XFQF.forEach((a,i)=>{const d=document.createElement("div");d.className="qa";const sp=document.createElement("span");sp.textContent=a.name;d.appendChild(sp);
+  const x=document.createElement("button");x.type="button";x.textContent="×";x.setAttribute("aria-label","Buang file");x.onclick=()=>{XFQF.splice(i,1);fcqPaint()};d.appendChild(x);w.appendChild(d)})}
+$("fcfile").onclick=()=>$("fcfi").click();
+$("fcfi").onchange=async e=>{const fs=[...e.target.files];e.target.value="";
+  for(const f of fs){if(XFQF.length>=MAXF){alertX("Maksimal "+MAXF+" file per deck.");break}
+    try{XFQF.push(await prepFile(f));fcqPaint()}catch(x){alertX((f.name||"File")+": "+(x.message||"gagal dibaca."))}}};
+const fcFit=()=>{const a=$("fctopic");a.style.height="auto";a.style.height=Math.min(a.scrollHeight,Math.round(innerHeight*.34))+"px"};
+$("fctopic").addEventListener("input",fcFit);
+function fcOpenM(addTo){if(XFGEN){toast("Tunggu kartu yang sedang dibuat",2000);return}XFAT=addTo||null;XFQF=[];fcqPaint();$("fctopic").value="";fcFit();
+  const dk=XFAT?fcDeck(XFAT):null;$("fcmt").textContent=dk?"Tambah kartu ke “"+dk.title+"”":"Deck flashcard baru";$("fcgo").textContent=dk?"Tambah kartu":"Buat kartu";
+  const o=$("fcopts");o.innerHTML="";o.appendChild(fcoPanel());$("fcm").classList.add("show");setTimeout(()=>$("fctopic").focus(),300)}
+$("fcplus").onclick=()=>fcOpenM(null);
+$("fcno").onclick=()=>$("fcm").classList.remove("show");
+$("fcgo").onclick=()=>{const t=$("fctopic").value.trim();if(!t&&!XFQF.length){$("fctopic").focus();return}$("fcm").classList.remove("show");const fs=XFQF.slice();XFQF=[];fcqPaint();
+  fcGen(t,fs,{deck:XFAT?fcDeck(XFAT):null,n:XFCO.n,s:XFCO.s})};
+$("fcback").onclick=()=>{const m=XFV.m;if(m==="study"||m==="done")XFV={m:"deck",id:XFV.id};else XFV={m:"list"};XFQ="";fcRender()};
+async function fcGen(topic,files,o){
+  if(XFGEN)return;if(!KEY){openSet();return}
+  files=files||[];let t=String(topic||"").trim();if(!t&&!files.length)return;o=o||{};
+  XFGEN=true;const ex=o.deck||null;
+  XFV={m:"gen",box:fcE("div","q glass")};fcRender();const box=XFV.box,st=mkStatus(box,"Menyusun kartu…");
+  try{
+    let mat="",title=t;
+    const isMat=!o.raw&&(files.length>0||t.length>200||(t.length>80&&t.split("\n").length>2));
+    if(o.raw){mat=t.slice(0,12000);title=""}
+    else if(isMat){
+      st.set({p:1,t:"Membaca dan memilah materi penting…"});
+      const hint=files.length&&t.length<=200?t:"";
+      const body=(hint?"Fokus yang diminta pengguna: "+hint+"\n\n":"")+(!files.length||t.length>200?"Teks salinan:\n"+t.slice(0,60000):"(Materi ada pada file terlampir.)");
+      const exr=await gen([{role:"user",content:QEXTRACT.replace("bahan kuis","bahan kartu hafalan")+"\n\n"+body,files:files}],{json:true,onStatus:st.set});
+      let j;try{j=JSON.parse(String(exr).replace(/```json|```/g,"").trim())}catch(e){throw new SyntaxError("bad")}
+      if(!j||j.ok===false||!String(j.notes||"").trim()){const er=new Error("nomat");er.userMsg="AI tidak menemukan materi yang layak dihafal"+(j&&j.reason?" ("+String(j.reason).slice(0,140)+")":"")+". Coba tempel bagian isi materinya saja.";throw er}
+      mat=String(j.notes).slice(0,12000);title=String(j.topic||"").replace(/\s+/g," ").trim().slice(0,80)||(files[0]&&files[0].name.replace(/\.\w+$/,""))||"Materi";
+      st.set({p:1,t:"Menyusun kartu dari materi…"})}
+    const have=ex?ex.cards.slice(-80).map(c=>c.f.slice(0,60)).join(" | "):"";
+    const pr="Buat "+o.n+" kartu hafalan (flashcard) "+(mat?"HANYA berdasarkan materi berikut (jangan menambah hal di luar materi). Topik: "+(title||"sesuai materi")+". MATERI:\n"+mat+"\n\n":"tentang: "+title+". ")+"Gaya kartu: "+XFCSTY[o.s||"mix"]+"."+(have?" Jangan membuat kartu yang sama atau mirip dengan kartu yang sudah ada berikut: "+have+".":"")+XFCR+" Balas HANYA JSON: {\"title\":\"judul deck 2 sampai 6 kata\",\"cards\":[{\"f\":\"sisi depan\",\"b\":\"sisi belakang\",\"h\":\"jembatan ingatan singkat atau kosong\"}]}";
+    const raw=await gen([{role:"user",content:pr}],{json:true,onStatus:st.set});
+    const j=JSON.parse(String(raw).replace(/```json|```/g,"").trim());
+    const arr=Array.isArray(j)?j:(j&&j.cards);if(!Array.isArray(arr))throw new SyntaxError("bad");
+    const seen=new Set((ex?ex.cards:[]).map(c=>c.f.trim().toLowerCase())),cards=[];
+    arr.forEach(x=>{if(!x||cards.length>=o.n)return;const f=String(x.f||x.q||"").trim().slice(0,300),b=String(x.b||x.a||"").trim().slice(0,600);if(!f||!b)return;const k=f.toLowerCase();if(seen.has(k))return;seen.add(k);
+      cards.push({id:fcId(),f,b,h:String(x.h||"").trim().slice(0,200),box:0,due:0,reps:0,lapses:0,last:0})});
+    if(!cards.length)throw new SyntaxError("bad");
+    let d=ex;if(d)d.cards=d.cards.concat(cards);
+    else{const nm=String((j&&j.title)||title||"Deck baru").replace(/\s+/g," ").trim().slice(0,60)||"Deck baru";d={id:fcId(),title:nm,created:Date.now(),updated:Date.now(),cards};XFD.push(d)}
+    fcTouch(d);st.stop();XFGEN=false;XFQ="";XFV={m:"deck",id:d.id};fcRender();toast(cards.length+" kartu ditambahkan",2200);sfx("ok")}
+  catch(e){st.stop();XFGEN=false;XFV=ex?{m:"deck",id:ex.id}:{m:"list"};fcRender();
+    toast(e&&e.userMsg?e.userMsg:isNet(e)?errMsg(e):"Gagal membuat kartu. Coba topik lain atau kurangi jumlah kartu.",4200)}}
+// tombol "Kartu" di bawah jawaban AI
+async function fcFromText(content){if(XFGEN){toast("Tunggu kartu yang sedang dibuat",2000);return}if(!KEY){openSet();return}
+  if(!(await confirmX("Buat flashcard?","AI akan membuat deck kartu hafalan dari jawaban ini.","Buat",false)))return;
+  const tb=document.querySelectorAll(".tabbar button")[3];if(tb)tb.click();
+  fcGen(content,[],{raw:true,n:10,s:XFCO.s})}
+function fcBtn(content){const b=document.createElement("button");b.className="bm sp ic";b.type="button";bmSet(b,"cards","");b.setAttribute("aria-label","Jadikan flashcard");b.title="Jadikan flashcard";b.onclick=()=>fcFromText(content);return b}
+document.addEventListener("keydown",e=>{if(XFV.m!=="study"||!$("v3").classList.contains("show"))return;const tg=e.target;if(tg&&/INPUT|TEXTAREA|BUTTON/.test(tg.tagName))return;if(document.querySelector(".modal.show"))return;
+  if(e.key===" "||e.key==="Enter"){e.preventDefault();fcFlip()}else if(XFV.flip&&e.key.length===1&&"1234".includes(e.key))fcGrade(+e.key-1)});
+fcLoad();fcRender();setTimeout(fcSync,1200);
 
 // ---------- suara ke teks (mikrofon) ----------
 (()=>{const mic=$("mic"),ta=$("in"),SR=window.SpeechRecognition||window.webkitSpeechRecognition;
