@@ -470,7 +470,23 @@ header.glass{-webkit-backdrop-filter:none;backdrop-filter:none;background:linear
 .fcd{cursor:pointer;display:flex;flex-direction:column;gap:4px}.fcd b{font-size:16px;font-weight:650}.fcd span{font-size:13px;color:var(--tx2)}
 .fcmain{width:100%;padding:15px;font-size:15px;justify-content:center}
 .fcnav{display:flex;justify-content:center;flex-wrap:wrap;gap:4px;margin-top:6px}
-.fci{padding:12px 16px;border-radius:18px;cursor:pointer;display:flex;flex-direction:column;gap:2px}.fci b{font-size:14px;font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.fci span{font-size:12.5px;color:var(--tx2);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.fci{position:relative;padding:12px 8px 12px 16px;border-radius:18px;cursor:pointer;display:flex;flex-direction:column}
+.fcih{display:flex;align-items:flex-start;gap:6px;min-height:34px}
+.fcix{flex:1;min-width:0;display:flex;flex-direction:column;gap:2px;padding-top:2px}
+.fcix b{font-size:14px;font-weight:600;line-height:1.45;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.fcix span{font-size:12.5px;color:var(--tx2);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.fci.open .fcix b{white-space:normal;overflow:visible;word-break:break-word}
+.fci.open .fcix span{display:none}
+.fcmo{display:none;flex:none;width:34px;height:34px;margin-top:-4px;border:0;background:none;color:var(--tx2);border-radius:50%;place-items:center;cursor:pointer;-webkit-tap-highlight-color:transparent}
+.fci.open .fcmo{display:grid}
+.fcib{display:grid;grid-template-rows:0fr;transition:grid-template-rows .28s ease}
+.fci.open .fcib{grid-template-rows:1fr}
+.fcib>div{overflow:hidden;min-height:0}
+.fcbk{margin:8px 8px 2px 0;padding-top:10px;border-top:1px solid var(--bd);font-size:14px;line-height:1.55;word-break:break-word;white-space:pre-wrap}
+.fcmn{position:absolute;right:12px;top:44px;z-index:5;min-width:130px;padding:6px;border-radius:16px;background:var(--bg1);border:1px solid var(--bd);box-shadow:0 10px 30px var(--sh)}
+.fcmn[hidden]{display:none}
+.fcmn button{display:block;width:100%;text-align:left;border:0;background:none;color:var(--tx);font:600 14px inherit;font-family:inherit;padding:10px 12px;border-radius:12px;cursor:pointer}.fcmn button:active{background:var(--gl)}.fcmn .md{color:#ff7b80}
+@media (prefers-reduced-motion:reduce){.fcib{transition:none}}
 .fcinfo{text-align:center;color:var(--tx2);font-size:13.5px;margin:2px 0 6px}
 #fcs [hidden]{display:none!important}
 #fcs{position:fixed;inset:0;z-index:60;display:none;flex-direction:column;background:#0a0a2e;color:#fff;padding:env(safe-area-inset-top,0px) env(safe-area-inset-right,0px) env(safe-area-inset-bottom,0px) env(safe-area-inset-left,0px);-webkit-user-select:none;user-select:none;overscroll-behavior:contain}
@@ -2232,13 +2248,21 @@ function fcRDeck(box){const d=fcDeck(XFV.id);if(!d){XFV={m:"list"};return fcRend
     const ns=d.cards.filter(c=>c.k===0).length,nr=d.cards.filter(c=>c.star).length;
     if(ns||nr){const lr=fcE("div","fcnav");[[ns,"Masih belajar","still"],[nr,"Bintang","star"]].forEach(([n,t,m])=>{if(!n)return;const x=fcE("button","fclk");x.type="button";x.textContent=t+" ("+n+")";x.onclick=()=>fcStart(d,m);lr.appendChild(x)});box.appendChild(lr)}
     
-    d.cards.forEach(c=>{const r=fcE("div","fci glass","<b></b><span></span>");r.firstChild.textContent=c.f;r.lastChild.textContent=c.b;r.onclick=()=>fcEdit(d,c);box.appendChild(r)})}
+    d.cards.forEach(c=>{const r=fcE("div","fci glass","<div class='fcih'><div class='fcix'><b></b><span></span></div><button class='fcmo' type='button' aria-label='Menu kartu'><svg viewBox='0 0 24 24' width='20' height='20' fill='currentColor'><circle cx='12' cy='5' r='1.8'/><circle cx='12' cy='12' r='1.8'/><circle cx='12' cy='19' r='1.8'/></svg></button></div><div class='fcib'><div><div class='fcbk'></div></div></div><div class='fcmn' hidden><button type='button' class='me'>Edit</button><button type='button' class='md'>Hapus</button></div>");
+      r.querySelector("b").textContent=c.f;r.querySelector(".fcix span").textContent=c.b;r.querySelector(".fcbk").textContent=c.b;
+      const mn=r.querySelector(".fcmn");
+      r.onclick=e=>{if(e.target.closest(".fcmo,.fcmn"))return;if(!r.classList.toggle("open"))mn.hidden=true};
+      r.querySelector(".fcmo").onclick=e=>{e.stopPropagation();const was=mn.hidden;document.querySelectorAll(".fcmn").forEach(x=>x.hidden=true);mn.hidden=!was};
+      r.querySelector(".me").onclick=()=>{mn.hidden=true;fcEdit(d,c)};
+      r.querySelector(".md").onclick=async()=>{mn.hidden=true;if(!(await confirmX("Hapus kartu?","Kartu ini akan dihapus dari deck.","Hapus",true)))return;d.cards=d.cards.filter(x=>x!==c);fcTouch(d);fcRender()};
+      box.appendChild(r)})}
   else box.appendChild(fcE("div","fcinfo","Deck ini masih kosong."));
   const nv=fcE("div","fcnav"),lk=(t,fn)=>{const b=fcE("button","fclk");b.type="button";b.textContent=t;b.onclick=fn;nv.appendChild(b)};
   lk("+ Tambah kartu",()=>fcOpenM(d.id));
   lk("Ubah nama",async()=>{const t=await dlg({title:"Ubah nama deck",input:d.title,ok:"Simpan"});if(t===null)return;const x=t.trim().slice(0,60);if(!x)return;d.title=x;fcTouch(d);fcRender()});
   lk("Hapus deck",async()=>{if(!(await confirmX("Hapus deck?","\""+d.title+"\" dan semua kartunya akan dihapus.","Hapus",true)))return;d.del=true;d.cards=[];fcTouch(d);XFV={m:"list"};fcRender()});
   box.appendChild(nv)}
+document.addEventListener("click",()=>document.querySelectorAll(".fcmn:not([hidden])").forEach(m=>m.hidden=true));
 // ----- belajar geser kartu (gaya Quizlet): ringan, hanya transform dan opacity -----
 const XFS={sh:true,rv:false,sp:5};try{Object.assign(XFS,JSON.parse(localStorage.getItem("zc-fcs")||"{}"))}catch(e){}
 let XS=null;
