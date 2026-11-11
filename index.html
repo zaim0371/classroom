@@ -546,6 +546,20 @@ h1{animation:none!important;background-position:0 0}
 .scroll .glass,.opt,.srow,.pill{-webkit-backdrop-filter:none!important;backdrop-filter:none!important}
 @media (hover:none){.glass::before{display:none}}
 </style>
+<style id="icons">
+.tabbar button{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;padding:8px 0;font-size:12px;line-height:1.1}
+.tabbar button svg{display:block;flex:none}
+.mi{align-items:center}.mi>span{flex:1;min-width:0}
+.mic{flex:none;width:36px;height:36px;border-radius:12px;display:grid;place-items:center;background:var(--gl2);color:var(--tx)}.mic svg{color:inherit!important}
+.chip.ic{display:inline-flex;align-items:center;justify-content:center;gap:6px}.chip svg{flex:none}
+.fclk.ic{display:inline-flex;align-items:center;gap:6px}.fclk.ic svg{flex:none}
+.fcopt{flex-direction:row!important;align-items:center;gap:14px}
+.fcot{min-width:0;flex:1;display:flex;flex-direction:column;gap:3px}
+.fcot b{font-size:16.5px;font-weight:650;overflow:hidden;text-overflow:ellipsis}.fcot span{font-size:13px;color:var(--tx2)}
+.fcoi{flex:none;width:46px;height:46px;border-radius:15px;display:grid;place-items:center}
+.fcoi.fl{color:#4f7ff0;background:rgba(79,127,240,.15)}.fcoi.qz{color:#8a5cf0;background:rgba(138,92,240,.15)}.fcoi.dk{color:#2fae8c;background:rgba(61,220,151,.16)}
+.fab{display:flex;align-items:center;justify-content:center;gap:7px}.fab svg{flex:none}
+</style>
 </head>
 <body>
 <div class="orbs"><i class="orb o1"></i><i class="orb o2"></i><i class="orb o3"></i></div>
@@ -569,7 +583,7 @@ h1{animation:none!important;background-position:0 0}
       <div class="scroll" id="quiz"><div class="hero glass"><i class="hic"></i><b>Kuis</b><span>Ketik topik di atas, lalu tekan tombol panah.</span></div></div>
     </section>
     <section class="view" id="v2"><div class="scroll" id="cls">
-      <div class="q glass" id="cform"><h3>Jadwalkan kelas</h3><input id="cm" placeholder="Topik (mis. Dasar-dasar investasi)" maxlength="80" autocomplete="off"><div class="lb">Tanggal dan jam</div><div class="two"><input id="cdt" placeholder="besok, 12/11, 12 nov" autocomplete="off" maxlength="30"><input id="ctm" inputmode="numeric" placeholder="19.30" autocomplete="off" maxlength="5"></div><div class="lb">Durasi</div><input id="cdu" placeholder="30 (mis. 45, 1 jam, 1.5 jam)" autocomplete="off" maxlength="24"><div class="csum" id="csum"></div><div class="row"><button class="chip on" id="cadd" type="button">Jadwalkan</button></div><div class="note" id="cerr"></div></div>
+      <div class="q glass" id="cform"><h3>Jadwalkan kelas</h3><input id="cm" placeholder="Topik (mis. Dasar-dasar investasi)" maxlength="80" autocomplete="off"><div class="lb">Tanggal dan jam</div><div class="two"><input id="cdt" placeholder="besok, 12/11, 12 nov" autocomplete="off" maxlength="30"><input id="ctm" inputmode="numeric" placeholder="19.30" autocomplete="off" maxlength="5"></div><div class="lb">Durasi</div><input id="cdu" placeholder="30 (mis. 45, 1 jam, 1.5 jam)" autocomplete="off" maxlength="24"><div class="csum" id="csum"></div><div class="row"><button class="chip on ic" id="cadd" type="button"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4.5" width="18" height="17" rx="3"/><path d="M8 2.5v4M16 2.5v4M3 10h18M9 15.5l2 2 4-4"/></svg>Jadwalkan</button></div><div class="note" id="cerr"></div></div>
       <div id="clist" style="display:flex;flex-direction:column;gap:10px"></div>
     </div></section>
     <section class="view" id="v3">
@@ -577,10 +591,10 @@ h1{animation:none!important;background-position:0 0}
       <div class="scroll" id="fc"></div>
     </section>
   </main>
-  <nav class="tabbar glass"><i class="pill" id="pill"></i><button class="on" data-t="0">Chat</button><button data-t="2">Kelas</button><button data-t="3">Belajar</button></nav>
+  <nav class="tabbar glass"><i class="pill" id="pill"></i><button class="on" data-t="0"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 11.5a8.4 8.4 0 01-.9 3.8 8.5 8.5 0 01-7.6 4.7 8.4 8.4 0 01-3.8-.9L3 21l1.9-5.7a8.4 8.4 0 01-.9-3.8 8.5 8.5 0 014.7-7.6 8.4 8.4 0 013.8-.9h.5a8.5 8.5 0 018 8z"/></svg><span>Chat</span></button><button data-t="2"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4.5" width="18" height="17" rx="3"/><path d="M8 2.5v4M16 2.5v4M3 10h18"/></svg><span>Kelas</span></button><button data-t="3"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 19.5A2.5 2.5 0 016.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 014 19.5v-15A2.5 2.5 0 016.5 2z"/></svg><span>Belajar</span></button></nav>
 </div>
 <div class="modal" id="modal"><div class="glass card"><div class="shd"><button class="ib" id="sback" type="button" aria-label="Kembali" style="display:none"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 6l-6 6 6 6"/></svg></button><h2 id="stitle">Pengaturan</h2></div>
-<div id="smenu"><button class="mi" type="button" data-s="char"><span><b>Karakter AI</b><small id="mi-char"></small></span><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6l6 6-6 6"/></svg></button><button class="mi" type="button" data-s="key"><span><b>API key Gemini</b><small id="mi-key"></small></span><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6l6 6-6 6"/></svg></button><button class="mi" type="button" data-s="chat"><span><b>Obrolan</b><small id="mi-chat"></small></span><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6l6 6-6 6"/></svg></button><button class="mi" type="button" data-s="more"><span><b>Lainnya</b><small id="mi-more"></small></span><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6l6 6-6 6"/></svg></button></div>
+<div id="smenu"><button class="mi" type="button" data-s="char"><i class="mic"><svg viewBox="0 0 24 24" width="19" height="19" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3l1.8 5.2L19 10l-5.2 1.8L12 17l-1.8-5.2L5 10l5.2-1.8z"/><path d="M19 16l.8 2.2L22 19l-2.2.8L19 22l-.8-2.2L16 19l2.2-.8z"/></svg></i><span><b>Karakter AI</b><small id="mi-char"></small></span><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6l6 6-6 6"/></svg></button><button class="mi" type="button" data-s="key"><i class="mic"><svg viewBox="0 0 24 24" width="19" height="19" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="8" cy="15" r="4"/><path d="M11 12l9-9M16 7l3 3M14 9l2 2"/></svg></i><span><b>API key Gemini</b><small id="mi-key"></small></span><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6l6 6-6 6"/></svg></button><button class="mi" type="button" data-s="chat"><i class="mic"><svg viewBox="0 0 24 24" width="19" height="19" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 11.5a8.4 8.4 0 01-.9 3.8 8.5 8.5 0 01-7.6 4.7 8.4 8.4 0 01-3.8-.9L3 21l1.9-5.7a8.4 8.4 0 01-.9-3.8 8.5 8.5 0 014.7-7.6 8.4 8.4 0 013.8-.9h.5a8.5 8.5 0 018 8z"/></svg></i><span><b>Obrolan</b><small id="mi-chat"></small></span><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6l6 6-6 6"/></svg></button><button class="mi" type="button" data-s="more"><i class="mic"><svg viewBox="0 0 24 24" width="19" height="19" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 7h9M17 7h3M4 17h3M11 17h9"/><circle cx="15" cy="7" r="2"/><circle cx="9" cy="17" r="2"/></svg></i><span><b>Lainnya</b><small id="mi-more"></small></span><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6l6 6-6 6"/></svg></button></div>
 <div class="sp" data-s="char"><div class="sh">Karakter AI</div><div class="row wrap" id="pers"></div><div id="pdesc" style="font-size:12.5px;line-height:1.45;color:var(--tx2)"></div><div class="row" style="justify-content:flex-end;margin-top:10px"><button class="chip on" id="psave" type="button">Simpan karakter</button></div></div>
 <div class="sp" data-s="key"><div class="sh">API key Gemini</div><div class="srow"><span id="keytxt"></span><button class="chip" id="kchg" type="button">Ganti API key</button></div>
 <div id="kbox"><p style="margin:6px 0 10px">Ambil di aistudio.google.com/apikey</p><input id="kin" type="password" placeholder="AIza…" autocomplete="off"><div class="note" id="kerr"></div><div class="row"><button class="chip" id="kclear" type="button">Hapus key</button><button class="chip on" id="ksave" type="button">Simpan &amp; mulai</button></div></div></div>
@@ -1573,7 +1587,7 @@ function renderCls(){const l=$("clist");l.innerHTML="";UP=[];if(!CLOK){const n=d
   if(!CLS.length){l.innerHTML="<div class='hero glass'><i class='hic'></i><b>Kelas</b><span>Tentukan topik dan jam sesi. Saat waktunya tiba, tombol Mulai aktif.</span></div>";return}
   if(up.length){const h=document.createElement("div");h.className="sec";h.textContent="Akan datang";l.appendChild(h);
     up.forEach(c=>{const d=document.createElement("div");d.className="cc glass";
-      d.innerHTML="<b></b><div class='cm'></div><div class='cr'><span class='cd'></span><span style='display:flex;gap:6px;align-items:center'><button class='ib del' type='button' aria-label='Hapus'>"+IC_DEL+"</button><button class='chip on go' type='button'>Mulai</button></span></div>";
+      d.innerHTML="<b></b><div class='cm'></div><div class='cr'><span class='cd'></span><span style='display:flex;gap:6px;align-items:center'><button class='ib del' type='button' aria-label='Hapus'>"+IC_DEL+"</button><button class='chip on go ic' type='button'><svg viewBox='0 0 24 24' width='14' height='14' fill='currentColor'><path d='M8 5v14l11-7z'/></svg>Mulai</button></span></div>";
       d.querySelector("b").textContent=c.title;d.querySelector(".cm").textContent=fwhen(c.scheduled_at)+" · "+c.duration_min+" menit";
       const go=d.querySelector(".go");go.onclick=()=>startClass(c);
       d.querySelector(".ib").onclick=()=>delClass(c);
@@ -2231,6 +2245,8 @@ $("qgo").onclick=qGo;$("qtopic").addEventListener("keydown",e=>{if(e.key==="Ente
 
 
 // ---------- flashcard (simpel): kartu hafalan dengan pengulangan berjarak ----------
+const IC={book:'<path d="M4 19.5A2.5 2.5 0 016.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 014 19.5v-15A2.5 2.5 0 016.5 2z"/>',deck:'<rect x="3" y="6" width="15" height="12" rx="2.5"/><path d="M7 3h13a1.5 1.5 0 011.5 1.5V15"/>',quiz:'<circle cx="12" cy="12" r="9.5"/><path d="M9.2 9.3a2.9 2.9 0 015.6 1c0 1.9-2.8 2.4-2.8 4"/><path d="M12 17.6h.01"/>',ok:'<circle cx="12" cy="12" r="9.5"/><path d="M8 12.5l2.8 2.8L16 9.5"/>',again:'<path d="M20 12a8 8 0 11-2.6-5.9"/><path d="M20 4v4.5h-4.5"/>',star:'<path d="M12 3.5l2.6 5.3 5.9.9-4.2 4.1 1 5.8L12 17l-5.3 2.6 1-5.8L3.5 9.7l5.9-.9z"/>',plus:'<path d="M12 5v14M5 12h14"/>',edit:'<path d="M4 20h4L19 9a2.8 2.8 0 00-4-4L4 16z"/><path d="M13.5 6.5l4 4"/>',trash:'<path d="M4 7h16M10 11v6M14 11v6M6 7l1 13h10l1-13M9 7V4h6v3"/>',sliders:'<path d="M4 7h9M17 7h3M4 17h3M11 17h9"/><circle cx="15" cy="7" r="2"/><circle cx="9" cy="17" r="2"/>'};
+const ic=(k,s)=>'<svg viewBox="0 0 24 24" width="'+(s||18)+'" height="'+(s||18)+'" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">'+IC[k]+'</svg>';
 const XFCI=[0,1,3,7,14,30,60],XFDAY=864e5;
 const XFCK=()=>"zc-fc-"+(UID()||"dev");
 let XFD=[],XFV={m:"list"},XFPT=0,XFGEN=false,XFAT=null,XFQF=[],XFSY=0,XFEC=null;
@@ -2263,8 +2279,8 @@ function fcRender(){const box=$("fc"),m=XFV.m;box.innerHTML="";box.scrollTop=0;
   else if(m==="gen"){$("fct").textContent="Membuat kartu";if(XFV.box)box.appendChild(XFV.box)}}
 function fcRList(box){const ds=fcLive().sort((a,b)=>(b.updated||0)-(a.updated||0));
   if(!ds.length){box.innerHTML='<div class="hero glass"><i class="hic"></i><b>Belajar</b><span>Tekan tombol + untuk membuat materi dari topik, teks, atau file. Lalu belajar pakai flashcard atau kuis.</span></div>';return}
-  ds.forEach((d,i)=>{const c=fcE("div","q glass fcd","<b></b><span></span>");c.style.animationDelay=(i*70)+"ms";
-    c.firstChild.textContent=d.title;c.lastChild.textContent=d.cards.length+" kartu";
+  ds.forEach((d,i)=>{const c=fcE("div","q glass fcd fcopt","<i class=\"fcoi dk\">"+ic("book",22)+"</i><div class=\"fcot\"><b></b><span></span></div>");c.style.animationDelay=(i*70)+"ms";
+    c.querySelector("b").textContent=d.title;c.querySelector("span").textContent=d.cards.length+" kartu";
     c.onclick=()=>{XFV={m:"deck",id:d.id};fcRender()};box.appendChild(c)})}
 function fcQuiz(d){if(busy)return;if(!d.cards.length)return;if(!KEY){openSet();return}
   const mat=d.cards.map(c=>"Istilah/pertanyaan: "+c.f+"\nJawaban/penjelasan: "+c.b).join("\n\n");
@@ -2272,12 +2288,12 @@ function fcQuiz(d){if(busy)return;if(!d.cards.length)return;if(!KEY){openSet();r
 function fcRDeck(box){const d=fcDeck(XFV.id);if(!d){XFV={m:"list"};return fcRender()}
   $("fct").textContent=d.title;
   if(d.cards.length){const ns=d.cards.filter(c=>c.k===0).length,nk=d.cards.filter(c=>c.k===1).length,nr=d.cards.filter(c=>c.star).length;
-    const opt=(ti,su,fn)=>{const c=fcE("div","q glass fcd fcopt","<b></b><span></span>");c.firstChild.textContent=ti;c.lastChild.textContent=su;c.onclick=fn;box.appendChild(c);return c};
-    opt("Flashcard",d.cards.length+" kartu"+(nk?" · "+nk+" paham":""),()=>fcStart(d,"all"));
-    if(ns||nk||nr){const lr=fcE("div","fcnav fcmodes");[[ns,"Belajar yang belum paham","still"],[nk,"Ulangi yang sudah paham","know"],[nr,"Bintang","star"]].forEach(([n,tt,m])=>{if(!n)return;const x=fcE("button","chip");x.type="button";x.textContent=tt+" ("+n+")";x.onclick=()=>fcStart(d,m);lr.appendChild(x)});box.appendChild(lr)}
-    const qc=opt("Kuis",qsum(),()=>fcQuiz(d));
-    const qn=fcE("div","fcnav"),ql=fcE("button","fclk");ql.type="button";ql.textContent="Atur kuis";qn.appendChild(ql);box.appendChild(qn);
-    let qp=null;ql.onclick=()=>{if(qp){qp.remove();qp=null;return}qp=fcE("div","q glass");qp.appendChild(qoPanel(()=>{qc.lastChild.textContent=qsum()}));qn.after(qp)};
+    const opt=(ti,su,fn,k,tone)=>{const c=fcE("div","q glass fcd fcopt","<i class=\"fcoi "+tone+"\">"+ic(k,22)+"</i><div class=\"fcot\"><b></b><span></span></div>");c.querySelector("b").textContent=ti;c.querySelector("span").textContent=su;c.onclick=fn;box.appendChild(c);return c};
+    opt("Flashcard",d.cards.length+" kartu"+(nk?" · "+nk+" paham":""),()=>fcStart(d,"all"),"deck","fl");
+    if(ns||nk||nr){const lr=fcE("div","fcnav fcmodes");[[ns,"Belajar yang belum paham","still"],[nk,"Ulangi yang sudah paham","know"],[nr,"Bintang","star"]].forEach(([n,tt,m])=>{if(!n)return;const x=fcE("button","chip ic");x.type="button";const ik={still:["again","#e8863a"],know:["ok","#27b48c"],star:["star","#d9a21b"]}[m];x.innerHTML=ic(ik[0],16);x.firstChild.style.color=ik[1];x.appendChild(document.createTextNode(tt+" ("+n+")"));x.onclick=()=>fcStart(d,m);lr.appendChild(x)});box.appendChild(lr)}
+    const qc=opt("Kuis",qsum(),()=>fcQuiz(d),"quiz","qz");
+    const qn=fcE("div","fcnav"),ql=fcE("button","fclk ic");ql.type="button";ql.innerHTML=ic("sliders",15)+"Atur kuis";qn.appendChild(ql);box.appendChild(qn);
+    let qp=null;ql.onclick=()=>{if(qp){qp.remove();qp=null;return}qp=fcE("div","q glass");qp.appendChild(qoPanel(()=>{qc.querySelector("span").textContent=qsum()}));qn.after(qp)};
     box.appendChild(fcE("div","fcinfo","Semua kartu ("+d.cards.length+")"));
     
     d.cards.forEach(c=>{const r=fcE("div","fci glass","<div class='fcih'><div class='fcix'><b></b><span></span></div><button class='fcmo' type='button' aria-label='Menu kartu'><svg viewBox='0 0 24 24' width='20' height='20' fill='currentColor'><circle cx='12' cy='5' r='1.8'/><circle cx='12' cy='12' r='1.8'/><circle cx='12' cy='19' r='1.8'/></svg></button></div><div class='fcib'><div><div class='fcbk'></div></div></div><div class='fcmn' hidden><button type='button' class='me'>Edit</button><button type='button' class='md'>Hapus</button></div>");
@@ -2289,8 +2305,8 @@ function fcRDeck(box){const d=fcDeck(XFV.id);if(!d){XFV={m:"list"};return fcRend
       r.querySelector(".md").onclick=async()=>{mn.hidden=true;if(!(await confirmX("Hapus kartu?","Kartu ini akan dihapus dari deck.","Hapus",true)))return;d.cards=d.cards.filter(x=>x!==c);fcTouch(d);fcRender()};
       box.appendChild(r)})}
   else box.appendChild(fcE("div","fcinfo","Deck ini masih kosong."));
-  const nv=fcE("div","fcnav"),lk=(t,fn)=>{const b=fcE("button","fclk");b.type="button";b.textContent=t;b.onclick=fn;nv.appendChild(b)};
-  lk("+ Tambah kartu",()=>fcOpenM(d.id));
+  const nv=fcE("div","fcnav"),lk=(t,fn)=>{const b=fcE("button","fclk ic"),k={"Tambah kartu":"plus","Ubah nama":"edit","Hapus deck":"trash"}[t];b.type="button";b.innerHTML=(k?ic(k,15):"")+"<span></span>";b.querySelector("span").textContent=t;b.onclick=fn;nv.appendChild(b)};
+  lk("Tambah kartu",()=>fcOpenM(d.id));
   lk("Ubah nama",async()=>{const t=await dlg({title:"Ubah nama deck",input:d.title,ok:"Simpan"});if(t===null)return;const x=t.trim().slice(0,60);if(!x)return;d.title=x;fcTouch(d);fcRender()});
   lk("Hapus deck",async()=>{if(!(await confirmX("Hapus deck?","\""+d.title+"\" dan semua kartunya akan dihapus.","Hapus",true)))return;d.del=true;d.cards=[];fcTouch(d);XFV={m:"list"};fcRender()});
   box.appendChild(nv)}
@@ -2307,7 +2323,7 @@ function fcSpeak(tx){const sp=toSpeech(String(tx||"")).replace(/\s+/g," ").trim(
 function fcDirty(){const S=XS;if(!S)return;S.dirty=1;clearTimeout(S.sv);S.sv=setTimeout(fcFlush,900)}
 function fcFlush(){const S=XS;if(S&&S.dirty){S.dirty=0;fcTouch(S.d)}}
 function fcMk(){const e=fcE("div","fck");
-  e.innerHTML='<div class="fckb bk"></div><div class="fckb bs"></div><div class="fckin"><div class="fkf"><div class="fkt"></div></div><div class="fkf fkr"><div class="fkt"></div></div></div><div class="fkl lk">Paham</div><div class="fkl ls">Belum paham</div><button class="fki sp" type="button" aria-label="Dengar">'+FIC_SPK+'</button><button class="fki st" type="button" aria-label="Bintang">'+FIC_STR+'</button><div class="fka"><button class="fab no" type="button">Belum paham</button><button class="fab ok" type="button">Paham</button></div>';
+  e.innerHTML='<div class="fckb bk"></div><div class="fckb bs"></div><div class="fckin"><div class="fkf"><div class="fkt"></div></div><div class="fkf fkr"><div class="fkt"></div></div></div><div class="fkl lk">Paham</div><div class="fkl ls">Belum paham</div><button class="fki sp" type="button" aria-label="Dengar">'+FIC_SPK+'</button><button class="fki st" type="button" aria-label="Bintang">'+FIC_STR+'</button><div class="fka"><button class="fab no" type="button">'+ic("again",18)+'<span>Belum paham</span></button><button class="fab ok" type="button">'+ic("ok",18)+'<span>Paham</span></button></div>';
   const q=x=>e.querySelector(x),fs=e.querySelectorAll(".fkt");
   e._k={bk:q(".bk"),bs:q(".bs"),lk:q(".lk"),ls:q(".ls"),inn:q(".fckin"),f:fs[0],b:fs[1],sp:q(".sp"),st:q(".st")};
   const k=e._k;
