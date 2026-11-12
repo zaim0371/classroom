@@ -651,6 +651,18 @@ h1{animation:none!important;background-position:0 0}
 .bimk{padding:12px 13px;border-radius:14px;background:var(--gl);border:1px solid var(--bd);font-size:16px;line-height:1.6;word-break:break-word;white-space:pre-wrap}
 .bimk.mono{font-family:ui-monospace,Menlo,Consolas,monospace;font-size:19px;letter-spacing:.05em}
 .bimk .ok{color:var(--ok)}.bimk .no{color:var(--no);font-weight:800;text-decoration:underline}
+.pcard{position:relative;width:132px;height:188px;margin:10px auto;border-radius:14px;background:#fff;border:1px solid rgba(0,0,0,.18);box-shadow:0 8px 24px var(--sh);color:#1b1f2a;font-family:Georgia,"Times New Roman",serif;animation:pop .35s both}
+.pcard.red{color:#d2263a}
+.pcard .cn{position:absolute;font-size:22px;font-weight:700;line-height:1.1;text-align:center}
+.pcard .tl{top:8px;left:10px}.pcard .rb{bottom:8px;right:10px;transform:rotate(180deg)}
+.pcard .cm{position:absolute;inset:0;display:grid;place-items:center;font-size:66px}
+.pcard.sm{width:80px;height:114px;margin:0;border-radius:11px;animation:none}
+.pcard.sm .cn{font-size:15px}.pcard.sm .tl{top:6px;left:7px}.pcard.sm .rb{bottom:6px;right:7px}.pcard.sm .cm{font-size:40px}
+.bcgrid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:12px 0 4px}
+.bcopt{display:grid;place-items:center;padding:10px 0;border-radius:18px;border:2px solid transparent;background:var(--gl);cursor:pointer;-webkit-tap-highlight-color:transparent}
+.bcopt.ok{border-color:var(--ok);background:rgba(61,220,151,.15)}.bcopt.no{border-color:var(--no);background:rgba(240,90,90,.12)}
+.bcopt:disabled{cursor:default}
+.bcbar{height:8px;border-radius:9px;background:rgba(120,130,170,.28);overflow:hidden;margin-bottom:6px}.bcbar i{display:block;height:100%;width:100%;border-radius:9px;background:var(--ac)}
 .bmmeta{display:flex;gap:8px;margin:6px 0 2px}.bmmeta div{flex:1;text-align:center;padding:10px 6px;border-radius:14px;background:var(--gl);border:1px solid var(--bd)}.bmmeta b{display:block;font-size:17px}.bmmeta span{font-size:11.5px;color:var(--tx2);font-weight:600}
 </style>
 <style id="dd-style">
@@ -3003,8 +3015,8 @@ let S={type:"acak",topic:"",lvl:"sedang",st:{n:0,best:0,sum:0}};
 try{const o=JSON.parse(localStorage.getItem(K)||"null");if(o&&typeof o==="object")S={...S,...o,st:{...S.st,...(o.st||{})}}}catch(e){}
 const save=()=>{try{localStorage.setItem(K,JSON.stringify(S))}catch(e){}};
 let B={ph:"setup",gen:false,ac:null,kind:"teks",item:"",t:30,total:30,end:0,tm:0};
-const TYPES=[["acak","Acak"],["teks","Teks"],["angka","Angka"],["pola","Pola"]];
-const KL={teks:"Teks",angka:"Angka",pola:"Pola acak"};
+const TYPES=[["acak","Acak"],["teks","Teks"],["angka","Angka"],["pola","Pola"],["kartu","Kartu remi"]];
+const KL={teks:"Teks",angka:"Angka",pola:"Pola acak",kartu:"Kartu remi"};
 const LVLP={mudah:"Satu kalimat pendek (sekitar 8 sampai 12 kata), kata sehari-hari.",sedang:"Dua kalimat (sekitar 20 sampai 30 kata), ada beberapa nama atau angka.",sulit:"Satu paragraf pendek (sekitar 40 sampai 60 kata) dengan banyak nama, angka, dan detail yang mirip-mirip."};
 const rnd=n=>Math.floor(Math.random()*n);
 const fmt=t=>{t=Math.max(0,Math.ceil(t));return String(Math.floor(t/60)).padStart(2,"0")+":"+String(t%60).padStart(2,"0")};
@@ -3026,7 +3038,7 @@ function parseJ(raw){const t=String(raw==null?"":raw).replace(/```json|```/g,"")
 
 function setup(){
   stop();B.ph="setup";const st=S.st;
-  el.innerHTML='<div class="q glass"><h3>Tes ingatan</h3><p class="brp">Lihat teks, angka, atau pola acak. AI menentukan waktunya sesuai isi. Begitu waktu habis, ketik ulang dari ingatanmu.</p>'
+  el.innerHTML='<div class="q glass"><h3>Tes ingatan</h3><p class="brp">Lihat teks, angka, pola acak, atau kartu remi. AI menentukan waktunya sesuai isi. Setelah itu tulis ulang atau pilih jawabannya dari ingatanmu.</p>'
    +'<div class="lb">Jenis</div>'+chips("type",TYPES.map(t=>[t[0],t[1],S.type===t[0]]))
    +'<div class="lb">Tingkat</div>'+chips("lvl",[["mudah","Mudah",S.lvl==="mudah"],["sedang","Sedang",S.lvl==="sedang"],["sulit","Sulit",S.lvl==="sulit"]])
    +'<div id="bitw" style="display:'+(isTxt()?"block":"none")+'"><div class="lb">Topik teks (opsional)</div><input id="bit" placeholder="mis. hewan laut, sejarah" maxlength="80" autocomplete="off"></div>'
@@ -3055,6 +3067,20 @@ async function start(){
         }catch(e){err=e;if(ac.signal.aborted||(e&&[400,401,403,404].includes(e.status)))break;say("Mencoba lagi…")}
       }
       if(!ok){if(ac.signal.aborted)throw err||new Error("stop");throw err||new SyntaxError("bad")}
+    }else if(kind==="kartu"){
+      let n=NaN,ts=null;
+      try{
+        say("AI menyiapkan kartu…");
+        const p="Kamu penentu tingkat kesulitan tes ingatan kartu remi: kartu ditampilkan satu per satu lalu orang memilih kartu mana yang muncul tadi.\nTingkat: "+S.lvl+". Kode acak "+zSeed()+".\nHasilkan JSON saja: {\"n\":jumlah kartu,\"t\":[durasi tiap kartu dalam detik]}.\nAturan: n antara 3 dan 9 (makin sulit makin banyak). t berisi tepat n bilangan, masing-masing antara 1 dan 5 detik (makin sulit makin singkat, boleh bervariasi antar kartu).";
+        const d=parseJ(await gen([{role:"user",content:p}],{...opt,tmo:15000,temp:1}));
+        n=+d.n;ts=Array.isArray(d.t)?d.t.map(Number):null;
+      }catch(e){if(ac.signal.aborted)throw e}
+      if(ac.signal.aborted)throw new Error("stop");
+      const R={mudah:[3,5,5],sedang:[4,7,3.5],sulit:[6,9,2]}[S.lvl]||[4,7,3.5];
+      n=isFinite(n)&&n>0?Math.round(n):R[0]+rnd(R[1]-R[0]+1);
+      n=Math.max(R[0],Math.min(R[1],n));
+      const dur=[];for(let i=0;i<n;i++){const v=ts&&isFinite(ts[i])&&ts[i]>0?ts[i]:R[2];dur.push(Math.round(Math.max(1,Math.min(5,v))*2)/2)}
+      B.cards=zPick(deck(),n);B.dur=dur;B.kind="kartu";B.gen=false;B.ac=null;ready();return;
     }else{
       item=kind==="angka"?genNum(S.lvl):genPat(S.lvl);
       try{
@@ -3141,7 +3167,60 @@ function result(ans){
   el.scrollTo({top:0});
 }
 
+// ---------- kartu remi ----------
+const SU=["♠","♥","♦","♣"],RK=["A","2","3","4","5","6","7","8","9","10","J","Q","K"];
+const deck=()=>{const d=[];SU.forEach(s=>RK.forEach(r=>d.push({r,s})));return d};
+const same=(a,b)=>a.r===b.r&&a.s===b.s;
+const cTxt=c=>c.r+c.s;
+const cardHtml=(c,sz)=>'<div class="pcard '+(sz||"")+' '+(c.s==="♥"||c.s==="♦"?"red":"")+'" role="img" aria-label="'+esc(cTxt(c))+'"><div class="cn tl">'+c.r+'<br>'+c.s+'</div><div class="cm">'+c.s+'</div><div class="cn rb">'+c.r+'<br>'+c.s+'</div></div>';
+function ready(){
+  B.ph="ready";
+  el.innerHTML='<div class="q glass"><h3 class="brttl">Siap?</h3><p class="brp" style="text-align:center">'+B.cards.length+' kartu akan muncul satu per satu, tiap kartu paling lama 5 detik. Setelah itu pilih kartu mana yang muncul tadi.</p><div class="brbtns"><button type="button" class="chip" id="bicancel">Batal</button><button type="button" class="chip on" id="bcgo">Mulai</button></div></div>';
+}
+function showCard(){
+  const c=B.cards[B.ci],d=B.dur[B.ci],n=B.cards.length;
+  el.innerHTML='<div class="q glass"><div class="brprog"><span>Kartu '+(B.ci+1)+' dari '+n+'</span><span>'+d+' detik</span></div><div class="bcbar"><i id="bcbar"></i></div>'+cardHtml(c)+'<div class="brbtns"><button type="button" class="chip" id="bicancel">Batal</button></div></div>';
+  const bar=$("bcbar");
+  if(bar){bar.style.transition="none";bar.style.width="100%";requestAnimationFrame(()=>requestAnimationFrame(()=>{bar.style.transition="width "+d+"s linear";bar.style.width="0%"}))}
+  stop();B.tm=setTimeout(()=>{if(B.ci>=n-1){sfx("recv");cqStart()}else{B.ci++;showCard()}},d*1000);
+}
+function cqStart(){
+  const n=B.cards.length,all=deck(),rest=all.filter(c=>!B.cards.some(x=>same(x,c)));
+  const ask=zPick(B.cards,Math.min(5,n));
+  B.qs=ask.map(c=>{const o=zPick(rest,3).map(x=>({c:x,ok:false})).concat([{c,ok:true}]);return{c,o:zPick(o,4)}});
+  B.qi=0;B.sc=0;B.wr=[];cq();
+}
+function cq(){
+  B.ph="cq";B.lock=false;const q=B.qs[B.qi],n=B.qs.length;
+  el.innerHTML='<div class="q glass"><div class="brprog"><span>Soal '+(B.qi+1)+' dari '+n+'</span><span>Benar '+B.sc+'</span></div><div class="sc-bar" style="margin:0 0 12px"><i style="width:'+(B.qi/n*100)+'%"></i></div><h3 style="text-align:center">Kartu mana yang muncul tadi?</h3>'
+   +'<div class="bcgrid">'+q.o.map((o,i)=>'<button type="button" class="bcopt" data-i="'+i+'" aria-label="'+esc(cTxt(o.c))+'">'+cardHtml(o.c,"sm")+'</button>').join("")+'</div><div id="bcfb"></div></div>';
+  el.scrollTo({top:0});
+}
+function cAns(i){
+  if(B.lock)return;B.lock=true;
+  const q=B.qs[B.qi],bt=[...el.querySelectorAll(".bcopt")],ok=q.o[i].ok;
+  bt.forEach((b,k)=>{b.disabled=true;if(q.o[k].ok)b.classList.add("ok");else if(k===i)b.classList.add("no")});
+  if(ok)B.sc++;else B.wr.push({n:B.qi+1,mine:q.o[i].c,right:q.c});
+  sfx(ok?"ok":"no");
+  const last=B.qi>=B.qs.length-1;
+  $("bcfb").innerHTML='<div class="brbtns"><button type="button" class="chip on" id="bcnext">'+(last?"Lihat hasil":"Soal berikutnya")+'</button></div>';
+  const nb=$("bcnext");if(nb)setTimeout(()=>nb.scrollIntoView({behavior:"smooth",block:"nearest"}),150);
+}
+function cres(){
+  B.ph="res";const n=B.qs.length,pct=Math.round(B.sc/n*100);
+  S.st.n++;S.st.sum+=pct;S.st.best=Math.max(S.st.best,pct);save();
+  sfx(pct>=60?"win":"no");
+  const msg=pct===100?"Sempurna! Ingatanmu tajam.":pct>=70?"Bagus sekali.":pct>=40?"Lumayan. Coba lagi biar makin kuat.":"Belum nempel. Coba lagi dengan tingkat yang lebih santai.";
+  const red=c=>'<b style="color:'+(c.s==="♥"||c.s==="♦"?"#d2263a":"inherit")+'">'+esc(cTxt(c))+'</b>';
+  el.innerHTML='<div class="q glass"><h3 style="text-align:center">Hasil tes kartu</h3><div class="brbig">'+B.sc+'/'+n+'</div><div class="brmsg">'+pct+'% benar. '+msg+'</div>'
+   +'<div class="lb" style="margin-top:12px">Kartu yang muncul (berurutan)</div><div class="bimk" style="text-align:center;font-size:19px;letter-spacing:.04em">'+B.cards.map(red).join("  ")+'</div>'
+   +(B.wr.length?'<div class="lb" style="margin-top:12px">Yang masih salah</div>'+B.wr.map(w=>'<div class="brwr">Soal '+w.n+': jawabanmu '+red(w.mine)+', yang benar '+red(w.right)+'</div>').join(""):"")
+   +'<div class="brbtns"><button type="button" class="chip" id="binew">Ubah pengaturan</button><button type="button" class="chip on" id="biagain">Tes lagi</button></div></div>';
+  el.scrollTo({top:0});
+}
+
 el.addEventListener("click",e=>{
+  const op=e.target.closest(".bcopt");if(op&&el.contains(op)){cAns(+op.dataset.i);return}
   const c=e.target.closest(".chip");if(!c||!el.contains(c))return;
   const id=c.id,g=c.closest(".brchips");
   if(g){const k=g.dataset.k;S[k]=c.dataset.v;
@@ -3153,6 +3232,8 @@ el.addEventListener("click",e=>{
   else if(id==="bicancel"||id==="binew"){stop();setup()}
   else if(id==="bidone"){stop();sfx("recv");recall()}
   else if(id==="bicheck")check();
+  else if(id==="bcgo"){B.ci=0;B.ph="cards";showCard()}
+  else if(id==="bcnext"){if(B.qi>=B.qs.length-1)cres();else{B.qi++;cq()}}
 });
 setup();
 })();
